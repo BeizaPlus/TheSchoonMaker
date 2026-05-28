@@ -1,0 +1,559 @@
+{
+  "default": {
+    "clinical_tip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
+    "objective": "Identify and treat life threats within the time limit.",
+    "interventions": [
+      {
+        "id": "monitor",
+        "label": "Cardiac Monitor",
+        "correct_zone": "zone-monitor",
+        "why": "Continuous vitals.",
+        "guideline": "ACEP"
+      },
+      {
+        "id": "iv",
+        "label": "IV Access + Fluids",
+        "correct_zone": "zone-iv-bag",
+        "why": "Two large-bore if shock.",
+        "guideline": "ATLS"
+      },
+      {
+        "id": "labs",
+        "label": "Stat Labs",
+        "correct_zone": "zone-blood",
+        "why": "CBC, BMP, lactate.",
+        "guideline": "ACEP"
+      },
+      {
+        "id": "imaging",
+        "label": "Bedside / CT imaging",
+        "correct_zone": "zone-monitor",
+        "why": "Targeted imaging.",
+        "guideline": "ACEP"
+      },
+      {
+        "id": "admit",
+        "label": "Admit / Disposition",
+        "correct_zone": "zone-icu",
+        "why": "Match acuity.",
+        "guideline": "ACEP"
+      }
+    ]
+  },
+  "presentations": {
+    "Chest Pain": {
+      "clinical_tip": "Until proven otherwise, treat unstable chest pain as ACS.",
+      "objective": "Rule out life threats. ECG within 10 minutes.",
+      "interventions": [
+        {
+          "id": "ecg",
+          "label": "12-Lead ECG",
+          "correct_zone": "zone-monitor",
+          "why": "STEMI vs NSTEMI vs other — do not delay for labs.",
+          "guideline": "ACC/AHA"
+        },
+        {
+          "id": "aspirin",
+          "label": "Aspirin 324mg",
+          "correct_zone": "zone-arm",
+          "why": "Chewed unless allergy. Reduces mortality in ACS.",
+          "guideline": "ACC/AHA"
+        },
+        {
+          "id": "troponin",
+          "label": "Troponin + BMP",
+          "correct_zone": "zone-blood",
+          "why": "Baseline and trend. Risk-stratify with ECG.",
+          "guideline": "ACC/AHA"
+        },
+        {
+          "id": "heparin",
+          "label": "Heparin / Anticoag",
+          "correct_zone": "zone-iv-bag",
+          "why": "If ACS confirmed per protocol after ECG.",
+          "guideline": "ACC/AHA"
+        },
+        {
+          "id": "cxr",
+          "label": "Chest X-ray",
+          "correct_zone": "zone-monitor",
+          "why": "Screen for alternative causes like pneumothorax, pneumonia, widened mediastinum.",
+          "guideline": "ACR/ACC"
+        },
+        {
+          "id": "nitro",
+          "label": "Nitroglycerin if indicated",
+          "correct_zone": "zone-arm",
+          "why": "For ongoing ischemic chest pain if no hypotension/right-ventricular infarct concern.",
+          "guideline": "ACC/AHA"
+        },
+        {
+          "id": "cath",
+          "label": "Cath lab / Admit",
+          "correct_zone": "zone-icu",
+          "why": "STEMI → activate PCI. Unstable → monitored bed.",
+          "guideline": "ACC/AHA"
+        }
+      ]
+    },
+    "Altered Mental Status": {
+      "clinical_tip": "Fingerstick glucose before CT — hypoglycemia mimics stroke.",
+      "objective": "Stabilize ABCs. Identify reversible causes.",
+      "interventions": [
+        {
+          "id": "glucose",
+          "label": "Point-of-care Glucose",
+          "correct_zone": "zone-blood",
+          "why": "Hypoglycemia is immediately reversible.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "thiamine",
+          "label": "Thiamine IV",
+          "correct_zone": "zone-iv-bag",
+          "why": "Before dextrose in malnourished / alcoholic patients.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "ct",
+          "label": "CT Head non-contrast",
+          "correct_zone": "zone-monitor",
+          "why": "Rule out bleed before tPA or if trauma concern.",
+          "guideline": "AHA/ACEP"
+        },
+        {
+          "id": "physical-exam",
+          "label": "Focused Neurologic Exam",
+          "correct_zone": "zone-arm",
+          "why": "Rapid neuro exam helps localize deficits and guides immediate imaging urgency.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "cxr-ams",
+          "label": "Chest X-ray",
+          "correct_zone": "zone-monitor",
+          "why": "Helps identify aspiration or pulmonary source when infection is suspected.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "toxicology",
+          "label": "Toxicology Screen",
+          "correct_zone": "zone-blood",
+          "why": "Supports overdose/metabolic differential when presentation is unclear.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "labs",
+          "label": "BMP · CBC · UA · Tox",
+          "correct_zone": "zone-blood",
+          "why": "Infection, uremia, electrolytes, overdose.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "admit",
+          "label": "Monitor / ICU admit",
+          "correct_zone": "zone-icu",
+          "why": "Protect airway if GCS falling; continuous neuro checks.",
+          "guideline": "ACEP"
+        }
+      ]
+    },
+    "Pelvic Pain": {
+      "clinical_tip": "Positive pregnancy test changes everything — ectopic until proven otherwise.",
+      "objective": "Rule out ectopic, torsion, and rupture.",
+      "interventions": [
+        {
+          "id": "upt",
+          "label": "Pregnancy test (UPT)",
+          "correct_zone": "zone-blood",
+          "why": "Mandatory in reproductive-age patients.",
+          "guideline": "ACOG"
+        },
+        {
+          "id": "us",
+          "label": "Pelvic Ultrasound",
+          "correct_zone": "zone-monitor",
+          "why": "Ectopic, ovarian torsion, abscess.",
+          "guideline": "ACOG"
+        },
+        {
+          "id": "abdominal-exam",
+          "label": "Abdominal Exam",
+          "correct_zone": "zone-arm",
+          "why": "Targeted abdominal exam helps localize pain and peritoneal signs.",
+          "guideline": "ACOG"
+        },
+        {
+          "id": "pelvic-exam",
+          "label": "Pelvic Exam",
+          "correct_zone": "zone-arm",
+          "why": "Speculum/bimanual exam helps detect tenderness, discharge, or cervical motion pain.",
+          "guideline": "ACOG"
+        },
+        {
+          "id": "std-screen",
+          "label": "STD Screening",
+          "correct_zone": "zone-blood",
+          "why": "NAAT and related labs help identify infectious causes of pelvic pain.",
+          "guideline": "CDC/ACOG"
+        },
+        {
+          "id": "iv",
+          "label": "IV Access + Type & Screen",
+          "correct_zone": "zone-iv-bag",
+          "why": "Two large-bore if unstable or rupture concern.",
+          "guideline": "ACOG"
+        },
+        {
+          "id": "ob",
+          "label": "OB/GYN Consult",
+          "correct_zone": "zone-arm",
+          "why": "Surgical emergency if ruptured ectopic.",
+          "guideline": "ACOG"
+        },
+        {
+          "id": "or",
+          "label": "OR / ICU if unstable",
+          "correct_zone": "zone-icu",
+          "why": "Unstable ectopic → surgery, not methotrexate.",
+          "guideline": "ACOG"
+        }
+      ]
+    },
+    "Abdominal Pain": {
+      "clinical_tip": "Elderly and immunocompromised may have minimal exam findings until rupture.",
+      "objective": "Resuscitate, image, involve surgery early if indicated.",
+      "interventions": [
+        {
+          "id": "iv",
+          "label": "IV Fluids + NPO",
+          "correct_zone": "zone-iv-bag",
+          "why": "Resuscitate before imaging if hypotensive.",
+          "guideline": "ACS"
+        },
+        {
+          "id": "labs",
+          "label": "CBC · Lipase · LFTs · UA",
+          "correct_zone": "zone-blood",
+          "why": "Narrow differential: biliary, pancreatic, UTI, medical.",
+          "guideline": "ACS"
+        },
+        {
+          "id": "ct",
+          "label": "CT Abdomen/Pelvis",
+          "correct_zone": "zone-monitor",
+          "why": "High yield for appendicitis, diverticulitis, obstruction.",
+          "guideline": "ACR"
+        },
+        {
+          "id": "surg",
+          "label": "Surgery Consult",
+          "correct_zone": "zone-arm",
+          "why": "Perforation, appendicitis, mesenteric ischemia.",
+          "guideline": "EAST"
+        },
+        {
+          "id": "abx",
+          "label": "Antibiotics if indicated",
+          "correct_zone": "zone-iv-bag",
+          "why": "Give before OR if sepsis or perforation suspected.",
+          "guideline": "IDSA"
+        }
+      ]
+    },
+    "Headache": {
+      "clinical_tip": "Thunderclap headache = SAH workup. Do not send home without considering red flags.",
+      "objective": "Rule out SAH, meningitis, mass, and hypertensive emergency.",
+      "interventions": [
+        {
+          "id": "ct",
+          "label": "CT Head",
+          "correct_zone": "zone-monitor",
+          "why": "Non-contrast first for thunderclap or neuro deficit.",
+          "guideline": "AHA"
+        },
+        {
+          "id": "lp",
+          "label": "LP if CT negative",
+          "correct_zone": "zone-blood",
+          "why": "Xanthochromia / cell count for SAH.",
+          "guideline": "AHA"
+        },
+        {
+          "id": "bp",
+          "label": "BP Management",
+          "correct_zone": "zone-arm",
+          "why": "Treat only if hypertensive emergency criteria met.",
+          "guideline": "AHA"
+        },
+        {
+          "id": "mri",
+          "label": "MRI / MRA if indicated",
+          "correct_zone": "zone-monitor",
+          "why": "Venous sinus thrombosis, posterior fossa lesions.",
+          "guideline": "AHA"
+        },
+        {
+          "id": "admit",
+          "label": "Observation / Neuro",
+          "correct_zone": "zone-icu",
+          "why": "Worst headache of life → admit until SAH excluded.",
+          "guideline": "ACEP"
+        }
+      ]
+    },
+    "Rash and Lethargy": {
+      "clinical_tip": "Petechiae + fever in a sick patient — treat empirically for meningococcemia.",
+      "objective": "Recognize toxic rash syndromes. Resuscitate and cover infection.",
+      "interventions": [
+        {
+          "id": "abx",
+          "label": "Empiric Antibiotics IV",
+          "correct_zone": "zone-iv-bag",
+          "why": "Do not delay for LP if unstable or petechial rash.",
+          "guideline": "IDSA"
+        },
+        {
+          "id": "fluids",
+          "label": "IV Fluid Bolus",
+          "correct_zone": "zone-iv-bag",
+          "why": "Septic shock physiology common in toxic presentations.",
+          "guideline": "SSC"
+        },
+        {
+          "id": "cultures",
+          "label": "Blood Cultures",
+          "correct_zone": "zone-blood",
+          "why": "Before antibiotics when possible — not if delaying care.",
+          "guideline": "IDSA"
+        },
+        {
+          "id": "icu",
+          "label": "ICU / Isolation",
+          "correct_zone": "zone-icu",
+          "why": "Droplet precautions for meningococcal concern.",
+          "guideline": "CDC"
+        },
+        {
+          "id": "derm",
+          "label": "Dermatology / ID consult",
+          "correct_zone": "zone-arm",
+          "why": "Toxic epidermal necrolysis, meningococcemia, vasculitis.",
+          "guideline": "IDSA"
+        }
+      ]
+    },
+    "Generalized Weakness": {
+      "clinical_tip": "Weakness + hyperreflexia vs hyporeflexia localizes — think electrolytes and cord.",
+      "objective": "Differentiate metabolic, neurologic, and toxic causes.",
+      "interventions": [
+        {
+          "id": "glucose",
+          "label": "Glucose · BMP",
+          "correct_zone": "zone-blood",
+          "why": "Hypo/hyperkalemia, hypercalcemia, hypoglycemia.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "ekg",
+          "label": "ECG + Monitor",
+          "correct_zone": "zone-monitor",
+          "why": "HyperK causes weakness and arrhythmia.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "mri",
+          "label": "MRI Spine if cord signs",
+          "correct_zone": "zone-monitor",
+          "why": "Cord compression is a surgical emergency.",
+          "guideline": "AAN"
+        },
+        {
+          "id": "tox",
+          "label": "Tox screen if indicated",
+          "correct_zone": "zone-blood",
+          "why": "Botulism, organophosphates, sedatives.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "admit",
+          "label": "Admit / Neuro consult",
+          "correct_zone": "zone-icu",
+          "why": "Progressive weakness or respiratory concern → ICU.",
+          "guideline": "ACEP"
+        }
+      ]
+    },
+    "Burning During Urination": {
+      "clinical_tip": "Complicated UTI in men, pregnancy, or fever → admit and image.",
+      "objective": "Treat infection; rule out pyelonephritis and STI.",
+      "interventions": [
+        {
+          "id": "ua",
+          "label": "Urinalysis + Culture",
+          "correct_zone": "zone-blood",
+          "why": "Culture guides therapy; send before antibiotics if stable.",
+          "guideline": "IDSA"
+        },
+        {
+          "id": "abx",
+          "label": "Empiric Antibiotics",
+          "correct_zone": "zone-iv-bag",
+          "why": "Cover E. coli; adjust for local resistance.",
+          "guideline": "IDSA"
+        },
+        {
+          "id": "fluids",
+          "label": "IV Fluids if febrile",
+          "correct_zone": "zone-iv-bag",
+          "why": "Pyelonephritis and sepsis need volume.",
+          "guideline": "IDSA"
+        },
+        {
+          "id": "ct",
+          "label": "CT if complicated",
+          "correct_zone": "zone-monitor",
+          "why": "Abscess, obstruction, emphysematous pyelonephritis.",
+          "guideline": "AUA"
+        },
+        {
+          "id": "urology",
+          "label": "Urology / Admit",
+          "correct_zone": "zone-icu",
+          "why": "Male with fever, obstruction, or sepsis.",
+          "guideline": "IDSA"
+        }
+      ]
+    },
+    "Shortness of Breath": {
+      "clinical_tip": "ABG or pulse ox + ECG + CXR in the first minutes.",
+      "objective": "Stabilize hypoxia. Differentiate pulmonary vs cardiac vs metabolic.",
+      "interventions": [
+        {
+          "id": "o2",
+          "label": "Oxygen / BIPAP",
+          "correct_zone": "zone-monitor",
+          "why": "Target SpO₂ per protocol; prepare intubation if tiring.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "cxr",
+          "label": "CXR + ECG",
+          "correct_zone": "zone-monitor",
+          "why": "PE, pneumothorax, CHF, pneumonia patterns.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "d-dimer",
+          "label": "BNP · D-dimer · ABG",
+          "correct_zone": "zone-blood",
+          "why": "PE workup, CHF, CO₂ retention in COPD.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "ctpa",
+          "label": "CT Pulmonary Angiography",
+          "correct_zone": "zone-monitor",
+          "why": "If PE suspected and pre-test probability warrants.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "admit",
+          "label": "ICU if unstable",
+          "correct_zone": "zone-icu",
+          "why": "BiPAP failure, shock, or rising work of breathing.",
+          "guideline": "ACEP"
+        }
+      ]
+    },
+    "Sepsis": {
+      "clinical_tip": "Cultures before antibiotics. Fluids before pressors.",
+      "objective": "Complete the Hour-1 sepsis bundle.",
+      "algorithm": {
+        "title": "Surviving Sepsis — Hour-1 Bundle",
+        "steps": [
+          {
+            "order": 1,
+            "label": "Blood cultures ×2",
+            "interventionId": "blood-cultures",
+            "zone": "zone-blood",
+            "zoneLabel": "Blood draw",
+            "mapNode": "lab"
+          },
+          {
+            "order": 2,
+            "label": "30 mL/kg crystalloid",
+            "interventionId": "iv-fluids",
+            "zone": "zone-iv-bag",
+            "zoneLabel": "IV fluids",
+            "mapNode": "pharmacy"
+          },
+          {
+            "order": 3,
+            "label": "Broad-spectrum abx",
+            "interventionId": "antibiotics",
+            "zone": "zone-arm",
+            "zoneLabel": "IV / meds",
+            "mapNode": "meds"
+          },
+          {
+            "order": 4,
+            "label": "Lactate level",
+            "interventionId": "lactate",
+            "zone": "zone-blood",
+            "zoneLabel": "Blood draw",
+            "mapNode": "lab"
+          },
+          {
+            "order": 5,
+            "label": "ICU admission",
+            "interventionId": "icu-admit",
+            "zone": "zone-icu",
+            "zoneLabel": "ICU",
+            "mapNode": "icu"
+          }
+        ]
+      },
+      "interventions": [
+        {
+          "id": "blood-cultures",
+          "label": "Blood Cultures x2",
+          "correct_zone": "zone-blood",
+          "why": "Two sets before antibiotics.",
+          "guideline": "SSC 2021"
+        },
+        {
+          "id": "iv-fluids",
+          "label": "30 mL/kg Crystalloid",
+          "correct_zone": "zone-iv-bag",
+          "why": "Resuscitation in septic shock.",
+          "guideline": "SSC 2021"
+        },
+        {
+          "id": "antibiotics",
+          "label": "Vanc + Pip-Tazo",
+          "correct_zone": "zone-arm",
+          "why": "Broad spectrum within 1 hour.",
+          "guideline": "SSC 2021"
+        },
+        {
+          "id": "lactate",
+          "label": "Lactate Level",
+          "correct_zone": "zone-blood",
+          "why": "Lactate guides resuscitation.",
+          "guideline": "SSC 2021"
+        },
+        {
+          "id": "icu-admit",
+          "label": "ICU Admission",
+          "correct_zone": "zone-icu",
+          "why": "ICU for shock and monitoring.",
+          "guideline": "SSC 2021"
+        }
+      ]
+    }
+  },
+  "casePlaybooks": {
+    "_comment": "Map CCS case id → presentation key. Example: \"023\": \"Sepsis\""
+  }
+}

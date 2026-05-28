@@ -1,0 +1,86 @@
+{
+  "mapImage": "/maps/ed-floor-plan.png",
+  "patientStart": "triage",
+  "playNode": "resus",
+  "defaultDisposition": "icu",
+  "dispositionNodeIds": ["icu", "ward", "obs", "transfer"],
+  "nodes": {
+    "triage": {
+      "cx": 0.22,
+      "cy": 0.38,
+      "label": "Triage",
+      "hint": "Primary survey — ABCDE, IV access, monitor."
+    },
+    "resus": {
+      "cx": 0.34,
+      "cy": 0.48,
+      "label": "Resus bay",
+      "hint": "Active resuscitation. Drag dot-phrases onto the patient.",
+      "isPlay": true
+    },
+    "imaging": {
+      "cx": 0.52,
+      "cy": 0.22,
+      "label": "Imaging / monitor",
+      "hint": "ECG, CXR, CT as indicated.",
+      "zoneKey": "zone-monitor"
+    },
+    "pharmacy": {
+      "cx": 0.72,
+      "cy": 0.28,
+      "label": "Meds / IV",
+      "hint": "Fluids and IV medications.",
+      "zoneKey": "zone-iv-bag"
+    },
+    "lab": {
+      "cx": 0.38,
+      "cy": 0.62,
+      "label": "Lab / blood draw",
+      "hint": "Cultures and labs before antibiotics when possible.",
+      "zoneKey": "zone-blood"
+    },
+    "meds": {
+      "cx": 0.58,
+      "cy": 0.55,
+      "label": "Bedside meds",
+      "hint": "IV access, antibiotics, procedures at the bedside.",
+      "zoneKey": "zone-arm"
+    },
+    "icu": {
+      "cx": 0.4,
+      "cy": 0.86,
+      "label": "ICU",
+      "shortLabel": "ICU",
+      "hint": "Critical care — shock, vent, vasopressors, close monitoring.",
+      "zoneKey": "zone-icu",
+      "isDisposition": true
+    },
+    "ward": {
+      "cx": 0.52,
+      "cy": 0.88,
+      "label": "Inpatient ward",
+      "shortLabel": "WARD",
+      "hint": "Stable enough for floor — telemetry or routine nursing.",
+      "zoneKey": "zone-icu",
+      "isDisposition": true
+    },
+    "obs": {
+      "cx": 0.64,
+      "cy": 0.84,
+      "label": "Observation",
+      "shortLabel": "OBS",
+      "hint": "Short-stay unit — rule out, serial exams, repeat labs.",
+      "zoneKey": "zone-icu",
+      "isDisposition": true
+    },
+    "transfer": {
+      "cx": 0.76,
+      "cy": 0.86,
+      "label": "Transfer out",
+      "shortLabel": "OUT",
+      "hint": "Higher level of care elsewhere — STEMI center, trauma, pediatrics.",
+      "zoneKey": "zone-icu",
+      "isDisposition": true
+    }
+  }
+}

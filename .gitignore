@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.scene-cache/
+.magic-links/
+captures/
+.env
