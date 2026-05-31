@@ -5,13 +5,20 @@ import path from 'path';
 import fs from 'fs';
 import fsp from 'fs/promises';
 import crypto from 'crypto';
+import { spawn } from 'child_process';
 import nodemailer from 'nodemailer';
 import { fileURLToPath } from 'url';
+import {
+  buildOrLoadManifest,
+  countReadyChunks,
+  manifestToPlaylist,
+  readManifest,
+  syncManifestWithDisk,
+} from './caseTtsCache.js';
 import {
   appendChatHistory,
   appendTimelineEvent,
   endCaseSession,
-  ensureUserDirs,
   getOverallStats,
   readCaseUser,
   saveRecording,
@@ -19,26 +26,42 @@ import {
 } from './userCaseStore.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.join(__dirname, '../.env'), override: true });
+const GAME_ROOT = path.join(__dirname, '..');
+const REPO_ROOT = path.join(__dirname, '../..');
+const PORT = Number(process.env.SPORTMAKER_API_PORT || 3001);
+dotenv.config({ path: path.join(GAME_ROOT, '.env') });
+dotenv.config({ path: path.join(REPO_ROOT, '.env') });
 
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: '12mb' }));
 
-const SCENE_CACHE_DIR = path.join(__dirname, '../../.scene-cache');
+const SCENE_CACHE_DIR = path.join(GAME_ROOT, '.scene-cache');
 if (!fs.existsSync(SCENE_CACHE_DIR)) {
   fs.mkdirSync(SCENE_CACHE_DIR, { recursive: true });
 }
 app.use('/scene-cache', express.static(SCENE_CACHE_DIR));
 
-const CAPTURES_DIR = path.join(__dirname, '../../captures');
+const CAPTURES_DIR = path.join(GAME_ROOT, 'captures');
 if (!fs.existsSync(CAPTURES_DIR)) {
   fs.mkdirSync(CAPTURES_DIR, { recursive: true });
 }
-const MAGIC_DIR = path.join(__dirname, '../../.magic-links');
+const MAGIC_DIR = path.join(GAME_ROOT, '.magic-links');
 if (!fs.existsSync(MAGIC_DIR)) {
   fs.mkdirSync(MAGIC_DIR, { recursive: true });
 }
+
+const CASE_TTS_DIR = path.join(GAME_ROOT, '.case-tts-cache');
+if (!fs.existsSync(CASE_TTS_DIR)) {
+  fs.mkdirSync(CASE_TTS_DIR, { recursive: true });
+}
+app.use('/case-tts', express.static(CASE_TTS_DIR));
+
+const CHATTERBOX_ROOT = process.env.CHATTERBOX_ROOT || path.join(process.env.USERPROFILE || process.env.HOME || '', 'chatterbox');
+const CHATTERBOX_PYTHON =
+  process.env.CHATTERBOX_PYTHON ||
+  path.join(CHATTERBOX_ROOT, '.venv', 'Scripts', 'python.exe');
+const READ_CASE_SCRIPT = path.join(GAME_ROOT, 'tools', 'chatterbox', 'read_case_tts.py');
 
 function createMailer() {
   const host = process.env.SMTP_HOST;
@@ -141,94 +164,117 @@ async function callCaseChatCompletion(key, messages) {
   return data.choices?.[0]?.message?.content?.trim() || 'No response.';
 }
 
-async function analyzePatientFromCase(key, imageBase64, mimeType, caseContext) {
-  const caseSummary = {
-    id: caseContext?.id,
-    title: caseContext?.title,
-    category: caseContext?.category,
-    chief_complaint: caseContext?.chief_complaint,
-    historyText: caseContext?.historyText,
-    vitalsText: caseContext?.vitalsText,
-    patientSex: caseContext?.patientSex,
-    exam: caseContext?.exam,
-    vitals: caseContext?.vitals,
-    clinical_tip: caseContext?.clinical_tip,
-  };
+const FAL_SCENE_MODEL = process.env.FAL_SCENE_MODEL || 'fal-ai/joyai-image-edit';
 
-  const r = await fetch('https://api.openai.com/v1/chat/completions', {
+function sceneImageProvider() {
+  const pref = String(process.env.SCENE_IMAGE_PROVIDER || 'auto').toLowerCase();
+  if (pref === 'openai') return 'openai';
+  if (pref === 'fal') return process.env.FAL_KEY ? 'fal' : 'openai';
+  if (process.env.FAL_KEY) return 'fal';
+  return process.env.OPENAI_API_KEY ? 'openai' : null;
+}
+
+async function downloadImageAsBase64(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`Failed to download fal image (${r.status})`);
+  const buf = Buffer.from(await r.arrayBuffer());
+  return buf.toString('base64');
+}
+
+function extractFalImageUrl(payload) {
+  if (!payload || typeof payload !== 'object') return null;
+  const images = payload.images || payload.image || payload.output?.images;
+  if (Array.isArray(images) && images[0]?.url) return images[0].url;
+  if (typeof payload.url === 'string') return payload.url;
+  if (typeof payload.image?.url === 'string') return payload.image.url;
+  return null;
+}
+
+async function generateSceneWithFal({ imageBase64, mimeType, prompt }) {
+  const key = process.env.FAL_KEY;
+  if (!key) throw new Error('FAL_KEY not configured');
+
+  const r = await fetch(`https://fal.run/${FAL_SCENE_MODEL}`, {
     method: 'POST',
     headers: {
+      Authorization: `Key ${key}`,
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${key}`,
     },
     body: JSON.stringify({
-      model: CHAT_MODEL,
-      max_tokens: 900,
-      temperature: 0.2,
-      messages: [{
-        role: 'user',
-        content: [
-          {
-            type: 'text',
-            text: `Analyze this hospital patient reference image together with the emergency medicine case below.
-Return ONLY valid JSON (no markdown) with keys:
-- pose: bed pose, camera angle, limb positions that must stay fixed
-- equipmentLayout: where monitor, IV, blood, arm, ICU zones appear in frame
-- patientAppearance: age, sex, build, distress, skin findings, clothing from CASE TEXT ONLY
-- clinicalContext: one sentence chief issue from the case
-- editInstructions: 2-3 sentences for an image editor — what to change in the patient while preserving exact pose and layout
-
-CASE:
-${JSON.stringify(caseSummary, null, 2)}`,
-          },
-          {
-            type: 'image_url',
-            image_url: { url: `data:${mimeType};base64,${imageBase64}` },
-          },
-        ],
-      }],
+      prompt,
+      image_url: `data:${mimeType};base64,${imageBase64}`,
     }),
+  });
+
+  if (!r.ok) {
+    const err = await r.text();
+    throw new Error(`fal scene failed: ${err || r.status}`);
+  }
+
+  const data = await r.json();
+  const imageUrl = extractFalImageUrl(data);
+  if (!imageUrl) throw new Error('No image returned from fal');
+  return downloadImageAsBase64(imageUrl);
+}
+
+async function generateSceneWithOpenAI({ imageBase64, mimeType, prompt }) {
+  const key = process.env.OPENAI_API_KEY;
+  if (!key) throw new Error('OPENAI_API_KEY not configured');
+
+  const form = new FormData();
+  form.append('model', 'gpt-image-1');
+  form.append('prompt', prompt);
+  form.append('size', '1024x1024');
+  form.append('response_format', 'b64_json');
+  form.append('image', new Blob([Buffer.from(imageBase64, 'base64')], { type: mimeType }), 'patient.png');
+
+  const r = await fetch('https://api.openai.com/v1/images/edits', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${key}` },
+    body: form,
   });
   if (!r.ok) {
     const err = await r.text();
-    throw new Error(err || `Vision analysis failed ${r.status}`);
+    throw new Error(`OpenAI edit failed: ${err || r.status}`);
   }
   const data = await r.json();
-  const text = data.choices?.[0]?.message?.content || '';
-  const clean = text.replace(/```json|```/g, '').trim();
-  return JSON.parse(clean);
+  const outB64 = data?.data?.[0]?.b64_json;
+  if (!outB64) throw new Error('No image returned from OpenAI');
+  return outB64;
 }
 
-function buildRegeneratePatientPrompt(analysis, caseContext) {
-  return `Reconstruct this photorealistic ER hospital patient training scene to match the clinical case presentation.
-
-CRITICAL CONSTRAINTS — preserve from the reference image:
-- Exact same patient pose, bed angle, and camera framing
-- Same compositional layout for monitor, IV lines, blood products, and arm access zones
-- Photorealistic emergency department resuscitation bay — no cartoon style, no text, no watermark, no extra people
-
-PATIENT TO DEPICT (from case presentation):
-${analysis?.patientAppearance || caseContext?.historyText || caseContext?.chief_complaint || 'Match case demographics'}
-
-CLINICAL CONTEXT:
-${analysis?.clinicalContext || caseContext?.chief_complaint || caseContext?.title || ''}
-
-POSE (do not change):
-${analysis?.pose || 'Supine in hospital bed, same angle as reference'}
-
-EQUIPMENT LAYOUT (keep zones aligned):
-${analysis?.equipmentLayout || 'Standard ER bedside equipment placement'}
-
-EDITOR NOTES:
-${analysis?.editInstructions || 'Adapt patient appearance to match the case while keeping pose identical.'}`;
+async function generateSceneImage({ imageBase64, mimeType, prompt }) {
+  const provider = sceneImageProvider();
+  if (!provider) throw new Error('Add FAL_KEY or OPENAI_API_KEY to ER doc/.env');
+  if (provider === 'fal') {
+    try {
+      return { outB64: await generateSceneWithFal({ imageBase64, mimeType, prompt }), provider: 'fal' };
+    } catch (falErr) {
+      if (!process.env.OPENAI_API_KEY) throw falErr;
+      console.warn('[generate-scene] fal failed, falling back to OpenAI:', falErr.message);
+    }
+  }
+  return {
+    outB64: await generateSceneWithOpenAI({ imageBase64, mimeType, prompt }),
+    provider: 'openai',
+  };
 }
-
-ensureUserDirs();
-const USER_DATA_DIR = path.join(__dirname, '../user-data');
-app.use('/user-data', express.static(USER_DATA_DIR));
 
 app.get('/api/health', (_req, res) => {
-  res.json({ ok: true, openai: Boolean(process.env.OPENAI_API_KEY) });
+  const scriptReady = fs.existsSync(READ_CASE_SCRIPT);
+  const pythonReady = fs.existsSync(CHATTERBOX_PYTHON);
+  res.json({
+    ok: true,
+    openai: Boolean(process.env.OPENAI_API_KEY),
+    fal: Boolean(process.env.FAL_KEY),
+    sceneProvider: sceneImageProvider(),
+    falSceneModel: FAL_SCENE_MODEL,
+    chatterbox: pythonReady && scriptReady,
+    chatterboxPython: CHATTERBOX_PYTHON,
+    readCaseScript: READ_CASE_SCRIPT,
+    readCaseScriptFound: scriptReady,
+    gameRoot: GAME_ROOT,
+  });
 });
 
 app.get('/api/user/stats', async (_req, res) => {
@@ -372,6 +418,197 @@ app.post('/api/case-chat/message', async (req, res) => {
   }
 });
 
+function runReadCaseTts({ cacheDir, voiceRef }) {
+  return new Promise((resolve, reject) => {
+    const args = [READ_CASE_SCRIPT, '--cache-dir', cacheDir];
+    if (voiceRef) {
+      args.push('--voice-ref', voiceRef);
+    }
+    const child = spawn(CHATTERBOX_PYTHON, args, {
+      cwd: path.dirname(READ_CASE_SCRIPT),
+      env: {
+        ...process.env,
+        CHATTERBOX_ROOT,
+        PYTHONUNBUFFERED: '1',
+      },
+      windowsHide: true,
+    });
+    let stderr = '';
+    child.stderr.on('data', (d) => {
+      stderr += String(d);
+    });
+    child.on('error', (err) => reject(err));
+    child.on('close', (code) => {
+      if (code === 0) resolve(stderr);
+      else reject(new Error(stderr.trim() || `Chatterbox exited ${code}`));
+    });
+  });
+}
+
+app.post('/api/read-case', async (req, res) => {
+  const { caseId = '', section = 'hpi', text = '' } = req.body || {};
+  const trimmed = String(text).trim();
+  if (!trimmed) {
+    return res.status(400).json({ error: 'Missing text' });
+  }
+  if (!fs.existsSync(CHATTERBOX_PYTHON)) {
+    return res.status(503).json({
+      error: `Chatterbox Python not found at ${CHATTERBOX_PYTHON}. Set CHATTERBOX_PYTHON in .env`,
+    });
+  }
+  if (!fs.existsSync(READ_CASE_SCRIPT)) {
+    return res.status(503).json({ error: 'Missing tools/chatterbox/read_case_tts.py' });
+  }
+
+  const voiceRef = process.env.CHATTERBOX_VOICE_REF || '';
+  const apiOrigin = `http://127.0.0.1:${PORT}`;
+
+  try {
+    const { manifest, layout } = await buildOrLoadManifest({
+      cacheRoot: CASE_TTS_DIR,
+      caseId,
+      section,
+      text: trimmed.slice(0, 12000),
+      voiceRef,
+    });
+    syncManifestWithDisk(manifest, layout.chunksDir);
+
+    const readyBefore = countReadyChunks(manifest, layout.chunksDir);
+    const total = manifest.chunks.length;
+    const needsGeneration = readyBefore < total;
+
+    if (needsGeneration) {
+      await runReadCaseTts({ cacheDir: layout.base, voiceRef });
+      const updated = await readManifest(layout.manifestPath);
+      if (updated) Object.assign(manifest, updated);
+      syncManifestWithDisk(manifest, layout.chunksDir);
+    }
+
+    const playlist = manifestToPlaylist(manifest, apiOrigin);
+
+    return res.json({
+      playlist,
+      cached: readyBefore === total,
+      partial: readyBefore > 0 && readyBefore < total,
+      ready: playlist.length,
+      total,
+      cachePath: layout.base,
+    });
+  } catch (e) {
+    return res.status(500).json({ error: String(e.message || e).slice(0, 600) });
+  }
+});
+
+app.get('/api/read-case/status', async (req, res) => {
+  const caseId = req.query.caseId || '';
+  const section = req.query.section || 'hpi';
+  const text = String(req.query.text || '').trim();
+  if (!text) return res.status(400).json({ error: 'Missing text' });
+
+  try {
+    const voiceRef = process.env.CHATTERBOX_VOICE_REF || '';
+    const { manifest, layout } = await buildOrLoadManifest({
+      cacheRoot: CASE_TTS_DIR,
+      caseId,
+      section,
+      text: text.slice(0, 12000),
+      voiceRef,
+    });
+    syncManifestWithDisk(manifest, layout.chunksDir);
+    const ready = countReadyChunks(manifest, layout.chunksDir);
+    const playlist = manifestToPlaylist(manifest, `http://127.0.0.1:${PORT}`);
+    return res.json({
+      ready,
+      total: manifest.chunks.length,
+      complete: ready === manifest.chunks.length,
+      playlist,
+      cachePath: layout.base,
+    });
+  } catch (e) {
+    return res.status(500).json({ error: String(e.message || e).slice(0, 400) });
+  }
+});
+
+app.post('/api/refine-narrative', async (req, res) => {
+  const key = process.env.OPENAI_API_KEY;
+  if (!key) {
+    return res.status(400).json({ error: 'Add OPENAI_API_KEY to ER doc/.env' });
+  }
+
+  const {
+    rawText = '',
+    playRole = 'doctor',
+    title = '',
+    category = '',
+    clinicalTip = '',
+    objective = '',
+  } = req.body || {};
+
+  if (!String(rawText).trim()) {
+    return res.status(400).json({ error: 'Missing rawText' });
+  }
+
+  const voice =
+    playRole === 'patient'
+      ? 'first-person patient voice (I/me/my), consistent grammar'
+      : 'third-person clinical charting (the patient...), consistent grammar';
+
+  try {
+    const r = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${key}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        max_tokens: 2200,
+        response_format: { type: 'json_object' },
+        messages: [
+          {
+            role: 'system',
+            content: `You clean CCS case presentation text for a medical training game. Return JSON only.
+- Fix grammar, pronouns, and flow. Remove chart tab junk and screenshot references.
+- Use clear section breaks in hpi (HPI, PMH, meds, allergies, social, ROS).
+- ${voice}
+- Do not invent new clinical facts.`,
+          },
+          {
+            role: 'user',
+            content: `Case: ${title} (${category})
+Clinical tip: ${clinicalTip}
+Objective: ${objective}
+
+Raw text:
+${String(rawText).slice(0, 6000)}
+
+Return JSON:
+{
+  "intro": "one-line chief complaint / opening",
+  "hpi": "full formatted narrative with section breaks",
+  "vitalsText": "clean vitals paragraph or empty",
+  "clinicalTip": "optional cleaned tip",
+  "objective": "optional cleaned objective"
+}`,
+          },
+        ],
+      }),
+    });
+
+    if (!r.ok) {
+      const err = await r.text();
+      return res.status(r.status).json({ error: err.slice(0, 400) });
+    }
+
+    const data = await r.json();
+    const text = data.choices?.[0]?.message?.content || '{}';
+    const parsed = JSON.parse(text);
+    res.json(parsed);
+  } catch (e) {
+    res.status(500).json({ error: String(e.message || e) });
+  }
+});
+
 app.post('/api/detect-zones', async (req, res) => {
   const key = process.env.OPENAI_API_KEY;
   if (!key) {
@@ -413,54 +650,9 @@ app.post('/api/detect-zones', async (req, res) => {
   }
 });
 
-app.post('/api/regenerate-patient-from-case', async (req, res) => {
-  const key = openAiKeyOrError(res);
-  if (!key) return;
-
-  const { imageBase64, mimeType = 'image/png', caseContext } = req.body || {};
-  if (!imageBase64) return res.status(400).json({ error: 'Missing image' });
-  if (!caseContext?.id) return res.status(400).json({ error: 'Missing caseContext.id' });
-
-  try {
-    const contextHash = crypto
-      .createHash('sha256')
-      .update(JSON.stringify(caseContext))
-      .digest('hex')
-      .slice(0, 16);
-    const imageHash = crypto.createHash('sha256').update(imageBase64).digest('hex').slice(0, 16);
-    const fileName = `regen-case-${pad3(caseContext.id)}-${contextHash}-${imageHash}.png`;
-    const outPath = path.join(SCENE_CACHE_DIR, fileName);
-    const publicUrl = `http://127.0.0.1:3001/scene-cache/${fileName}`;
-
-    try {
-      await fsp.access(outPath);
-      return res.json({ ok: true, cached: true, url: publicUrl, caseId: caseContext.id });
-    } catch {
-      // cache miss
-    }
-
-    const analysis = await analyzePatientFromCase(key, imageBase64, mimeType, caseContext);
-    const prompt = buildRegeneratePatientPrompt(analysis, caseContext);
-    const outB64 = await generateLikenessImage({ imageBase64, mimeType, prompt });
-    await fsp.writeFile(outPath, Buffer.from(outB64, 'base64'));
-
-    return res.json({
-      ok: true,
-      cached: false,
-      url: publicUrl,
-      dataUrl: `data:image/png;base64,${outB64}`,
-      caseId: caseContext.id,
-      analysis,
-    });
-  } catch (e) {
-    return res.status(500).json({ error: String(e.message || e) });
-  }
-});
-
 app.post('/api/generate-scene', async (req, res) => {
-  const key = process.env.OPENAI_API_KEY;
-  if (!key) {
-    return res.status(400).json({ error: 'Add OPENAI_API_KEY to ER doc/.env' });
+  if (!sceneImageProvider()) {
+    return res.status(400).json({ error: 'Add FAL_KEY or OPENAI_API_KEY to ER doc/.env' });
   }
 
   const { imageBase64, mimeType = 'image/png', location = 'ER' } = req.body || {};
@@ -488,64 +680,29 @@ Keep the same person, same pose, same camera angle, same bed alignment, and same
 Only change environmental context and room equipment to match ${unit}.
 No text overlays, no extra people, no style transfer. Photorealistic hospital scene.`;
 
-    const form = new FormData();
-    form.append('model', 'gpt-image-1');
-    form.append('prompt', prompt);
-    form.append('size', '1024x1024');
-    form.append('response_format', 'b64_json');
-    form.append('image', new Blob([Buffer.from(imageBase64, 'base64')], { type: mimeType }), 'patient.png');
-
-    const r = await fetch('https://api.openai.com/v1/images/edits', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${key}`,
-      },
-      body: form,
-    });
-    if (!r.ok) {
-      const err = await r.text();
-      return res.status(r.status).json({ error: err });
-    }
-    const data = await r.json();
-    const outB64 = data?.data?.[0]?.b64_json;
-    if (!outB64) {
-      return res.status(500).json({ error: 'No image returned from OpenAI' });
-    }
+    const { outB64, provider } = await generateSceneImage({ imageBase64, mimeType, prompt });
     await fsp.writeFile(outPath, Buffer.from(outB64, 'base64'));
-    return res.json({ cached: false, url: publicUrl, imageHash, location: unit });
+    return res.json({ cached: false, url: publicUrl, imageHash, location: unit, provider });
   } catch (e) {
     return res.status(500).json({ error: String(e.message || e) });
   }
 });
 
 async function generateLikenessImage({ imageBase64, mimeType, prompt }) {
-  const key = process.env.OPENAI_API_KEY;
-  const form = new FormData();
-  form.append('model', 'gpt-image-1');
-  form.append('prompt', prompt);
-  form.append('size', '1024x1024');
-  form.append('response_format', 'b64_json');
-  form.append('image', new Blob([Buffer.from(imageBase64, 'base64')], { type: mimeType }), 'person.png');
-
-  const r = await fetch('https://api.openai.com/v1/images/edits', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${key}` },
-    body: form,
-  });
-  if (!r.ok) {
-    const err = await r.text();
-    throw new Error(`OpenAI edit failed: ${err}`);
+  if (process.env.FAL_KEY && sceneImageProvider() === 'fal') {
+    try {
+      return await generateSceneWithFal({ imageBase64, mimeType, prompt });
+    } catch (falErr) {
+      if (!process.env.OPENAI_API_KEY) throw falErr;
+      console.warn('[magic/create] fal failed, falling back to OpenAI:', falErr.message);
+    }
   }
-  const data = await r.json();
-  const outB64 = data?.data?.[0]?.b64_json;
-  if (!outB64) throw new Error('No image returned from OpenAI');
-  return outB64;
+  return generateSceneWithOpenAI({ imageBase64, mimeType, prompt });
 }
 
 app.post('/api/magic/create', async (req, res) => {
-  const key = process.env.OPENAI_API_KEY;
-  if (!key) {
-    return res.status(400).json({ error: 'Add OPENAI_API_KEY to ER doc/.env' });
+  if (!sceneImageProvider()) {
+    return res.status(400).json({ error: 'Add FAL_KEY or OPENAI_API_KEY to ER doc/.env' });
   }
   const { imageBase64, mimeType = 'image/png', email = '', origin = '' } = req.body || {};
   if (!imageBase64) return res.status(400).json({ error: 'Missing image' });
@@ -660,5 +817,4 @@ app.post('/api/capture-screenshot', async (req, res) => {
   }
 });
 
-const PORT = 3001;
 app.listen(PORT, () => console.log(`Schoonmaker API → http://127.0.0.1:${PORT}`));
