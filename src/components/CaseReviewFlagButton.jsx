@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import { FiBookmark } from 'react-icons/fi';
 import { isCaseFlaggedForReview, toggleCaseReviewFlag } from '../data/caseProgress.js';
 
 export default function CaseReviewFlagButton({
@@ -36,7 +35,10 @@ export default function CaseReviewFlagButton({
       aria-pressed={flagged}
       title={flagged ? 'Remove from review list' : 'Flag to review next time'}
     >
-      <FiBookmark aria-hidden />
+      <svg className="chip-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M4 5v14l12 -7l-12 -7" />
+        <path d="M20 5l0 14" />
+      </svg>
       {!iconOnly && <span>{flagged ? 'Flagged' : 'Review next'}</span>}
     </button>
   );
