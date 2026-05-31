@@ -12,7 +12,6 @@ import { playWrong, playComplete } from '../lib/audio.js';
 import { mergeZonesForPlay } from '../lib/zoneStudio.js';
 import { getCaseFlow } from '../data/caseFlows.js';
 import {
-  FiActivity,
   FiBox,
   FiCamera,
   FiClipboard,
@@ -54,8 +53,17 @@ import {
 import { getBranding } from '../data/gameData.js';
 import CaseChatPanel from './CaseChatPanel.jsx';
 import CaseNotesPanel from './CaseNotesPanel.jsx';
-import CaseRecordButton from './CaseRecordButton.jsx';
 import CaseReviewFlagButton from './CaseReviewFlagButton.jsx';
+import CaseContextPanel from './CaseContextPanel.jsx';
+import IcuMonitorStrip from './IcuMonitorStrip.jsx';
+import ClinicalTextControls from './ClinicalTextControls.jsx';
+import { readCaseAloud, stopCaseReader } from '../lib/caseReader.js';
+import { clinicalTextStyle, readClinicalTextPrefs } from '../lib/clinicalTextPrefs.js';
+import ClinicalFontControls from './ClinicalFontControls.jsx';
+import { getBriefingExam, getBriefingHpi } from '../lib/caseBriefing.js';
+import { pickTeachingVideo, preloadTeachingVideo } from '../lib/caseTeachingVideo.js';
+import CaseTeachingVideoOverlay from './CaseTeachingVideoOverlay.jsx';
+import TeachMeSceneOverlay from './TeachMeSceneOverlay.jsx';
 import {
   endPlaySession,
   logPlayEvent,
@@ -66,6 +74,13 @@ import {
   hydrateCheckpointTimer,
   writePlayCheckpoint,
 } from '../lib/playSessionResume.js';
+import { computePatientLife, patientLifeState } from '../lib/patientLife.js';
+import {
+  clearReviewChecked,
+  readReviewChecked,
+  toggleReviewCheckedSeq,
+} from '../lib/reviewChecked.js';
+import { getCaseInterventions, isTimedMode, readUiPrefs, writeUiPrefs } from '../lib/uiPrefs.js';
 import {
   buildSceneSourceSig,
   clearCaseSceneVariantsForSig,
@@ -103,6 +118,7 @@ export default function Play({
   const [toast, setToast] = useState({ msg: '', type: '' });
   const [whyPanel, setWhyPanel] = useState(null);
   const [expandedStackId, setExpandedStackId] = useState(null);
+  const [teachFocusId, setTeachFocusId] = useState(null);
   const [teachMeMode, setTeachMeMode] = useState(false);
   const [placementOrder, setPlacementOrder] = useState([]);
   const [dragging, setDragging] = useState(false);
@@ -132,13 +148,15 @@ export default function Play({
       return true;
     }
   });
+  const [timedMode, setTimedMode] = useState(() => readUiPrefs().timedMode);
   const startRef = useRef(Date.now());
   const sceneRef = useRef(null);
   const patientImgRef = useRef(null);
   const dockRef = useRef(null);
   const [imageFrame, setImageFrame] = useState({ x: 0, y: 0, w: 1, h: 1 });
 
-  const interventions = caseData.interventions;
+  const interventions = useMemo(() => getCaseInterventions(caseData), [caseData]);
+  const requiredOrderTotal = interventions.length;
   const decoyInterventions = useMemo(() => {
     const lowerTitle = String(caseData?.title || '').toLowerCase();
     const shared = [
@@ -207,6 +225,39 @@ export default function Play({
     () => expectedOrderIds.find((id) => !placed[id]) || null,
     [expectedOrderIds, placed],
   );
+  const toggleTimedMode = useCallback(() => {
+    setTimedMode((prev) => {
+      const next = prev === 'timed' ? 'untimed' : 'timed';
+      writeUiPrefs({ timedMode: next });
+      if (next === 'untimed') {
+        setTimedOut(false);
+      }
+      return next;
+    });
+  }, []);
+
+  const focusTeachStep = useCallback(
+    (id) => {
+      if (!id) return;
+      setDockCollapsed(false);
+      setInfoTab('treatment');
+      setTeachFocusId(id);
+      setExpandedStackId(id);
+      window.requestAnimationFrame(() => {
+        const wrap = document.querySelector(`.drag-pill-wrap [data-iv-id="${id}"]`)?.closest('.drag-pill-wrap');
+        wrap?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      });
+    },
+    [],
+  );
+
+  const canStartStackDrag = useCallback(
+    (ivId) => {
+      if (!teachMeMode) return true;
+      return ivId === nextExpectedId;
+    },
+    [teachMeMode, nextExpectedId],
+  );
   const teachGroups = useMemo(() => {
     const longTermWords = /\b(vaccin|vaccine|immuniz|follow.?up|outpatient|counsel|education|rehab|discharge|prevent|lifestyle|diet)\b/i;
     const acute = [];
@@ -219,7 +270,7 @@ export default function Play({
     });
     return { acute, longTerm };
   }, [interventions]);
-  const total = interventions.length;
+  const total = requiredOrderTotal;
   const doneCount = useMemo(
     () => interventions.filter((iv) => Boolean(placed[iv.id])).length,
     [interventions, placed],
@@ -251,12 +302,13 @@ export default function Play({
   const caseFlow = useMemo(() => getCaseFlow(caseData), [caseData]);
   const vitals = caseFlow.vitals;
   const exam = caseFlow.exam;
-  const examSummary = useMemo(
-    () => exam.map(([k, v]) => `${k}: ${v}`).join(' | '),
-    [exam],
-  );
+  const examSummary = useMemo(() => getBriefingExam(caseFlow), [caseFlow]);
   const presentationIntro = useMemo(() => getPresentationIntro(caseData), [caseData]);
   const presentationHistory = useMemo(() => getPresentationHistory(caseData), [caseData]);
+  const sidebarHpi = useMemo(
+    () => getBriefingHpi(caseData, caseFlow, presentationHistory),
+    [caseData, caseFlow, presentationHistory],
+  );
   const presentationVitals = useMemo(() => getPresentationVitals(caseData), [caseData]);
   const caseVitalsLine = useMemo(
     () =>
@@ -300,14 +352,19 @@ export default function Play({
   const [thanksVideoIssue, setThanksVideoIssue] = useState('');
   const [showPostVideoReview, setShowPostVideoReview] = useState(false);
   const [postVideoRows, setPostVideoRows] = useState([]);
+  const [reviewChecked, setReviewChecked] = useState([]);
+  const [reviewContinuePulse, setReviewContinuePulse] = useState(false);
+  const reviewAllDoneRef = useRef(false);
   const [reviewPanelCollapsed, setReviewPanelCollapsed] = useState(false);
   const [reviewPanelDragging, setReviewPanelDragging] = useState(false);
   const [reviewPanelPos, setReviewPanelPos] = useState(() => ({
     x: Math.max(16, (window.innerWidth - 520) / 2),
     y: Math.max(64, window.innerHeight - 320),
   }));
-  const [infoTab, setInfoTab] = useState('case');
-  const thanksVideoRef = useRef(null);
+  const [infoTab, setInfoTab] = useState('hpi');
+  const [readState, setReadState] = useState('idle');
+  const [textPrefs, setTextPrefs] = useState(() => readClinicalTextPrefs());
+  const clinicalStyle = useMemo(() => clinicalTextStyle(textPrefs), [textPrefs]);
   const reviewPanelRef = useRef(null);
   const reviewPanelDragRef = useRef({ dx: 0, dy: 0 });
   const captureRef = useRef(null);
@@ -348,6 +405,25 @@ export default function Play({
     },
     [caseData?.id],
   );
+
+  const misses = Math.max(0, attempts - correctAttempts);
+  const lifePct = useMemo(
+    () =>
+      computePatientLife({
+        vitals,
+        doneCount,
+        total,
+        misses,
+        timeLeft,
+        timerTotal,
+      }),
+    [vitals, doneCount, total, misses, timeLeft, timerTotal],
+  );
+  const lifeState = patientLifeState(lifePct);
+  const prevLifeStateRef = useRef(null);
+  const timedModeEnabled = isTimedMode({ timedMode });
+  const timerState = timeLeft > 60 ? 'safe' : timeLeft > 25 ? 'warn' : 'critical';
+  const timerLabel = formatTimerLabel(timeLeft);
 
   const resumeHydratedRef = useRef(false);
   const skipFreshCaseResetRef = useRef(
@@ -448,7 +524,11 @@ export default function Play({
     if (c.reviewResults) setReviewResults(c.reviewResults);
     if (c.orderReview) setOrderReview(c.orderReview);
     if (typeof c.reviewCount === 'number') setReviewCount(c.reviewCount);
-    if (c.infoTab) setInfoTab(c.infoTab);
+    if (c.infoTab) {
+      const mapped =
+        c.infoTab === 'case' ? 'hpi' : c.infoTab === 'exam' ? 'exam' : c.infoTab;
+      setInfoTab(mapped);
+    }
 
     if (initialCheckpoint.playSessionId) {
       playSessionIdRef.current = initialCheckpoint.playSessionId;
@@ -494,6 +574,8 @@ export default function Play({
         orderReview,
         reviewCount,
         infoTab,
+        lifePct,
+        lifeState,
       },
     }),
     [
@@ -518,8 +600,17 @@ export default function Play({
       orderReview,
       reviewCount,
       infoTab,
+      lifePct,
+      lifeState,
     ],
   );
+
+  useEffect(() => {
+    if (!playSessionId) return;
+    if (prevLifeStateRef.current === lifeState) return;
+    prevLifeStateRef.current = lifeState;
+    logTimeline({ type: 'patient_life', state: lifeState, pct: lifePct });
+  }, [lifeState, lifePct, playSessionId, logTimeline]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -591,22 +682,12 @@ export default function Play({
     }).filter(Boolean);
   }, [interventions, interventionById, placementOrder, reviewed, reviewResults, placed]);
 
-  const freezeThanksVideo = useCallback(() => {
-    const el = thanksVideoRef.current;
-    if (!el) return;
-    try {
-      el.pause();
-      if (Number.isFinite(el.duration) && el.duration > 0) {
-        el.currentTime = Math.max(0, el.duration - 0.04);
-      }
-    } catch {
-      /* ignore seek errors */
-    }
-  }, []);
-
   const openFinalReview = useCallback(() => {
     const panelW = Math.min(520, window.innerWidth - 32);
     setPostVideoRows(computePostVideoRows());
+    setReviewChecked(readReviewChecked(caseData.id));
+    reviewAllDoneRef.current = false;
+    setReviewContinuePulse(false);
     setDockCollapsed(true);
     setReviewPanelCollapsed(false);
     setReviewPanelPos({
@@ -614,7 +695,42 @@ export default function Play({
       y: Math.max(56, window.innerHeight - 280),
     });
     setShowPostVideoReview(true);
-  }, [computePostVideoRows]);
+  }, [computePostVideoRows, caseData.id]);
+
+  const reviewProgress = useMemo(() => {
+    const total = postVideoRows.length;
+    const activeSeq = new Set(postVideoRows.map((row) => row.seq));
+    const count = reviewChecked.filter((seq) => activeSeq.has(seq)).length;
+    return {
+      total,
+      count,
+      allReviewed: total > 0 && count >= total,
+    };
+  }, [postVideoRows, reviewChecked]);
+
+  useEffect(() => {
+    if (!showPostVideoReview) {
+      reviewAllDoneRef.current = false;
+      return undefined;
+    }
+    if (reviewProgress.allReviewed && !reviewAllDoneRef.current) {
+      reviewAllDoneRef.current = true;
+      setReviewContinuePulse(true);
+      const timer = window.setTimeout(() => setReviewContinuePulse(false), 720);
+      return () => window.clearTimeout(timer);
+    }
+    if (!reviewProgress.allReviewed) {
+      reviewAllDoneRef.current = false;
+    }
+    return undefined;
+  }, [showPostVideoReview, reviewProgress.allReviewed]);
+
+  const toggleReviewCardChecked = useCallback(
+    (seq) => {
+      setReviewChecked((current) => toggleReviewCheckedSeq(caseData.id, seq, current));
+    },
+    [caseData.id],
+  );
 
   const completeNow = useCallback(
     (result) => {
@@ -637,83 +753,23 @@ export default function Play({
     [onComplete, endCurrentPlaySession, doneCount, total],
   );
 
-  const playThanksAndComplete = useCallback(
+  const playTeachingVideo = useCallback(
     async (result) => {
-      if (!result || result.accuracy < completionThreshold) {
-        showToast(
-          `Need ${completionThreshold}% accuracy to finish — currently ${result?.accuracy ?? 0}%`,
-          'bad',
-        );
-        return;
-      }
-      const videoPool = Array.isArray(caseData?.thanksDoctorVideos)
-        ? caseData.thanksDoctorVideos.filter(Boolean)
-        : [];
-      const fallback = caseData?.thanksDoctorVideo || null;
-      const candidates = videoPool.length ? videoPool : fallback ? [fallback] : [];
       setPendingCompleteResult(result);
-      if (!candidates.length) {
-        setThanksVideoIssue('No thank-you video configured for this build.');
-        openFinalReview();
-        return;
-      }
-      const shuffled = [...candidates].sort(() => Math.random() - 0.5);
-      let picked = null;
-      for (const candidate of shuffled) {
-        try {
-          const resp = await fetch(candidate, { method: 'GET', cache: 'no-store' });
-          if (resp.ok) {
-            picked = candidate;
-            break;
-          }
-        } catch {
-          /* try next candidate */
-        }
-      }
-      if (!picked) {
-        setThanksVideoIssue('Video file missing. Add MP4 files to public/assets/video.');
-        showToast('Thank-you video asset missing. Opening review instead.', 'bad');
+      const { src, error } = await pickTeachingVideo(caseData);
+      if (!src) {
+        setThanksVideoIssue(error);
+        showToast(`${error} Opening review instead.`, 'bad');
         openFinalReview();
         return;
       }
       setThanksVideoIssue('');
-      setActiveThanksVideo(picked);
+      setActiveThanksVideo(src);
+      await preloadTeachingVideo(src);
       setShowThanksVideo(true);
     },
-    [caseData?.thanksDoctorVideo, caseData?.thanksDoctorVideos, openFinalReview, completionThreshold],
+    [caseData, openFinalReview],
   );
-
-  const playThanksPreview = useCallback(() => {
-    if (!reviewed) {
-      showToast('Run Review first — case cannot advance until reviewed.', 'bad');
-      return;
-    }
-    const secs = Math.round((Date.now() - startRef.current) / 1000);
-    const correct = interventions.filter((iv) => reviewResults[iv.id]).length;
-    const acc = total > 0 ? Math.round((correct / total) * 100) : 0;
-    if (acc < completionThreshold || doneCount < total) {
-      showToast(
-        `Need ${completionThreshold}% with all stacks placed (now ${acc}%, ${doneCount}/${total})`,
-        'bad',
-      );
-      return;
-    }
-    const result = {
-      attempts: Math.max(1, reviewCount || 1),
-      accuracy: acc,
-      seconds: secs,
-    };
-    void playThanksAndComplete(result);
-  }, [
-    playThanksAndComplete,
-    reviewCount,
-    reviewed,
-    reviewResults,
-    interventions,
-    total,
-    doneCount,
-    completionThreshold,
-  ]);
 
   const flashScreen = (kind) => {
     setFlash(kind);
@@ -734,12 +790,19 @@ export default function Play({
   const handleDrop = useCallback(
     (ivId, target, { wrap, zone, pill }) => {
       const iv = interventions.find((i) => i.id === ivId);
+      const isGrid = typeof target === 'object' && target != null && 'col' in target;
+      const ok = iv
+        ? isGrid
+          ? isCorrectGridPlacement(iv, target, zones)
+          : iv.correct_zone === target
+        : false;
+
       if (!iv) {
         flashScreen('bad');
         playWrong();
         showToast(
           teachMeMode
-            ? 'Teach mode: not emergent now. Re-prioritize life-threatening steps first.'
+            ? 'Teach Me: not part of the emergent stack sequence.'
             : 'Killed the patient — harmful or irrelevant action.',
           'bad',
         );
@@ -747,12 +810,25 @@ export default function Play({
         return;
       }
 
-      const isGrid = typeof target === 'object' && target != null && 'col' in target;
-      const ok = isGrid
-        ? isCorrectGridPlacement(iv, target, zones)
-        : iv.correct_zone === target;
-
-      if (dropMode === 'strict' && !ok) {
+      if (teachMeMode) {
+        if (iv.id !== nextExpectedId) {
+          snapWrapHome(wrap);
+          const nextIv = nextExpectedId ? interventionById[nextExpectedId] : null;
+          const nextSeq = nextExpectedId ? expectedOrderIds.indexOf(nextExpectedId) + 1 : null;
+          showToast(
+            nextIv
+              ? `Teach Me: do step ${nextSeq} first — ${nextIv.label}`
+              : 'Teach Me: all core stacks are already placed.',
+            'bad',
+          );
+          return;
+        }
+        if (!ok) {
+          snapWrapHome(wrap);
+          showToast('Teach Me: wrong body zone for this step', 'bad');
+          return;
+        }
+      } else if (dropMode === 'strict' && !ok) {
         if (zone) {
           zone.classList.add('zone-hover');
           setTimeout(() => zone.classList.remove('zone-hover'), 280);
@@ -780,6 +856,7 @@ export default function Play({
       ]);
       setReviewedAt(null);
       setWhyPanel(null);
+      setTeachFocusId(null);
       showToast(`Placed ${iv.label}`, '');
       logTimeline({
         type: 'stack',
@@ -788,7 +865,17 @@ export default function Play({
         correct: ok,
       });
     },
-    [interventions, dropMode, dragCfg.snapBackMs, zones, teachMeMode, logTimeline],
+    [
+      interventions,
+      dropMode,
+      dragCfg.snapBackMs,
+      zones,
+      teachMeMode,
+      nextExpectedId,
+      expectedOrderIds,
+      interventionById,
+      logTimeline,
+    ],
   );
 
   const handleMovePin = useCallback(
@@ -896,10 +983,12 @@ export default function Play({
     setOrderReview(orderResults);
     const minCorrect = Math.ceil(total * (completionThreshold / 100));
     const meetsThreshold = acc >= completionThreshold && correct >= minCorrect;
+    const secs = Math.round((Date.now() - startRef.current) / 1000);
+    const result = { attempts: reviewNum, accuracy: acc, seconds: secs };
+
     if (meetsThreshold) {
       flashScreen('ok');
       playComplete();
-      const secs = Math.round((Date.now() - startRef.current) / 1000);
       if (orderMismatches > 0) {
         showToast(
           `Accuracy ${acc}% — ${orderMismatches} stack(s) out of emergent order.`,
@@ -908,17 +997,17 @@ export default function Play({
       } else {
         showToast(`Case ready — ${acc}% (≥${completionThreshold}%)`, 'ok');
       }
-      const result = { attempts: reviewNum, accuracy: acc, seconds: secs };
-      setTimeout(() => playThanksAndComplete(result), 900);
-    } else if (correct === total && acc < completionThreshold) {
+    } else if (correct === total) {
       flashScreen('bad');
       playWrong();
-      showToast(`Need ${completionThreshold}% to advance (now ${acc}%)`, 'bad');
+      showToast(`Need ${completionThreshold}% to master (now ${acc}%) — teaching video next`, 'bad');
     } else {
       flashScreen('bad');
       playWrong();
-      showToast(`Review: ${correct}/${total} correct`, 'bad');
+      showToast(`Review: ${correct}/${total} correct — teaching video next`, 'bad');
     }
+
+    setTimeout(() => playTeachingVideo(result), 900);
   }, [
     interventions,
     placed,
@@ -926,7 +1015,7 @@ export default function Play({
     total,
     useGridPlacement,
     zones,
-    playThanksAndComplete,
+    playTeachingVideo,
     placementOrder,
     computePostVideoRows,
     completionThreshold,
@@ -940,6 +1029,7 @@ export default function Play({
     snapBackMs: dragCfg.snapBackMs,
     onDrop: handleDrop,
     onReturnToDock: returnStackToDock,
+    canStartDrag: canStartStackDrag,
   });
 
   useGridDragGame({
@@ -950,17 +1040,10 @@ export default function Play({
     onDrop: handleDrop,
     onMovePin: handleMovePin,
     onReturnToDock: returnStackToDock,
+    canStartDrag: canStartStackDrag,
   });
 
   const zoneLit = showCues && (dragging || showZonesAlways);
-  const misses = Math.max(0, attempts - correctAttempts);
-  const lifePct = Math.max(
-    8,
-    Math.min(100, 42 + (doneCount / Math.max(total, 1)) * 50 - misses * 6),
-  );
-  const lifeState = lifePct > 70 ? 'stable' : lifePct > 40 ? 'guarded' : 'critical';
-  const timerState = timeLeft > 60 ? 'safe' : timeLeft > 25 ? 'warn' : 'critical';
-  const timerLabel = formatTimerLabel(timeLeft);
 
   useEffect(() => {
     try {
@@ -1067,6 +1150,10 @@ export default function Play({
     setReviewedAt(null);
     setExpandedStackId(null);
     setWhyPanel(null);
+    clearReviewChecked(caseData.id);
+    setReviewChecked([]);
+    reviewAllDoneRef.current = false;
+    setReviewContinuePulse(false);
     showToast('Placements reset', '');
   };
 
@@ -1100,6 +1187,10 @@ export default function Play({
     setThanksVideoIssue('');
     setShowPostVideoReview(false);
     setPostVideoRows([]);
+    clearReviewChecked(caseData.id);
+    setReviewChecked([]);
+    reviewAllDoneRef.current = false;
+    setReviewContinuePulse(false);
     setPendingCompleteResult(null);
     setReviewPanelCollapsed(false);
     setActiveDrawer(null);
@@ -1335,21 +1426,31 @@ export default function Play({
   }, []);
 
   useEffect(() => {
-    if (teachMeMode || timedOut || doneCount >= total || timeLeft <= 0) return undefined;
+    if (teachMeMode) return;
+    setTeachFocusId(null);
+  }, [teachMeMode]);
+
+  useEffect(() => {
+    if (!teachMeMode || !nextExpectedId) return;
+    setTeachFocusId((prev) => (prev && !placed[prev] ? prev : nextExpectedId));
+  }, [teachMeMode, nextExpectedId, placed]);
+
+  useEffect(() => {
+    if (!timedModeEnabled || teachMeMode || timedOut || doneCount >= total || timeLeft <= 0) return undefined;
     const tick = setInterval(() => {
       setTimeLeft((prev) => Math.max(0, prev - 1));
     }, 1000);
     return () => clearInterval(tick);
-  }, [teachMeMode, timedOut, doneCount, total, timeLeft]);
+  }, [timedModeEnabled, teachMeMode, timedOut, doneCount, total, timeLeft]);
 
   useEffect(() => {
-    if (timedOut || doneCount >= total || timeLeft > 0) return;
+    if (!timedModeEnabled || timedOut || doneCount >= total || timeLeft > 0) return;
     setTimedOut(true);
     showToast(
       `Time is up — stay in ER until ${completionThreshold}% accuracy. Keep practicing.`,
       'bad',
     );
-  }, [timeLeft, timedOut, doneCount, total, completionThreshold]);
+  }, [timeLeft, timedOut, doneCount, total, completionThreshold, timedModeEnabled]);
 
   useEffect(() => {
     // In Teach Me mode, auto-run review once all core stacks are placed.
@@ -1371,22 +1472,15 @@ export default function Play({
   }, [finalMode]);
 
   useEffect(() => {
-    if (finalMode) setDockCollapsed(true);
-  }, [finalMode]);
+    stopCaseReader();
+    setReadState('idle');
+  }, [caseData.id]);
+
+  useEffect(() => () => stopCaseReader(), []);
 
   useEffect(() => {
-    if (!showThanksVideo) return;
-    const el = thanksVideoRef.current;
-    if (!el) return;
-    el.muted = false;
-    el.currentTime = 0;
-    el.play().catch(() => {
-      el.muted = true;
-      el.play().catch(() => {
-        showToast('Tap play on the video to continue.', 'bad');
-      });
-    });
-  }, [showThanksVideo]);
+    if (finalMode) setDockCollapsed(true);
+  }, [finalMode]);
 
   return (
     <div
@@ -1397,7 +1491,10 @@ export default function Play({
         ['--pill-h']: `${layout.pillRowHeightPx || 52}px`,
       }}
     >
-      <div className="game-scene" ref={sceneRef}>
+      <div
+        className={`game-scene ${vitals.spo2 < 92 || vitals.sbp < 95 || vitals.hr > 120 ? 'icu-alarm' : ''} ${teachMeMode ? 'teach-me-active' : ''}`}
+        ref={sceneRef}
+      >
         <div className="game-scene-capture" ref={studioCapture ? captureRef : null}>
         <div className="play-hud">
           <span className="play-hud-case">
@@ -1426,27 +1523,53 @@ export default function Play({
                 );
               })}
             </div>
-            <span className={`play-hud-timer ${timerState}`} title="Case countdown">{timerLabel}</span>
+            <span
+              className={`play-hud-timer ${timedModeEnabled ? timerState : 'untimed'}`}
+              title={timedModeEnabled ? 'Case countdown' : 'Untimed mode'}
+            >
+              {timedModeEnabled ? timerLabel : 'Untimed'}
+            </span>
             <button type="button" className="play-hud-exit" onClick={handleQuit} title="Exit case (saved for resume)">
               Exit
             </button>
           </div>
         </div>
-        <div className="play-life-top-left">
-          <div className="pack-life-head">
-            <span>Patient life</span>
-            <span className={`pack-life-state ${lifeState}`}>{lifeState}</span>
+        <div className="scene-dock-left">
+          <div className="play-life-top-left">
+            <div className="pack-life-head">
+              <span>Patient life</span>
+              <span className={`pack-life-state ${lifeState}`}>{lifeState}</span>
+            </div>
+            <div className="pack-life-track" aria-label="Patient life bar">
+              <div
+                className={`pack-life-fill ${lifeState}`}
+                style={{ width: `${lifePct}%` }}
+                role="progressbar"
+                aria-valuenow={lifePct}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label={`Patient life ${lifePct}%`}
+              />
+            </div>
+            <p className="pack-life-pct" aria-hidden>{lifePct}%</p>
           </div>
-          <div className="pack-life-track" aria-label="Patient life bar">
-            <div className={`pack-life-fill ${lifeState}`} style={{ width: `${lifePct}%` }} />
-          </div>
+          <IcuMonitorStrip
+            vitals={vitals}
+            className="icu-monitor-docked"
+            ordersDone={doneCount}
+            ordersTotal={total}
+            careUnit={careUnit}
+            flowTrack={caseFlow.flowTrack}
+          />
         </div>
-        <PatientScene
-          scene={caseData.patientScene}
-          imgRef={patientImgRef}
-          onLoad={syncImageFrame}
-          forceSrc={sceneByUnit[careUnit] || sceneByUnit.ER || null}
-        />
+        <div className="patient-drop-surface" aria-label="Drop stacks on patient">
+          <PatientScene
+            scene={caseData.patientScene}
+            imgRef={patientImgRef}
+            onLoad={syncImageFrame}
+            forceSrc={sceneByUnit[careUnit] || sceneByUnit.ER || null}
+          />
+        </div>
         {sceneBusy && careUnit !== 'ER' && (
           <div className="scene-generating-badge">Generating {careUnit} scene… cached after first run</div>
         )}
@@ -1474,7 +1597,12 @@ export default function Play({
           Object.entries(zones).map(([zoneId, z]) => {
           const isPlaced = Object.values(placed).includes(zoneId);
           const isDone = reviewed && isPlaced;
-          const show = zoneLit && !isDone;
+          const isTeachZone =
+            teachMeMode &&
+            nextExpectedId &&
+            interventionById[nextExpectedId]?.correct_zone === zoneId &&
+            !placed[nextExpectedId];
+          const show = (zoneLit && !isDone) || isTeachZone;
           const color = zoneColors[zoneId] || '#e8b84b';
           const zoneLeftPct = frameLeft + z.cx * frameW;
           const zoneTopPct = frameTop + z.cy * frameH;
@@ -1483,7 +1611,7 @@ export default function Play({
           return (
             <div
               key={zoneId}
-              className={`drop-zone ${show ? 'zone-lit' : ''} ${showCues && showZonesAlways && !isDone ? 'zone-idle' : ''} ${!showCues && !isDone ? 'zone-active-drop' : ''} ${isDone ? 'zone-done' : ''}`}
+              className={`drop-zone ${show ? 'zone-lit' : ''} ${isTeachZone ? 'zone-teach' : ''} ${showCues && showZonesAlways && !isDone ? 'zone-idle' : ''} ${!showCues && !isDone ? 'zone-active-drop' : ''} ${isDone ? 'zone-done' : ''}`}
               data-zone-id={zoneId}
               style={{
                 left: `${zoneLeftPct}%`,
@@ -1500,6 +1628,17 @@ export default function Play({
             </div>
           );
         })}
+        {teachMeMode && !useGridPlacement && !finalMode && (
+          <TeachMeSceneOverlay
+            interventions={interventions}
+            zones={zones}
+            placed={placed}
+            nextExpectedId={nextExpectedId}
+            focusedStepId={teachFocusId}
+            frame={{ left: frameLeft, top: frameTop, w: frameW, h: frameH }}
+            onSelectStep={focusTeachStep}
+          />
+        )}
         {pins.map((p, i) => {
           let leftPct;
           let topPct;
@@ -1535,78 +1674,20 @@ export default function Play({
           );
         })}
         <div className={`flash ${flash}`} />
-        {showThanksVideo && (
-          <div
-            className={`thanks-video-overlay ${showPostVideoReview ? 'frozen' : ''}`}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Patient thanks doctor"
-          >
-            <video
-              ref={thanksVideoRef}
-              className="thanks-video-player"
-              src={activeThanksVideo || caseData.thanksDoctorVideo}
-              style={{ objectPosition: caseData.patientScene?.objectPosition || 'center center' }}
-              autoPlay
-              playsInline
-              muted
-              onError={() => {
-                setThanksVideoIssue('Video failed to load. Check public/assets/video paths.');
-                showToast('Video failed to load. Opening review panel instead.', 'bad');
-                setShowThanksVideo(false);
-                openFinalReview();
-              }}
-              onEnded={() => {
-                freezeThanksVideo();
-                openFinalReview();
-              }}
-            />
-            {!showPostVideoReview && (
-              <button
-                type="button"
-                className="thanks-video-skip btn-ghost"
-                onClick={() => {
-                  freezeThanksVideo();
-                  openFinalReview();
-                }}
-              >
-                Skip →
-              </button>
-            )}
-          </div>
-        )}
-        <div className={`scene-drawer ${activeDrawer === 'vitals' ? 'open' : ''}`}>
-          <div className="scene-drawer-head">
-            <span>Vitals monitor · {careUnit} · {caseFlow.flowTrack}</span>
-            <button type="button" onClick={() => setActiveDrawer(null)}>✕</button>
-          </div>
-          <div className="vitals-grid">
-            <div className={`vital-box ${vitals.sbp < 95 ? 'crit' : 'ok'}`}>
-              <span className="vital-k">BP</span>
-              <span className="vital-v">{vitals.sbp}/{vitals.dbp}</span>
-            </div>
-            <div className={`vital-box ${vitals.hr > 110 ? 'warn' : 'ok'}`}>
-              <span className="vital-k">HR</span>
-              <span className="vital-v">{vitals.hr}</span>
-            </div>
-            <div className={`vital-box ${vitals.rr > 22 ? 'warn' : 'ok'}`}>
-              <span className="vital-k">RR</span>
-              <span className="vital-v">{vitals.rr}</span>
-            </div>
-            <div className={`vital-box ${vitals.temp >= 38 ? 'warn' : 'ok'}`}>
-              <span className="vital-k">Temp</span>
-              <span className="vital-v">{vitals.temp.toFixed(1)}</span>
-            </div>
-            <div className={`vital-box ${vitals.spo2 < 92 ? 'crit' : 'ok'}`}>
-              <span className="vital-k">SpO₂</span>
-              <span className="vital-v">{vitals.spo2}%</span>
-            </div>
-            <div className={`vital-box ${vitals.lactate >= 2 ? 'crit' : 'ok'}`}>
-              <span className="vital-k">Lactate</span>
-              <span className="vital-v">{vitals.lactate.toFixed(1)}</span>
-            </div>
-          </div>
-        </div>
+        <CaseTeachingVideoOverlay
+          open={showThanksVideo}
+          src={activeThanksVideo}
+          frozen={showPostVideoReview}
+          objectPosition={caseData.patientScene?.objectPosition || 'center center'}
+          onEnded={openFinalReview}
+          onSkip={openFinalReview}
+          onError={(msg) => {
+            setThanksVideoIssue(msg);
+            showToast(`${msg} Opening review instead.`, 'bad');
+            setShowThanksVideo(false);
+            openFinalReview();
+          }}
+        />
         <div className={`scene-drawer ${activeDrawer === 'exam' ? 'open' : ''}`}>
           <div className="scene-drawer-head">
             <span>Physical exam · {careUnit}</span>
@@ -1626,10 +1707,15 @@ export default function Play({
             <span>Clinical note · SOAP</span>
             <button type="button" onClick={() => setActiveDrawer(null)}>✕</button>
           </div>
-          <div
-            className="soap-wrap"
-            onPointerDown={(e) => e.stopPropagation()}
-          >
+          <div className="soap-wrap clinical-text-block" style={clinicalStyle}>
+            <ClinicalTextControls
+              caseData={caseData}
+              rawText={caseData.historyText || caseData.chief_complaint || presentationHistory}
+              compact
+              onUpdated={({ prefs }) => {
+                if (prefs) setTextPrefs(prefs);
+              }}
+            />
             <section className="soap-section">
               <h4 className="soap-heading">S: Subjective</h4>
               <p className="soap-body">{soapParts.subjective}</p>
@@ -1728,6 +1814,15 @@ export default function Play({
             <div className="post-review-handle-text">
               <span className="post-review-kicker">Review breakdown</span>
               <strong>What was correct and why</strong>
+              {postVideoRows.length > 0 && (
+                <span
+                  className={`post-review-progress ${reviewProgress.allReviewed ? 'is-complete' : ''}`}
+                >
+                  {reviewProgress.allReviewed
+                    ? 'All reviewed ✓'
+                    : `Reviewed ${reviewProgress.count} / ${reviewProgress.total}`}
+                </span>
+              )}
             </div>
             <div className="post-review-handle-actions">
               <button
@@ -1770,16 +1865,43 @@ export default function Play({
                 {postVideoRows.length === 0 && (
                   <p className="post-review-empty">Complete a review to see stack rationales here.</p>
                 )}
-                {postVideoRows.map((row) => (
-                  <article key={row.id} className={`post-review-row ${row.ok ? 'ok' : 'bad'}`}>
+                {postVideoRows.map((row) => {
+                  const isStudentReviewed = reviewChecked.includes(row.seq);
+                  return (
+                  <article
+                    key={row.id}
+                    className={`post-review-row ${row.ok ? 'ok' : 'bad'} ${isStudentReviewed ? 'is-student-reviewed' : ''}`}
+                  >
+                    <button
+                      type="button"
+                      className={`post-review-check ${isStudentReviewed ? 'is-checked' : ''}`}
+                      onClick={() => toggleReviewCardChecked(row.seq)}
+                      aria-label={isStudentReviewed ? `Mark order ${row.seq} unchecked` : `Mark order ${row.seq} reviewed`}
+                      aria-pressed={isStudentReviewed}
+                    >
+                      {isStudentReviewed ? <span aria-hidden="true">✓</span> : null}
+                    </button>
+                    <div className="post-review-row-content">
                     <div className="post-review-head">
                       <span className="post-review-step">#{row.seq}</span>
-                      <span className="post-review-status">
-                        {row.ok
-                          ? row.orderOk === false
-                            ? 'Late order'
-                            : 'Correct'
-                          : 'Needs review'}
+                      <span
+                        className={`post-review-status ${
+                          isStudentReviewed
+                            ? 'student-reviewed'
+                            : row.ok
+                              ? row.orderOk === false
+                                ? 'late'
+                                : 'ok'
+                              : 'bad'
+                        }`}
+                      >
+                        {isStudentReviewed
+                          ? 'Reviewed'
+                          : row.ok
+                            ? row.orderOk === false
+                              ? 'Late order'
+                              : 'Correct'
+                            : 'Needs review'}
                       </span>
                       <strong className="post-review-label">{row.label}</strong>
                     </div>
@@ -1787,21 +1909,25 @@ export default function Play({
                     {(row.guideline || row.placedOrder != null) && (
                       <p className="post-review-meta">
                         {row.placedOrder != null && (
-                          <span>
+                          <span className="post-review-meta-item">
                             Emergent #{row.expectedOrder}
                             {row.placedOrder ? ` · placed #${row.placedOrder}` : ' · not placed'}
                           </span>
                         )}
-                        {row.guideline && <span> · {row.guideline}</span>}
+                        {row.guideline && (
+                          <span className="post-review-meta-item">{row.guideline}</span>
+                        )}
                       </p>
                     )}
+                    </div>
                   </article>
-                ))}
+                  );
+                })}
               </div>
               <div className="post-review-actions">
                 <button
                   type="button"
-                  className="btn-primary"
+                  className={`btn-primary ${reviewContinuePulse ? 'post-review-continue-pulse' : ''}`}
                   onClick={() => {
                     if (pendingCompleteResult) completeNow(pendingCompleteResult);
                   }}
@@ -1853,186 +1979,182 @@ export default function Play({
             ↺
           </button>
         </div>
-        <div className="dock-panel-clinical sidebar-top clinical-pack-top clinical-pack-minimal">
-          <p className="sidebar-case-id">Case {caseData.ccsNumber}</p>
-          <h2 className="sidebar-title" title={caseData.title}>
-            {caseData.title}
-          </h2>
-          {caseData.diagnosis && (
-            <p className="play-diagnosis-line">{caseData.diagnosis}</p>
-          )}
-          <div className="case-info-tabs" role="tablist" aria-label="Case context tabs">
-            <button
-              type="button"
-              className={infoTab === 'case' ? 'case-info-tab active' : 'case-info-tab'}
-              onClick={() => setInfoTab('case')}
-              aria-selected={infoTab === 'case'}
-            >
-              Case
-            </button>
-            <button
-              type="button"
-              className={infoTab === 'exam' ? 'case-info-tab active' : 'case-info-tab'}
-              onClick={() => setInfoTab('exam')}
-              aria-selected={infoTab === 'exam'}
-            >
-              Exam
-            </button>
-            <button
-              type="button"
-              className={infoTab === 'notes' ? 'case-info-tab active' : 'case-info-tab'}
-              onClick={() => setInfoTab('notes')}
-              aria-selected={infoTab === 'notes'}
-            >
-              Notes
-            </button>
-          </div>
-          {infoTab === 'case' && (
-            <div className="play-case-scroll">
-              <p>{presentationHistory || presentationIntro || 'No presentation text available.'}</p>
-              {(presentationVitals || caseVitalsLine) && (
-                <p className="play-case-vitals">{presentationVitals || caseVitalsLine}</p>
-              )}
-            </div>
-          )}
-          {infoTab === 'exam' && (
-            <div className="play-case-scroll">
-              <p>{examSummary || 'No physical exam findings documented yet.'}</p>
-            </div>
-          )}
-          {infoTab === 'notes' && (
-            <CaseNotesPanel
-              caseId={caseData.id}
-              sessionId={playSessionId}
-              compact
-              minimal
-              onTimelineNote={(text) => logTimeline({ type: 'note', text })}
-              onRecordingSaved={() => showToast('Intuition recording saved', 'ok')}
-            />
-          )}
-          <p className="play-sidebar-foot">
-            <span>{doneCount}/{total} orders placed</span>
-            <span className={`play-sidebar-timer ${timerState}`}>{timerLabel}</span>
-          </p>
-        </div>
-        <div
-          className="dock-split-handle"
-          role="separator"
-          aria-orientation="horizontal"
-          aria-label="Resize case and stacks panels"
-          onPointerDown={(e) => startDockDrag('split', e)}
-        />
-        <section className="sidebar-stacks dock-panel-stacks" aria-label="Treatment stacks">
-          <p className="sidebar-section-label">Stacks — drag to patient</p>
-          {teachMeMode && (
-            <div className="teach-panel">
-              <p className="teach-title">Teach Me Flow</p>
-              <div className="teach-flow" aria-label="Clinical flow diagram">
-                {expectedOrderIds.map((id, idx) => {
-                  const iv = interventionById[id];
-                  const done = Boolean(placed[id]);
-                  const next = id === nextExpectedId;
-                  return (
-                    <span
-                      key={id}
-                      className={`teach-flow-chip ${done ? 'done' : ''} ${next ? 'next' : ''}`}
-                      title={`${idx + 1}. ${iv?.label || id}`}
-                    >
-                      {idx + 1}
-                    </span>
-                  );
-                })}
-              </div>
-              <p className="teach-next">
-                Next correct stack: <strong>{nextExpectedId ? interventionById[nextExpectedId]?.label : 'All core stacks placed'}</strong>
+        <div className="dock-panel-clinical">
+          <CaseContextPanel
+            key={`play-${caseData.id}`}
+            caseData={caseData}
+            brandName={brand.name}
+            hpiText={sidebarHpi}
+            examSummary={examSummary}
+            textStyle={clinicalStyle}
+            showStats
+            readyCount={total - doneCount}
+            doneCount={doneCount}
+            totalCount={total}
+            defaultTab="hpi"
+            showTreatmentTab
+            showNotesTab
+            activeTab={infoTab}
+            onTabChange={setInfoTab}
+            onReadCase={(section, text) => {
+              readCaseAloud({
+                caseId: caseData.id,
+                section,
+                text,
+                onState: (state) => setReadState(state),
+              });
+            }}
+            readState={readState}
+            notesPanel={
+              <CaseNotesPanel
+                caseId={caseData.id}
+                sessionId={playSessionId}
+                compact
+                minimal
+                onTimelineNote={(text) => logTimeline({ type: 'note', text })}
+                onRecordingSaved={() => showToast('Intuition recording saved', 'ok')}
+              />
+            }
+            footer={
+              <p className="play-sidebar-foot">
+                <span>
+                  {doneCount}/{total} orders to save patient
+                </span>
+                <span className={`play-sidebar-timer ${timedModeEnabled ? timerState : 'untimed'}`}>
+                  {timedModeEnabled ? timerLabel : 'Untimed'}
+                </span>
               </p>
-              <div className="teach-groups">
-                <div className="teach-group">
-                  <p className="teach-group-title">Acute now</p>
-                  {teachGroups.acute.map((iv) => (
-                    <p key={iv.id} className={`teach-group-row ${placed[iv.id] ? 'done' : ''}`}>
-                      #{iv.seq} {iv.label}
+            }
+            treatmentPanel={
+              <>
+                <p className="sidebar-section-label">Stacks — drag to patient</p>
+                {teachMeMode && (
+                  <div className="teach-panel">
+                    <p className="teach-title">Teach Me Flow</p>
+                    <div className="teach-flow" aria-label="Clinical flow diagram">
+                      {expectedOrderIds.map((id, idx) => {
+                        const iv = interventionById[id];
+                        const done = Boolean(placed[id]);
+                        const next = id === nextExpectedId;
+                        const focused = id === teachFocusId;
+                        return (
+                          <button
+                            key={id}
+                            type="button"
+                            className={`teach-flow-chip ${done ? 'done' : ''} ${next ? 'next' : ''} ${focused ? 'focused' : ''}`}
+                            title={`${idx + 1}. ${iv?.label || id}`}
+                            onClick={() => focusTeachStep(id)}
+                            aria-label={`Step ${idx + 1}, ${iv?.label || id}`}
+                          >
+                            {idx + 1}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <p className="teach-next">
+                      Next correct stack:{' '}
+                      <strong>
+                        {nextExpectedId
+                          ? interventionById[nextExpectedId]?.label
+                          : 'All core stacks placed'}
+                      </strong>
                     </p>
-                  ))}
-                </div>
-                <div className="teach-group">
-                  <p className="teach-group-title">Long-term / prevention</p>
-                  {teachGroups.longTerm.length ? (
-                    teachGroups.longTerm.map((iv) => (
-                      <p key={iv.id} className={`teach-group-row ${placed[iv.id] ? 'done' : ''}`}>
-                        #{iv.seq} {iv.label}
-                      </p>
-                    ))
-                  ) : (
-                    <p className="teach-group-row muted">No long-term stacks in this case.</p>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-          <div className="pill-list pill-list-panel pill-list-vertical" id="pill-list">
-            {stackItems.map((iv, i) => {
-              const seqNum = interventions.findIndex((x) => x.id === iv.id);
-              const displayNum = seqNum >= 0 ? seqNum + 1 : null;
-              const isDecoy = !interventions.some((x) => x.id === iv.id);
-              return (
-              <div
-                key={iv.id}
-                className={`drag-pill-wrap pack-item ${isDecoy ? 'pack-item-decoy' : ''} ${placed[iv.id] ? 'is-placed is-expandable' : ''} ${expandedStackId === iv.id ? 'expanded' : ''}`}
-                data-x="0"
-                data-y="0"
-                onClick={() => {
-                  setExpandedStackId((prev) => (prev === iv.id ? null : iv.id));
-                }}
-              >
-                <div
-                  className="drag-pill pill"
-                  data-iv-id={iv.id}
-                  data-placed={placed[iv.id] ? 'true' : 'false'}
-                  onMouseDown={() => setDragging(true)}
-                  onMouseUp={() => setDragging(false)}
-                  onTouchStart={() => setDragging(true)}
-                  onTouchEnd={() => setDragging(false)}
-                >
-                  <span className="pill-text" title={iv.label}>
-                    {iv.label}
-                  </span>
-                  <span className="pill-meta">
-                    <span className="pill-stack">x1</span>
-                    {displayNum != null ? (
-                      <span className="pill-num">{String(displayNum).padStart(2, '0')}</span>
-                    ) : (
-                      <span className="pill-num pill-num-decoy">—</span>
-                    )}
-                  </span>
-                </div>
-                {expandedStackId === iv.id && (
-                  <div className="pill-why-inline">
-                    <p className="pill-why-inline-status">
-                      {!placed[iv.id]
-                        ? 'Preview — rationale for this order only'
-                        : !reviewed
-                          ? 'Placed — review pending'
-                          : reviewResults[iv.id]
-                          ? orderReview[iv.id] === false
-                            ? 'Correct but not emergent'
-                            : 'Correct'
-                          : 'Needs review'}
-                    </p>
-                    {placementOrder.includes(iv.id) && (
-                      <p className="pill-why-inline-guideline">
-                        Your placement order #{placementOrder.indexOf(iv.id) + 1}
-                      </p>
-                    )}
-                    <p className="pill-why-inline-text">{iv.why || 'No explanation available yet.'}</p>
-                    {iv.guideline && <p className="pill-why-inline-guideline">Guideline: {iv.guideline}</p>}
+                    <div className="teach-groups">
+                      <div className="teach-group">
+                        <p className="teach-group-title">Acute now</p>
+                        {teachGroups.acute.map((iv) => (
+                          <p key={iv.id} className={`teach-group-row ${placed[iv.id] ? 'done' : ''}`}>
+                            #{iv.seq} {iv.label}
+                          </p>
+                        ))}
+                      </div>
+                      <div className="teach-group">
+                        <p className="teach-group-title">Long-term / prevention</p>
+                        {teachGroups.longTerm.length ? (
+                          teachGroups.longTerm.map((iv) => (
+                            <p key={iv.id} className={`teach-group-row ${placed[iv.id] ? 'done' : ''}`}>
+                              #{iv.seq} {iv.label}
+                            </p>
+                          ))
+                        ) : (
+                          <p className="teach-group-row muted">No long-term stacks in this case.</p>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 )}
-              </div>
-            );
-            })}
-          </div>
-        </section>
+                <div className="pill-list pill-list-panel pill-list-vertical" id="pill-list">
+                  {stackItems.map((iv) => {
+                    const seqNum = interventions.findIndex((x) => x.id === iv.id);
+                    const displayNum = seqNum >= 0 ? seqNum + 1 : null;
+                    const isDecoy = !interventions.some((x) => x.id === iv.id);
+                    const isTeachNext = teachMeMode && iv.id === nextExpectedId;
+                    const isTeachFocused = teachMeMode && teachFocusId === iv.id;
+                    const isTeachLocked =
+                      teachMeMode && !isDecoy && !placed[iv.id] && iv.id !== nextExpectedId;
+                    return (
+                      <div
+                        key={iv.id}
+                        className={`drag-pill-wrap pack-item ${isDecoy ? 'pack-item-decoy' : ''} ${placed[iv.id] ? 'is-placed is-expandable' : ''} ${expandedStackId === iv.id ? 'expanded' : ''} ${isTeachFocused ? 'teach-pill-focused' : ''} ${isTeachNext ? 'teach-pill-next' : ''} ${isTeachLocked ? 'teach-pill-locked' : ''}`}
+                        data-x="0"
+                        data-y="0"
+                        onClick={() => {
+                          setExpandedStackId((prev) => (prev === iv.id ? null : iv.id));
+                        }}
+                      >
+                        <div
+                          className="drag-pill pill"
+                          data-iv-id={iv.id}
+                          data-placed={placed[iv.id] ? 'true' : 'false'}
+                          onMouseDown={() => setDragging(true)}
+                          onMouseUp={() => setDragging(false)}
+                          onTouchStart={() => setDragging(true)}
+                          onTouchEnd={() => setDragging(false)}
+                        >
+                          <span className="pill-text" title={iv.label}>
+                            {iv.label}
+                          </span>
+                          <span className="pill-meta">
+                            <span className="pill-stack">x1</span>
+                            {displayNum != null ? (
+                              <span className="pill-num">{String(displayNum).padStart(2, '0')}</span>
+                            ) : (
+                              <span className="pill-num pill-num-decoy">—</span>
+                            )}
+                          </span>
+                        </div>
+                        {expandedStackId === iv.id && (
+                          <div className="pill-why-inline">
+                            <p className="pill-why-inline-status">
+                              {!placed[iv.id]
+                                ? 'Preview — rationale for this order only'
+                                : !reviewed
+                                  ? 'Placed — review pending'
+                                  : reviewResults[iv.id]
+                                    ? orderReview[iv.id] === false
+                                      ? 'Correct but not emergent'
+                                      : 'Correct'
+                                    : 'Needs review'}
+                            </p>
+                            {placementOrder.includes(iv.id) && (
+                              <p className="pill-why-inline-guideline">
+                                Your placement order #{placementOrder.indexOf(iv.id) + 1}
+                              </p>
+                            )}
+                            <p className="pill-why-inline-text">{iv.why || 'No explanation available yet.'}</p>
+                            {iv.guideline && (
+                              <p className="pill-why-inline-guideline">Guideline: {iv.guideline}</p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            }
+          />
+        </div>
         <div className="sidebar-foot">
           <div
             className={`progress-dots ${total > 12 ? 'progress-dots-many' : total > 8 ? 'progress-dots-compact' : ''}`}
@@ -2049,20 +2171,36 @@ export default function Play({
           <span className="mode-legend">
             {caseData.playRole === 'patient' ? 'Patient view' : 'Doctor view'} ·{' '}
             {caseData.sessionDifficulty || 'standard'} ·{' '}
-            {dropMode === 'free' ? 'Practice' : 'Exam'} · {teachMeMode ? 'Teach Me: on' : 'Teach Me: off'}
+            {dropMode === 'free' ? 'Practice' : 'Exam'} ·{' '}
+            {timedModeEnabled ? 'Timed' : 'Untimed'} ·{' '}
+            {teachMeMode ? 'Teach Me: on' : 'Teach Me: off'}
           </span>
-          <button type="button" className="btn-ghost" onClick={() => setTeachMeMode((v) => !v)}>
-            {teachMeMode ? 'Teach Me: ON' : 'Teach Me'}
-          </button>
-          <button type="button" className="btn-ghost" onClick={reviewPlacements} disabled={doneCount === 0}>
-            Review
-          </button>
-          <button type="button" className="btn-ghost" onClick={resetPlacements}>
-            Reset
-          </button>
-          <button type="button" className="btn-ghost" onClick={playThanksPreview}>
-            Play Video
-          </button>
+          <ClinicalFontControls
+            prefs={textPrefs}
+            onChange={setTextPrefs}
+            compact
+          />
+          <div className="sidebar-foot-buttons">
+            <button type="button" className="btn-ghost" onClick={toggleTimedMode}>
+              {timedModeEnabled ? 'Timed: ON' : 'Untimed'}
+            </button>
+            <button
+              type="button"
+              className="btn-ghost"
+              onClick={() => {
+                setTeachMeMode((v) => !v);
+                if (teachMeMode) setTeachFocusId(null);
+              }}
+            >
+              {teachMeMode ? 'Teach Me: ON' : 'Teach Me'}
+            </button>
+            <button type="button" className="btn-ghost" onClick={reviewPlacements} disabled={doneCount === 0}>
+              Review
+            </button>
+            <button type="button" className="btn-ghost" onClick={resetPlacements}>
+              Reset
+            </button>
+          </div>
         </div>
         {reviewedAt && <div className="reviewed-stamp">Reviewed at {reviewedAt.toLocaleTimeString()}</div>}
         <div
@@ -2118,15 +2256,6 @@ export default function Play({
         </button>
         <button
           type="button"
-          className={activeDrawer === 'vitals' ? 'bottom-chip active' : 'bottom-chip'}
-          onClick={() => setActiveDrawer((d) => (d === 'vitals' ? null : 'vitals'))}
-          title="Vitals"
-          aria-label="Show vitals"
-        >
-          <FiActivity className="chip-icon" />
-        </button>
-        <button
-          type="button"
           className={activeDrawer === 'exam' ? 'bottom-chip active' : 'bottom-chip'}
           onClick={() => setActiveDrawer((d) => (d === 'exam' ? null : 'exam'))}
           title="Physical exam"
@@ -2143,6 +2272,37 @@ export default function Play({
         >
           <FiFileText className="chip-icon" />
         </button>
+        <span className="bottom-bar-sep" aria-hidden />
+        <button
+          type="button"
+          className={`bottom-chip bottom-chip-text ${showCaseChat ? 'active' : ''}`}
+          onClick={() => setShowCaseChat((v) => !v)}
+          title="Chat with this case (OpenAI)"
+          aria-label="Chat with case"
+        >
+          <FiMessageCircle className="chip-icon" aria-hidden />
+          Chat
+        </button>
+        <CaseReviewFlagButton
+          caseId={caseData.id}
+          compact
+          className="bottom-chip bottom-chip-text case-review-flag-chip"
+          onChange={(flagged) => {
+            logTimeline({ type: 'review_flag', flagged });
+            showToast(flagged ? 'Flagged for review next time' : 'Removed from review list', 'ok');
+          }}
+        />
+        <button
+          type="button"
+          className="bottom-chip bottom-chip-text"
+          onClick={restartCurrentCase}
+          title="Restart this case from scratch"
+          aria-label="Restart case"
+        >
+          <FiRotateCcw className="chip-icon" aria-hidden />
+          Restart
+        </button>
+        <span className="bottom-bar-sep" aria-hidden />
         <button
           type="button"
           className={showCues ? 'bottom-chip active' : 'bottom-chip'}
@@ -2161,34 +2321,6 @@ export default function Play({
         >
           {theme === 'dark' ? <FiMoon className="chip-icon" /> : <FiSun className="chip-icon" />}
         </button>
-        <button
-          type="button"
-          className={showCaseChat ? 'bottom-chip active' : 'bottom-chip'}
-          onClick={() => setShowCaseChat((v) => !v)}
-          title="Chat with this case (OpenAI)"
-          aria-label="Chat with case"
-        >
-          <FiMessageCircle className="chip-icon" />
-        </button>
-        <CaseRecordButton
-          caseId={caseData.id}
-          sessionId={playSessionId}
-          compact
-          iconOnly
-          className="bottom-chip case-record-chip"
-          onSaved={() => showToast('Intuition recording saved to case log', 'ok')}
-          onError={(e) => showToast(e?.message || 'Recording failed', 'bad')}
-        />
-        <CaseReviewFlagButton
-          caseId={caseData.id}
-          compact
-          iconOnly
-          className="bottom-chip case-review-flag-chip"
-          onChange={(flagged) => {
-            logTimeline({ type: 'review_flag', flagged });
-            showToast(flagged ? 'Flagged for review next time' : 'Removed from review list', 'ok');
-          }}
-        />
         <button
           type="button"
           className={dropMode === 'strict' ? 'bottom-chip active' : 'bottom-chip'}
@@ -2213,7 +2345,7 @@ export default function Play({
               type="button"
               className={placeMode ? 'bottom-chip active' : 'bottom-chip'}
               onClick={() => setPlaceMode((v) => !v)}
-              title="Place mode — click grid cell. Click stack to select, click cell to move, double-click to remove"
+              title="Place mode"
               aria-label="Place mode"
             >
               ⊕
@@ -2230,16 +2362,6 @@ export default function Play({
             </button>
           </>
         )}
-        <button
-          type="button"
-          className="bottom-chip bottom-chip-text"
-          onClick={restartCurrentCase}
-          title="Restart this case from scratch"
-          aria-label="Restart case"
-        >
-          <FiRotateCcw className="chip-icon" aria-hidden />
-          Restart case
-        </button>
         <span className="bottom-status">
           Unit: {careUnit} · {dropMode}
           {studioCapture && selectedGridId ? ' · selected: move or dbl-click remove' : ''}

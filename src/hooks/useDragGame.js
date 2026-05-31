@@ -1,8 +1,19 @@
 import { useEffect, useRef } from 'react';
 import interact from 'interactjs';
+import {
+  cleanupDragGhosts,
+  createDragGhost,
+  dismissWrapFromDock,
+  getStackLabel,
+  isPointerOverPatient,
+  moveDragGhost,
+  setPatientDropHighlight,
+  showPlacementFeedback,
+  snapWrapHome,
+} from '../lib/stackDragHelpers.js';
 
 /**
- * interact.js drag/drop for pill → zone (config-driven, no hardcoded zones).
+ * interact.js drag/drop — pickup from dock stacks, drop on patient zones only.
  */
 export function useDragGame({
   sceneRef,
@@ -12,11 +23,15 @@ export function useDragGame({
   snapBackMs = 380,
   onDrop,
   onReturnToDock,
+  canStartDrag,
 }) {
+  const canStartDragRef = useRef(canStartDrag);
+  canStartDragRef.current = canStartDrag;
   const onDropRef = useRef(onDrop);
   const onReturnToDockRef = useRef(onReturnToDock);
   onDropRef.current = onDrop;
   onReturnToDockRef.current = onReturnToDock;
+  const dragSessionRef = useRef(null);
 
   useEffect(() => {
     if (!enabled) return undefined;
@@ -24,74 +39,136 @@ export function useDragGame({
     const scene = sceneRef.current;
     if (!scene) return undefined;
 
-    // Some interact builds don't expose dynamicDrop; guard to prevent Play crash.
+    cleanupDragGhosts();
+
     if (typeof interact.dynamicDrop === 'function') {
       interact.dynamicDrop(true);
     }
 
+    const overlapMode =
+      overlap === 'pointer' ? 'pointer' : typeof overlap === 'number' ? overlap : 0.35;
+
+    const finishDrag = (wrap, { dropped = false, clientX, clientY } = {}) => {
+      const session = dragSessionRef.current;
+      const pill = wrap?.querySelector('.drag-pill');
+      if (pill) pill.classList.remove('dragging');
+      scene.querySelectorAll('.drop-zone').forEach((z) => {
+        z.classList.remove('zone-lit', 'zone-hover');
+      });
+      setPatientDropHighlight(scene, false);
+      cleanupDragGhosts();
+      dragSessionRef.current = null;
+
+      if (!dropped) {
+        snapWrapHome(wrap, snapBackMs);
+      }
+
+      wrap?.setAttribute('data-dropped', dropped ? 'true' : 'false');
+    };
+
     interact('.drag-pill-wrap').draggable({
-      inertia:
-        typeof document !== 'undefined' && document.documentElement.dataset.perf === 'low'
-          ? false
-          : { resistance: 10, minSpeed: 100, endSpeed: 50 },
+      inertia: false,
       autoScroll: true,
       listeners: {
         start(event) {
-          const pill = event.target.querySelector('.drag-pill');
+          const wrap = event.target;
+          const pill = wrap.querySelector('.drag-pill');
           if (!pill) return;
+          const ivId = pill.dataset.ivId;
+          if (canStartDragRef.current && !canStartDragRef.current(ivId)) {
+            event.interaction.stop();
+            return;
+          }
+
+          cleanupDragGhosts();
           pill.classList.add('dragging');
+          wrap.classList.add('stack-drag-source');
+
+          const label = getStackLabel(wrap);
+          const ghost = createDragGhost(label);
+          moveDragGhost(ghost, event.clientX, event.clientY);
+
+          dragSessionRef.current = {
+            wrap,
+            pill,
+            ghost,
+            label,
+            lastX: event.clientX,
+            lastY: event.clientY,
+          };
+
           scene.querySelectorAll('.drop-zone:not(.zone-done)').forEach((z) => {
             z.classList.add('zone-lit');
           });
         },
         move(event) {
-          const wrap = event.target;
-          const x = (parseFloat(wrap.getAttribute('data-x')) || 0) + event.dx;
-          const y = (parseFloat(wrap.getAttribute('data-y')) || 0) + event.dy;
-          wrap.style.transform = `translate(${x}px, ${y}px)`;
-          wrap.setAttribute('data-x', x);
-          wrap.setAttribute('data-y', y);
+          const session = dragSessionRef.current;
+          if (!session) return;
+          session.lastX = event.clientX;
+          session.lastY = event.clientY;
+          moveDragGhost(session.ghost, event.clientX, event.clientY);
+          setPatientDropHighlight(scene, isPointerOverPatient(scene, event.clientX, event.clientY));
         },
         end(event) {
+          const session = dragSessionRef.current;
           const wrap = event.target;
-          const pill = wrap.querySelector('.drag-pill');
-          if (pill) pill.classList.remove('dragging');
-          scene.querySelectorAll('.drop-zone').forEach((z) => {
-            z.classList.remove('zone-lit', 'zone-hover');
-          });
-          if (!event.relatedTarget && wrap.getAttribute('data-dropped') !== 'true') {
-            wrap.style.transition = `transform ${snapBackMs}ms cubic-bezier(0.34, 1.56, 0.64, 1)`;
-            wrap.style.transform = 'translate(0, 0)';
-            wrap.setAttribute('data-x', '0');
-            wrap.setAttribute('data-y', '0');
-            setTimeout(() => {
-              wrap.style.transition = '';
-            }, snapBackMs + 20);
+          if (!session || session.wrap !== wrap) {
+            finishDrag(wrap, { dropped: false });
+            return;
           }
-          wrap.setAttribute('data-dropped', 'false');
+
+          if (wrap.getAttribute('data-dropped') !== 'true') {
+            finishDrag(wrap, {
+              dropped: false,
+              clientX: session.lastX,
+              clientY: session.lastY,
+            });
+          } else {
+            finishDrag(wrap, { dropped: true, clientX: session.lastX, clientY: session.lastY });
+          }
+
+          wrap.classList.remove('stack-drag-source');
         },
       },
     });
-
-    const overlapMode =
-      overlap === 'pointer' ? 'pointer' : typeof overlap === 'number' ? overlap : 0.35;
 
     interact('.drop-zone').dropzone({
       accept: '.drag-pill-wrap',
       overlap: overlapMode,
       listeners: {
         dragenter(event) {
+          const session = dragSessionRef.current;
+          if (!session) return;
+          if (!isPointerOverPatient(scene, session.lastX, session.lastY)) return;
           if (!event.relatedTarget?.querySelector?.('.drag-pill')) return;
           event.target.classList.add('zone-hover');
+          setPatientDropHighlight(scene, true);
         },
         dragleave(event) {
           event.target.classList.remove('zone-hover');
+          const session = dragSessionRef.current;
+          if (!session) return;
+          setPatientDropHighlight(
+            scene,
+            isPointerOverPatient(scene, session.lastX, session.lastY),
+          );
         },
         drop(event) {
+          const session = dragSessionRef.current;
           const zone = event.target;
           const wrap = event.relatedTarget;
           const pill = wrap?.querySelector('.drag-pill');
-          if (!pill) return;
+          if (!pill || !session) return;
+
+          const dragEvent = event.dragEvent || event;
+          const clientX = dragEvent.clientX ?? session.lastX;
+          const clientY = dragEvent.clientY ?? session.lastY;
+
+          if (!isPointerOverPatient(scene, clientX, clientY)) {
+            zone.classList.remove('zone-hover', 'zone-lit');
+            wrap.setAttribute('data-dropped', 'false');
+            return;
+          }
 
           zone.classList.remove('zone-hover', 'zone-lit');
           wrap.setAttribute('data-dropped', 'true');
@@ -100,34 +177,17 @@ export function useDragGame({
           const ivId = pill.dataset.ivId;
           const zr = zone.getBoundingClientRect();
           const wr = wrap.getBoundingClientRect();
-          const dx = parseFloat(wrap.getAttribute('data-x')) || 0;
-          const dy = parseFloat(wrap.getAttribute('data-y')) || 0;
-          const tx =
-            zr.left + zr.width / 2 - wr.left - wr.width / 2 + dx;
-          const ty =
-            zr.top + zr.height / 2 - wr.top - wr.height / 2 + dy;
+          const tx = zr.left + zr.width / 2 - wr.left - wr.width / 2;
+          const ty = zr.top + zr.height / 2 - wr.top - wr.height / 2;
 
-          wrap.style.transition = 'transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1)';
+          dismissWrapFromDock(wrap);
+          wrap.style.transition = 'transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.28s ease';
           wrap.style.transform = `translate(${tx}px, ${ty}px)`;
           wrap.setAttribute('data-x', tx);
           wrap.setAttribute('data-y', ty);
 
-          onDropRef.current(ivId, zoneId, { wrap, zone, pill });
-        },
-      },
-    });
-
-    interact('.dock-return-zone').dropzone({
-      accept: '.drag-pill-wrap',
-      overlap: 'pointer',
-      listeners: {
-        drop(event) {
-          const wrap = event.relatedTarget;
-          const pill = wrap?.querySelector('.drag-pill');
-          if (!pill) return;
-          const ivId = pill.dataset.ivId;
-          wrap.setAttribute('data-dropped', 'true');
-          onReturnToDockRef.current?.(ivId, { wrap, pill });
+          showPlacementFeedback(scene, session.label, clientX, clientY);
+          onDropRef.current(ivId, zoneId, { wrap, zone, pill, clientX, clientY });
         },
       },
     });
@@ -135,7 +195,9 @@ export function useDragGame({
     return () => {
       interact('.drag-pill-wrap').unset();
       interact('.drop-zone').unset();
-      interact('.dock-return-zone').unset();
+      setPatientDropHighlight(scene, false);
+      cleanupDragGhosts();
+      dragSessionRef.current = null;
     };
   }, [enabled, sceneRef, overlap, snapBackMs, placed]);
 }
