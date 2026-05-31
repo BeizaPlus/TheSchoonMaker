@@ -35,7 +35,7 @@ export function runEvalSuite() {
   // 2) Catalog size
   pass += ok(Array.isArray(catalog.cases) && catalog.cases.length > 0, 'catalog: cases loaded', String(catalog.cases.length)) ? 1 : 0;
 
-  // 3) Interventions integrity on a sample
+  // 3) Interventions integrity on a sample (count varies by case — not fixed at 5)
   const sample = catalog.cases.slice(0, 20);
   let bad = 0;
   for (const c of sample) {
@@ -45,13 +45,13 @@ export function runEvalSuite() {
       continue;
     }
     const ivs = gc.interventions || [];
-    if (ivs.length !== 5) bad += 1;
+    if (ivs.length < 3) bad += 1;
     for (const iv of ivs) {
       if (!zoneKeys.includes(iv.correct_zone)) bad += 1;
       if (!iv.guideline || String(iv.guideline).trim().length < 2) bad += 1;
     }
   }
-  pass += ok(bad === 0, 'playbook: interventions match drag UI on sample', String(bad)) ? 1 : 0;
+  pass += ok(bad === 0, 'playbook: interventions valid on sample (variable count)', String(bad)) ? 1 : 0;
 
   // 4) Shuffle queue logic
   clearProgress();
@@ -70,13 +70,14 @@ export function runEvalSuite() {
   // 5) Completion threshold
   clearProgress();
   const id0 = catalog.cases[0].id;
-  recordCaseComplete(id0, { accuracy: 79, attempts: 10, seconds: 30 });
+  const threshold = gameCfg.branding?.completionThreshold ?? 99;
+  recordCaseComplete(id0, { accuracy: threshold - 1, attempts: 10, seconds: 30 });
   const recLow = readProgress().cases[id0];
   const lowOk = recLow && recLow.completed === false;
-  recordCaseComplete(id0, { accuracy: 80, attempts: 5, seconds: 10 });
+  recordCaseComplete(id0, { accuracy: threshold, attempts: 5, seconds: 10 });
   const recHi = readProgress().cases[id0];
   const hiOk = recHi && recHi.completed === true;
-  pass += ok(lowOk && hiOk, 'progress: recordCaseComplete uses >=80 threshold') ? 1 : 0;
+  pass += ok(lowOk && hiOk, `progress: recordCaseComplete uses >=${threshold} threshold`) ? 1 : 0;
 
   console.log(`runEvalSuite: ${pass}/${totalSuites} suites passed`);
   return pass === totalSuites;

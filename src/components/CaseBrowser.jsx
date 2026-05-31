@@ -28,7 +28,8 @@ import {
   getReadyPracticeDiagnosis,
   getStackTestingCases,
   getStackTestingCount,
-  getCaseStackCount,
+  getCaseOrderCount,
+  getStackTestingOrderRange,
   STACK_TESTING_MIN_ORDERS,
 } from '../lib/caseReadyPractice.js';
 
@@ -62,12 +63,14 @@ export default function CaseBrowser({ onPlay, onBack, initialFilter = 'all' }) {
 
   const stackTestingCount = useMemo(() => getStackTestingCount(catalog.cases), [catalog.cases]);
 
+  const stackTestingOrderRange = useMemo(
+    () => getStackTestingOrderRange(catalog.cases),
+    [catalog.cases],
+  );
+
   const stackTestingIds = useMemo(() => stackTestingCases.map((c) => c.id), [stackTestingCases]);
 
-
-
   const [listFilter, setListFilter] = useState(() =>
-
     initialFilter === 'ready'
       ? 'ready'
       : initialFilter === 'stacks'
@@ -75,7 +78,6 @@ export default function CaseBrowser({ onPlay, onBack, initialFilter = 'all' }) {
         : initialFilter === 'flagged'
           ? 'flagged'
           : 'all',
-
   );
 
   const [activeCategory, setActiveCategory] = useState(categories[0]?.id);
@@ -660,7 +662,7 @@ export default function CaseBrowser({ onPlay, onBack, initialFilter = 'all' }) {
 
                 : listFilter === 'stacks'
 
-                  ? `${stackTestingCount} cases · ${STACK_TESTING_MIN_ORDERS}–10 orders each`
+                  ? `${stackTestingCount} cases · ${stackTestingOrderRange} orders each`
 
                   : listFilter === 'flagged'
 
@@ -710,7 +712,7 @@ export default function CaseBrowser({ onPlay, onBack, initialFilter = 'all' }) {
 
               const isReady = hasCaseSpecificPlaybook(c.id);
 
-              const stackCount = getCaseStackCount(c.id);
+              const orderCount = getCaseOrderCount(c);
 
               const flagged = Boolean(rec?.reviewNext);
 
@@ -742,10 +744,10 @@ export default function CaseBrowser({ onPlay, onBack, initialFilter = 'all' }) {
 
                   <span className="case-meta case-meta-tags">
 
-                    {listFilter === 'stacks' && stackCount > 0 && (
+                    <span className="case-stack-count">{orderCount} orders</span>
 
-                      <span className="case-stack-count">{stackCount} orders</span>
-
+                    {listFilter === 'stacks' && orderCount >= STACK_TESTING_MIN_ORDERS && (
+                      <span className="case-stack-count case-stack-count--stress">long stack</span>
                     )}
 
                     {flagged && <CaseReviewFlagTag compact />}
@@ -776,7 +778,7 @@ export default function CaseBrowser({ onPlay, onBack, initialFilter = 'all' }) {
 
               {listFilter === 'stacks' && selected && (
                 <p className="preview-stack-banner">
-                  Stack testing · {getCaseStackCount(selected.id)} orders to place
+                  Stack testing · {getCaseOrderCount(selected)} orders to place
                 </p>
               )}
 

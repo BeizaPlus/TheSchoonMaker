@@ -2689,11 +2689,37 @@ button {
   flex: 1;
 }
 
+.progress-dots-compact {
+  gap: 4px;
+}
+
+.progress-dots-compact .progress-dot {
+  width: 8px;
+  height: 8px;
+}
+
+.progress-dots-many {
+  flex-wrap: wrap;
+  gap: 3px;
+  max-width: 100%;
+}
+
+.progress-dots-many .progress-dot {
+  width: 6px;
+  height: 6px;
+}
+
+.case-stack-count--stress {
+  color: rgba(232, 184, 75, 0.95);
+  border-color: rgba(232, 184, 75, 0.45);
+}
+
 .progress-dot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
   border: 1px solid rgba(240, 238, 232, 0.25);
+  flex-shrink: 0;
 }
 
 .progress-dot.filled {

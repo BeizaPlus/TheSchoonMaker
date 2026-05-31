@@ -1,8 +1,12 @@
 import caseSpecific from '../data/caseSpecificPlaybooks.json' with { type: 'json' };
-import { hasCaseSpecificPlaybook } from '../data/resolvePlaybook.js';
+import {
+  getCaseOrderCount,
+  getCaseSpecificPlaybookIds,
+  hasCaseSpecificPlaybook,
+} from '../data/resolvePlaybook.js';
 
 export function getReadyPracticeCount() {
-  return Object.keys(caseSpecific.cases || {}).length;
+  return getCaseSpecificPlaybookIds().length;
 }
 
 export function getReadyPracticeDiagnosis(caseId) {
@@ -24,18 +28,32 @@ export function getReadyPracticeIds(catalogCases = []) {
 /** Minimum intervention count for “stack testing” (largest authored stacks). */
 export const STACK_TESTING_MIN_ORDERS = 7;
 
-export function getCaseStackCount(caseId) {
-  const row = caseSpecific.cases?.[String(caseId)];
-  return row?.interventions?.length || 0;
+/** @deprecated use getCaseOrderCount(catalogCase) */
+export function getCaseStackCount(caseId, catalogCase = null) {
+  if (catalogCase) return getCaseOrderCount(catalogCase);
+  return 0;
 }
+
+export { getCaseOrderCount };
 
 /** Cases with the longest intervention stacks — for drag/stack testing. */
 export function getStackTestingCases(catalogCases = []) {
   return catalogCases
-    .filter((c) => getCaseStackCount(c.id) >= STACK_TESTING_MIN_ORDERS)
-    .sort((a, b) => getCaseStackCount(b.id) - getCaseStackCount(a.id));
+    .filter((c) => getCaseOrderCount(c) >= STACK_TESTING_MIN_ORDERS)
+    .sort((a, b) => getCaseOrderCount(b) - getCaseOrderCount(a));
 }
 
 export function getStackTestingCount(catalogCases = []) {
   return getStackTestingCases(catalogCases).length;
+}
+
+export function getStackTestingOrderRange(catalogCases = []) {
+  const counts = getStackTestingCases(catalogCases).map((c) => getCaseOrderCount(c));
+  if (!counts.length) return `${STACK_TESTING_MIN_ORDERS}+`;
+  return `${Math.min(...counts)}–${Math.max(...counts)}`;
+}
+
+export function getMaxCaseOrderCount(catalogCases = []) {
+  if (!catalogCases.length) return 0;
+  return Math.max(...catalogCases.map((c) => getCaseOrderCount(c)));
 }

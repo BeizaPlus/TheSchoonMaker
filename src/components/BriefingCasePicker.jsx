@@ -6,8 +6,11 @@ import CaseProgressTag from './CaseProgressTag.jsx';
 import CaseReadyTag from './CaseReadyTag.jsx';
 import { hasCaseSpecificPlaybook } from '../data/resolvePlaybook.js';
 import {
+  getCaseOrderCount,
   getReadyPracticeCases,
   getReadyPracticeCount,
+  getStackTestingCount,
+  getStackTestingOrderRange,
 } from '../lib/caseReadyPractice.js';
 import { STORAGE } from '../lib/storageKeys.js';
 import { getAllowedCaseIds, readAudienceProfile } from '../lib/audienceProfile.js';
@@ -280,6 +283,7 @@ export default function BriefingCasePicker({ currentCaseId, onSelectCase }) {
                     ) : null}
                   </span>
                   <span className="briefing-picker-status">
+                    <span className="case-stack-count">{getCaseOrderCount(c)} orders</span>
                     {hasCaseSpecificPlaybook(c.id) && <CaseReadyTag compact />}
                     <CaseProgressTag record={rec} showNew />
                   </span>

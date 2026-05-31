@@ -220,7 +220,10 @@ export default function Play({
     return { acute, longTerm };
   }, [interventions]);
   const total = interventions.length;
-  const doneCount = Object.keys(placed).length;
+  const doneCount = useMemo(
+    () => interventions.filter((iv) => Boolean(placed[iv.id])).length,
+    [interventions, placed],
+  );
   const timerBase = layout.timerSeconds || DEFAULT_TIMER_SECONDS;
   const sessionDifficulty = caseData.sessionDifficulty || 'standard';
   const timerTotal = useMemo(
@@ -951,7 +954,10 @@ export default function Play({
 
   const zoneLit = showCues && (dragging || showZonesAlways);
   const misses = Math.max(0, attempts - correctAttempts);
-  const lifePct = Math.max(8, Math.min(100, 42 + doneCount * 12 - misses * 8));
+  const lifePct = Math.max(
+    8,
+    Math.min(100, 42 + (doneCount / Math.max(total, 1)) * 50 - misses * 6),
+  );
   const lifeState = lifePct > 70 ? 'stable' : lifePct > 40 ? 'guarded' : 'critical';
   const timerState = timeLeft > 60 ? 'safe' : timeLeft > 25 ? 'warn' : 'critical';
   const timerLabel = formatTimerLabel(timeLeft);
@@ -1905,7 +1911,7 @@ export default function Play({
             />
           )}
           <p className="play-sidebar-foot">
-            <span>{doneCount}/{total} placed</span>
+            <span>{doneCount}/{total} orders placed</span>
             <span className={`play-sidebar-timer ${timerState}`}>{timerLabel}</span>
           </p>
         </div>
@@ -2039,7 +2045,10 @@ export default function Play({
           </div>
         </section>
         <div className="sidebar-foot">
-          <div className="progress-dots" aria-label="Case progress">
+          <div
+            className={`progress-dots ${total > 12 ? 'progress-dots-many' : total > 8 ? 'progress-dots-compact' : ''}`}
+            aria-label={`Case progress ${doneCount} of ${total} orders`}
+          >
             {interventions.map((iv) => (
               <span
                 key={iv.id}

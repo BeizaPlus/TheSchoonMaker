@@ -24,6 +24,12 @@ export function resolvePlaybook(ccsCase) {
   return { ...presentation, playbookKey: key };
 }
 
+/** Number of required orders/stacks for a CCS case (3–20+ depending on playbook). */
+export function getCaseOrderCount(ccsCase) {
+  if (!ccsCase) return 0;
+  return resolvePlaybook(ccsCase)?.interventions?.length || 0;
+}
+
 export function getCaseSpecificPlaybookIds() {
   return Object.keys(caseSpecific.cases || {});
 }
