@@ -1,6 +1,6 @@
 /**
- * Reads Step 3 CCS exports → game/src/data/ccsCatalog.json
- * Run: node scripts/build-ccs-catalog.mjs
+ * Builds src/data/ccsCatalog.json from Step 3 CCS exports in ./step3
+ * Run: npm run build:catalog
  */
 import fs from 'fs';
 import path from 'path';
@@ -12,9 +12,11 @@ const STEP3_CANDIDATES = [
   path.join(ROOT, 'step3'),
   path.join(__dirname, '../../../Step 3'),
 ];
-const STEP3 = STEP3_CANDIDATES.find((p) => fs.existsSync(path.join(p, 'ccs_mirror'))) || STEP3_CANDIDATES[0];
-const OUT = path.join(__dirname, '../src/data/ccsCatalog.json');
-const PRES_DIR = path.join(STEP3, 'ccs_presentations');
+const OUT = path.join(ROOT, 'src/data/ccsCatalog.json');
+
+function resolveStep3Root() {
+  return STEP3_CANDIDATES.find((p) => fs.existsSync(path.join(p, 'ccs_mirror'))) || STEP3_CANDIDATES[0];
+}
 
 const TITLE_TO_CATEGORY = [
   [/chest pain|palpitation|shortness of breath|cough|sob/i, 'Cardiopulmonary'],
@@ -45,25 +47,77 @@ function parsePresentationFile(filePath) {
   return { title, intro, vitals, history };
 }
 
-const listPath = path.join(STEP3, 'ccs_screenshots/ccs_case_list.json');
-if (!fs.existsSync(listPath)) {
-  if (fs.existsSync(OUT)) {
-    console.log(`Step 3 export not found at ${listPath}; keeping existing ${OUT}`);
-    process.exit(0);
-  }
-  console.error(`Missing Step 3 export: ${listPath}`);
-  console.error(`Expected CCS case list JSON. Copy Step 3 data or restore ${OUT}.`);
-  process.exit(1);
-}
-const data = JSON.parse(fs.readFileSync(listPath, 'utf8'));
+function loadPresentations(presDir) {
+  const presentations = {};
+  if (!fs.existsSync(presDir)) return presentations;
 
-const presentations = {};
-if (fs.existsSync(PRES_DIR)) {
-  for (const f of fs.readdirSync(PRES_DIR).filter((x) => x.endsWith('.txt'))) {
-    const p = parsePresentationFile(path.join(PRES_DIR, f));
+  for (const f of fs.readdirSync(presDir).filter((x) => x.endsWith('.txt') && x.startsWith('presentation_'))) {
+    const p = parsePresentationFile(path.join(presDir, f));
     if (p.title) presentations[p.title] = p;
   }
+  return presentations;
 }
+
+function catalogToCaseList(catalog) {
+  return {
+    exportedAt: catalog.builtAt || new Date().toISOString(),
+    sidebar: {
+      sortBy: 'Case Number',
+      listStyle: 'List',
+      categories: catalog.sidebarCategories || [],
+      otherFilters: [],
+      timedExam: 'Unknown',
+      customTimeLimit: 'None',
+      networkLag: 'None',
+    },
+    cases: catalog.cases.map((c) => ({
+      caseNumber: String(c.caseNumber),
+      title: c.title,
+      completionDate: c.completionDate || '',
+      highYield: c.highYield || '',
+      timeLimit: c.timeLimit || '',
+      averageGrade: c.averageGrade || '',
+      reviewLater: false,
+    })),
+  };
+}
+
+function loadCaseList(step3Root, catalogFallback) {
+  const listPath = path.join(step3Root, 'ccs_screenshots/ccs_case_list.json');
+  if (fs.existsSync(listPath)) {
+    return { data: JSON.parse(fs.readFileSync(listPath, 'utf8')), source: listPath, kind: 'step3-export' };
+  }
+
+  if (catalogFallback?.cases?.length) {
+    console.warn(`Step 3 case list missing at ${listPath}`);
+    console.warn('Using checked-in ccsCatalog.json as case bank until you run: npm run capture:case-list');
+    return { data: catalogToCaseList(catalogFallback), source: OUT, kind: 'catalog-fallback' };
+  }
+
+  return null;
+}
+
+const step3Root = resolveStep3Root();
+const presDir = path.join(step3Root, 'ccs_presentations');
+const presentations = loadPresentations(presDir);
+
+let catalogFallback = null;
+if (fs.existsSync(OUT)) {
+  try {
+    catalogFallback = JSON.parse(fs.readFileSync(OUT, 'utf8'));
+  } catch {
+    catalogFallback = null;
+  }
+}
+
+const loaded = loadCaseList(step3Root, catalogFallback);
+if (!loaded) {
+  console.error(`Missing case bank. Add ${path.join(step3Root, 'ccs_screenshots/ccs_case_list.json')}`);
+  console.error('Run: npm run capture:case-list  (requires step3/ccs_credentials.json)');
+  process.exit(1);
+}
+
+const { data, source, kind } = loaded;
 
 const cases = data.cases.map((c) => ({
   id: String(c.caseNumber).padStart(3, '0'),
@@ -95,8 +149,12 @@ const categories = Object.entries(categoryMap)
 const catalog = {
   builtAt: new Date().toISOString(),
   source: 'Step 3 / CCS',
+  step3Root: path.relative(ROOT, step3Root).replace(/\\/g, '/'),
+  caseListSource: kind,
+  caseListPath: path.relative(ROOT, source).replace(/\\/g, '/'),
+  presentationFiles: Object.keys(presentations).length,
   totalCases: cases.length,
-  sidebarCategories: data.sidebar?.categories || [],
+  sidebarCategories: data.sidebar?.categories || catalogFallback?.sidebarCategories || [],
   categories,
   cases,
   presentations,
@@ -105,3 +163,5 @@ const catalog = {
 fs.writeFileSync(OUT, JSON.stringify(catalog, null, 2));
 console.log(`Wrote ${OUT}`);
 console.log(`${cases.length} cases, ${categories.length} categories, ${Object.keys(presentations).length} presentation intros`);
+console.log(`Case list: ${kind} (${path.relative(ROOT, source)})`);
+console.log(`Step 3 root: ${path.relative(ROOT, step3Root)}`);

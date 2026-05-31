@@ -72,9 +72,38 @@ Each playbook:
 
 Zone ids: `zone-monitor`, `zone-iv-bag`, `zone-blood`, `zone-arm`, `zone-icu`
 
+## Case bank (Step 3 / CCS)
+
+The **181-case bank** lives in `step3/` and feeds the game via build scripts.
+
+| Path | Purpose |
+|------|---------|
+| `step3/ccs_screenshots/ccs_case_list.json` | Full case list export (gitignored — run capture locally) |
+| `step3/ccs_presentations/*.txt` | Real intro / vitals / history text per presentation |
+| `step3/ccs_mirror/` | Cached CCS web API responses for offline proxy |
+| `src/data/ccsCatalog.json` | Built catalog consumed by the app |
+| `src/data/preparedCases.json` | Vitals + narratives derived from catalog |
+
+### Refresh the game from Step 3
+
+```bash
+# After exporting a fresh case list (needs step3/ccs_credentials.json):
+npm run capture:case-list
+npm run capture:presentations   # optional — more intro/vitals text
+
+# Rebuild game JSON (works without export — merges step3 presentations into existing catalog):
+npm run refresh:case-bank
+```
+
+`npm run dev` runs `build:data` automatically. If `ccs_case_list.json` is missing, the catalog builder keeps the checked-in 181 cases and still merges any new `step3/ccs_presentations/*.txt` files.
+
+### Step 3 proxy (optional)
+
+See `step3/CCS_LOCAL_PROXY.md` — record CCS API traffic, serve at `http://localhost:8765`.
+
 ## `src/data/ccsCatalog.json`
 
-Auto-built from Step 3 (`npm run build:catalog`). Case list + categories.
+Auto-built from Step 3 (`npm run build:catalog`). Case list + categories + presentation intros.
 
 ## Example: force Sepsis bundle on case #23
 

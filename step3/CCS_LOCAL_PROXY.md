@@ -10,7 +10,7 @@ The live site uses **`*.webapi`** endpoints on `app.ccscases.com` (not a simple 
 ## Record (do this first)
 
 ```bash
-cd "C:\Users\steve\Step 3"
+cd "C:\Users\steve\dev\TheSchoonMaker\step3"
 node record_ccs_cache.js
 ```
 
