@@ -6185,27 +6185,6 @@ button {
   transform: none !important;
 }
 
-.patient-drop-surface.patient-drop-active::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 40%;
-  transform: translate(-50%, -50%);
-  width: min(28vw, 180px);
-  height: min(22vh, 140px);
-  border-radius: 50%;
-  border: 2px solid rgba(232, 184, 75, 0.7);
-  box-shadow: 0 0 28px rgba(232, 184, 75, 0.35);
-  animation: patient-drop-pulse 1.1s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 6;
-}
-
-@keyframes patient-drop-pulse {
-  0%, 100% { opacity: 0.55; transform: translate(-50%, -50%) scale(1); }
-  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.04); }
-}
-
 .stack-placement-feedback {
   position: absolute;
   z-index: 60;
