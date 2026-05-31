@@ -12,3 +12,8 @@ step3/ccs_browser_profile/
 step3/ccs_screenshots/
 step3/ccs_credentials.json
 step3/ccs_mirror/POST__login.webapi*.json
+public/assets/audio/icu-monitor.mp3
+public/assets/audio/icu-monitor-source.wav
+.case-tts-cache/
+__pycache__/
+*.pyc
