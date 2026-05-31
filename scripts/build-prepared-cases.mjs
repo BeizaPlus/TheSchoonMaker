@@ -6,6 +6,12 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { resolvePlaybook } from '../src/data/resolvePlaybook.js';
+import { resolveCaseExam } from '../src/lib/caseExam.js';
+import {
+  loadCaseBank,
+  ordersToInterventions,
+  distractorsToDecoys,
+} from './caseBankLoader.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
@@ -239,28 +245,52 @@ function resolvePlaybookForBuild(ccsCase, playbooks) {
 
 const catalog = JSON.parse(fs.readFileSync(CATALOG_PATH, 'utf8'));
 const playbooks = JSON.parse(fs.readFileSync(PLAYBOOKS_PATH, 'utf8'));
+const caseBank = loadCaseBank();
+let bankMerged = 0;
 
 const cases = {};
 for (const ccsCase of catalog.cases) {
   const id = ccsCase.id;
+  const caseNum = Number(ccsCase.caseNumber);
+  const bankCase = caseBank.get(caseNum);
   const pres = catalog.presentations?.[ccsCase.title];
   const pb = resolvePlaybookForBuild(ccsCase, playbooks);
-  const intro = pres?.intro || '';
-  const vitalsText = pres?.vitals || '';
-  const history = pres?.history || '';
+  const intro = bankCase?.hpi || pres?.intro || '';
+  const vitalsText = (typeof bankCase?.vitals === 'string' ? bankCase.vitals : '') || pres?.vitals || '';
+  const history = bankCase?.hpi || pres?.history || '';
   const seed = Number(ccsCase.caseNumber) || 0;
   const { vitals, source: vitalsSource } = parseVitals(vitalsText, ccsCase.category, seed);
   const authored = AUTHORED_FLOWS[id];
-  const exam = authored?.exam || defaultExam(ccsCase.category, ccsCase.title);
+  const examFromBank = Array.isArray(bankCase?.physical_exam) ? bankCase.physical_exam : null;
+  const exam = examFromBank || resolveCaseExam({
+    caseId: id,
+    title: ccsCase.title,
+    category: ccsCase.category,
+    history,
+    vitals,
+    preparedExam: authored?.exam || null,
+    hasSourceIntro: Boolean(pres?.intro || bankCase?.hpi),
+  });
+
+  const bankInterventions =
+    bankCase?.correct_orders?.length
+      ? ordersToInterventions(bankCase.correct_orders, bankCase.rationale || {})
+      : null;
+  const bankDecoys = bankCase?.distractors?.length
+    ? distractorsToDecoys(bankCase.distractors, caseNum)
+    : null;
+  const interventions = bankInterventions?.length ? bankInterventions : pb.interventions;
+  if (bankInterventions?.length) bankMerged += 1;
 
   cases[id] = {
     id,
     title: ccsCase.title,
     category: ccsCase.category,
     presentationKey: ccsCase.title,
-    playbookKey: pb.playbookKey || pb.presentation || ccsCase.title,
-    diagnosis: pb.diagnosis || null,
-    hasSourceIntro: Boolean(pres?.intro),
+    playbookKey: bankInterventions?.length ? `case-bank-${caseNum}` : pb.playbookKey || pb.presentation || ccsCase.title,
+    diagnosis: bankCase?.diagnosis || pb.diagnosis || null,
+    caseBankSource: bankCase?.enrichment_source || bankCase?.source || null,
+    hasSourceIntro: Boolean(pres?.intro || bankCase?.hpi),
     vitals,
     vitalsSource,
     vitalsText: vitalsText.replace(/\s+/g, ' ').trim(),
@@ -271,7 +301,9 @@ for (const ccsCase of catalog.cases) {
     difficulty: 'standard',
     clinical_tip: pb.clinical_tip,
     objective: pb.objective,
-    interventionIds: pb.interventions.map((iv) => iv.id),
+    interventionIds: interventions.map((iv) => iv.id),
+    interventions,
+    decoys: bankDecoys || [],
     narrative: buildNarrative({
       intro,
       history,
@@ -287,8 +319,11 @@ const out = {
   version: 1,
   builtAt: new Date().toISOString(),
   totalCases: Object.keys(cases).length,
+  caseBankMerged: bankMerged,
+  caseBankDir: path.resolve(__dirname, '../../data/cases'),
   cases,
 };
 
 fs.writeFileSync(OUT_PATH, JSON.stringify(out, null, 2), 'utf8');
 console.log(`Wrote ${out.totalCases} prepared cases → ${OUT_PATH}`);
+console.log(`Case bank treatments merged: ${bankMerged}/${out.totalCases}`);

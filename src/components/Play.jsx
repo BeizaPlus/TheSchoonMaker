@@ -158,6 +158,10 @@ export default function Play({
   const interventions = useMemo(() => getCaseInterventions(caseData), [caseData]);
   const requiredOrderTotal = interventions.length;
   const decoyInterventions = useMemo(() => {
+    if (Array.isArray(caseData?.decoys) && caseData.decoys.length > 0) {
+      return caseData.decoys.filter((d) => !interventions.some((iv) => iv.label === d.label));
+    }
+
     const lowerTitle = String(caseData?.title || '').toLowerCase();
     const shared = [
       {
@@ -214,7 +218,7 @@ export default function Play({
 
     const seeds = [...shared, ...caseAware];
     return seeds.filter((d) => !interventions.some((iv) => iv.label === d.label));
-  }, [caseData.id, caseData?.title, interventions]);
+  }, [caseData.id, caseData?.title, caseData?.decoys, interventions]);
   const stackItems = useMemo(() => [...interventions, ...decoyInterventions], [interventions, decoyInterventions]);
   const expectedOrderIds = useMemo(() => interventions.map((iv) => iv.id), [interventions]);
   const interventionById = useMemo(

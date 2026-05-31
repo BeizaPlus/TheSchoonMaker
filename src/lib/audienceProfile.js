@@ -1,5 +1,6 @@
 import { STORAGE } from './storageKeys.js';
 import { DEFAULT_TIMER_SECONDS, normalizeTimerSeconds } from './caseTimer.js';
+import { getHighAcuityCaseIds } from './examPrep.js';
 
 const CONDITION_CASE_IDS = {
   diabetes: ['004', '032', '056', '060'],
@@ -86,6 +87,12 @@ export function getAllowedCaseIds(catalogCases, profile) {
   const allIds = catalogCases.map((c) => c.id);
   const level = profile?.level || 'advanced';
   const condition = profile?.condition || 'diabetes';
+
+  if (profile?.studyMode === 'exam_high_acuity' || condition === 'exam') {
+    const examIds = getHighAcuityCaseIds(catalogCases);
+    return examIds.length ? examIds : allIds;
+  }
+
   const focused = CONDITION_CASE_IDS[condition] || [];
 
   if (level === 'advanced') return allIds;

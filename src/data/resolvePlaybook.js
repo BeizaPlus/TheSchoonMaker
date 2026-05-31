@@ -1,7 +1,54 @@
 import playbooks from './playbooks.json' with { type: 'json' };
 import caseSpecific from './caseSpecificPlaybooks.json' with { type: 'json' };
 
-/** Resolve drag-game playbook: per-case authored → title presentation → default. */
+/** CCS presentation title → playbook key when titles differ or need routing. */
+const TITLE_ALIASES = {
+  'Acute Confusion': 'Altered Mental Status',
+  Delirium: 'Altered Mental Status',
+  Confusion: 'Altered Mental Status',
+  Syncope: 'Altered Mental Status',
+  Seizure: 'Altered Mental Status',
+  Stroke: 'Altered Mental Status',
+  Weakness: 'Generalized Weakness',
+  'Shortness of Breath': 'Shortness of Breath',
+  Dyspnea: 'Shortness of Breath',
+};
+
+/** When no title match exists, use a category playbook instead of generic default. */
+const CATEGORY_FALLBACK = {
+  Neurology: 'Altered Mental Status',
+  'GI & Abdomen': 'Abdominal Pain',
+  Cardiopulmonary: 'Chest Pain',
+  'OB/GYN': 'Pelvic Pain',
+  Genitourinary: 'Burning During Urination',
+  'ID & Dermatology': 'Rash and Lethargy',
+  'MSK & General': 'Generalized Weakness',
+  Pediatrics: 'Poor Feeding',
+};
+
+function presentationForKey(key) {
+  if (!key) return null;
+  return playbooks.presentations?.[key] || null;
+}
+
+function resolvePresentationKey(ccsCase, override) {
+  if (override && typeof override === 'string' && !String(override).startsWith('_')) {
+    return override;
+  }
+
+  const title = ccsCase?.title || '';
+  if (TITLE_ALIASES[title]) return TITLE_ALIASES[title];
+  if (presentationForKey(title)) return title;
+
+  const insensitive = Object.keys(playbooks.presentations || {}).find(
+    (key) => key.toLowerCase() === title.toLowerCase(),
+  );
+  if (insensitive) return insensitive;
+
+  return title;
+}
+
+/** Resolve drag-game playbook: per-case authored → title presentation → category → default. */
 export function resolvePlaybook(ccsCase) {
   const specific =
     caseSpecific.cases?.[ccsCase.id] || caseSpecific.cases?.[ccsCase.caseNumber];
@@ -11,15 +58,25 @@ export function resolvePlaybook(ccsCase) {
 
   const override =
     playbooks.casePlaybooks?.[ccsCase.id] || playbooks.casePlaybooks?.[ccsCase.caseNumber];
-  const key =
-    override && typeof override === 'string' && !String(override).startsWith('_')
-      ? override
-      : ccsCase.title;
+  let key = resolvePresentationKey(ccsCase, override);
 
-  const presentation =
-    playbooks.presentations[key] ||
-    playbooks.presentations[ccsCase.title] ||
-    playbooks.default;
+  let presentation =
+    presentationForKey(key) ||
+    presentationForKey(ccsCase.title);
+
+  if (!presentation && CATEGORY_FALLBACK[ccsCase.category]) {
+    const fallbackKey = CATEGORY_FALLBACK[ccsCase.category];
+    const fallback = presentationForKey(fallbackKey);
+    if (fallback) {
+      presentation = fallback;
+      key = fallbackKey;
+    }
+  }
+
+  if (!presentation) {
+    presentation = playbooks.default;
+    key = key || ccsCase.title || 'default';
+  }
 
   return { ...presentation, playbookKey: key };
 }

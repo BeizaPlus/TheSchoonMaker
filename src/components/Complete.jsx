@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import PatientScene from './PatientScene.jsx';
+import CaseTeachingVideoOverlay from './CaseTeachingVideoOverlay.jsx';
 import { getBranding } from '../data/gameData.js';
+import { pickTeachingVideo } from '../lib/caseTeachingVideo.js';
 
 export default function Complete({ caseData, stats, playMode, onAgain, onHome, onNext }) {
   const showNext = playMode === 'shuffle' || playMode === 'random';
@@ -7,6 +10,20 @@ export default function Complete({ caseData, stats, playMode, onAgain, onHome, o
   const mastered = stats.accuracy >= masteryThreshold;
   const mm = Math.floor(stats.seconds / 60);
   const ss = String(stats.seconds % 60).padStart(2, '0');
+  const [videoOpen, setVideoOpen] = useState(false);
+  const [videoSrc, setVideoSrc] = useState(null);
+  const [videoError, setVideoError] = useState('');
+
+  const watchTeachingVideo = async () => {
+    setVideoError('');
+    const { src, error } = await pickTeachingVideo(caseData);
+    if (!src) {
+      setVideoError(error);
+      return;
+    }
+    setVideoSrc(src);
+    setVideoOpen(true);
+  };
 
   return (
     <main className="complete-screen">
@@ -39,12 +56,17 @@ export default function Complete({ caseData, stats, playMode, onAgain, onHome, o
           </div>
         </div>
 
+        {videoError && <p className="complete-video-note">{videoError}</p>}
+
         <div className="complete-actions">
           {showNext && (
             <button type="button" className="btn-play" onClick={onNext}>
               {playMode === 'shuffle' ? 'Next in queue →' : 'Random case →'}
             </button>
           )}
+          <button type="button" className="btn-ghost" onClick={watchTeachingVideo}>
+            Watch teaching video
+          </button>
           <button type="button" className="btn-ghost" onClick={onAgain}>
             Replay
           </button>
@@ -53,6 +75,18 @@ export default function Complete({ caseData, stats, playMode, onAgain, onHome, o
           </button>
         </div>
       </div>
+
+      <CaseTeachingVideoOverlay
+        open={videoOpen}
+        src={videoSrc}
+        objectPosition={caseData.patientScene?.objectPosition || 'center center'}
+        onEnded={() => setVideoOpen(false)}
+        onSkip={() => setVideoOpen(false)}
+        onError={(msg) => {
+          setVideoError(msg);
+          setVideoOpen(false);
+        }}
+      />
     </main>
   );
 }

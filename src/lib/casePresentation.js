@@ -1,3 +1,10 @@
+import {
+  formatClinicalText,
+  pickBestHistory,
+} from './clinicalTextFormat.js';
+import { getActiveRefinedNarrative } from './narrativeRefine.js';
+import { readAudienceProfile } from './audienceProfile.js';
+
 /** Whether this case has imported CCS narrative vs a placeholder stub. */
 export function hasRichPresentation(caseData) {
   if (caseData?.preparedMeta?.hasSourceIntro) return true;
@@ -7,19 +14,34 @@ export function hasRichPresentation(caseData) {
 }
 
 export function getPresentationIntro(caseData) {
-  return caseData?.chief_complaint?.trim() || '';
+  const playRole = caseData?.playRole || readAudienceProfile()?.playRole || 'doctor';
+  const difficulty = caseData?.sessionDifficulty || readAudienceProfile()?.difficulty || 'standard';
+  const refined = getActiveRefinedNarrative(caseData?.id, playRole, difficulty);
+  if (refined?.intro) return formatClinicalText(refined.intro);
+  return formatClinicalText(caseData?.chief_complaint?.trim() || '');
 }
 
 export function getPresentationHistory(caseData) {
+  const playRole = caseData?.playRole || readAudienceProfile()?.playRole || 'doctor';
+  const difficulty = caseData?.sessionDifficulty || readAudienceProfile()?.difficulty || 'standard';
+  const refined = getActiveRefinedNarrative(caseData?.id, playRole, difficulty);
+  if (refined?.hpi) return formatClinicalText(refined.hpi);
+
+  const intro = caseData?.chief_complaint?.trim() || '';
   const history = caseData?.historyText?.trim() || '';
-  const intro = getPresentationIntro(caseData);
-  if (!history) return intro;
-  if (intro && history.startsWith(intro.slice(0, Math.min(intro.length, 80)))) {
-    return history;
-  }
-  return history;
+  const text = pickBestHistory({
+    history,
+    intro,
+    playRole,
+    caseId: caseData?.id,
+  });
+  return formatClinicalText(text);
 }
 
 export function getPresentationVitals(caseData) {
-  return caseData?.vitalsText?.trim() || '';
+  const playRole = caseData?.playRole || readAudienceProfile()?.playRole || 'doctor';
+  const difficulty = caseData?.sessionDifficulty || readAudienceProfile()?.difficulty || 'standard';
+  const refined = getActiveRefinedNarrative(caseData?.id, playRole, difficulty);
+  if (refined?.vitalsText) return formatClinicalText(refined.vitalsText);
+  return formatClinicalText(caseData?.vitalsText?.trim() || '');
 }

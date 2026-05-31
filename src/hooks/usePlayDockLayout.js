@@ -1,21 +1,33 @@
 import { useCallback, useEffect, useState } from 'react';
+import { STORAGE } from '../lib/storageKeys.js';
 import {
   clampDockLayout,
+  defaultBriefingDockLayout,
   defaultPlayDockLayout,
   readPlayDockLayout,
   writePlayDockLayout,
 } from '../lib/playDockLayout.js';
 
-export function usePlayDockLayout() {
-  const [layout, setLayout] = useState(() => readPlayDockLayout());
+export function usePlayDockLayout(options = {}) {
+  const storageKey = options.storageKey || STORAGE.playDockLayout;
+  const getDefault =
+    options.getDefault ||
+    (storageKey === STORAGE.briefingDockLayout
+      ? defaultBriefingDockLayout
+      : defaultPlayDockLayout);
+
+  const [layout, setLayout] = useState(() => readPlayDockLayout(storageKey));
   const [activeDrag, setActiveDrag] = useState(null);
 
-  const persist = useCallback((next) => {
-    const clamped = clampDockLayout(next);
-    setLayout(clamped);
-    writePlayDockLayout(clamped);
-    return clamped;
-  }, []);
+  const persist = useCallback(
+    (next) => {
+      const clamped = clampDockLayout(next);
+      setLayout(clamped);
+      writePlayDockLayout(clamped, storageKey);
+      return clamped;
+    },
+    [storageKey],
+  );
 
   useEffect(() => {
     const onResize = () => {
@@ -94,8 +106,8 @@ export function usePlayDockLayout() {
   );
 
   const resetLayout = useCallback(() => {
-    persist(defaultPlayDockLayout());
-  }, [persist]);
+    persist(getDefault());
+  }, [getDefault, persist]);
 
   return { layout, persist, startDrag, resetLayout, isDragging: Boolean(activeDrag) };
 }

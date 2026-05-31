@@ -302,6 +302,68 @@
         }
       ]
     },
+    "Memory Loss": {
+      "clinical_tip": "Separate acute delirium from progressive dementia — always rule out reversible metabolic, infectious, and structural causes first.",
+      "objective": "Stabilize, evaluate reversible causes of cognitive decline, and image when indicated.",
+      "interventions": [
+        {
+          "id": "monitor",
+          "label": "Cardiac Monitor + Continuous vitals",
+          "correct_zone": "zone-monitor",
+          "why": "Track hemodynamics and oxygenation while evaluating AMS or acute cognitive change.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "iv",
+          "label": "IV Access + fluids",
+          "correct_zone": "zone-iv-bag",
+          "why": "Resuscitate and allow medication administration during the workup.",
+          "guideline": "ATLS"
+        },
+        {
+          "id": "glucose",
+          "label": "Point-of-care Glucose",
+          "correct_zone": "zone-blood",
+          "why": "Hypoglycemia mimics stroke and acute confusion — treat immediately if low.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "neuro-exam",
+          "label": "Focused Neurologic & Mental Status Exam",
+          "correct_zone": "zone-arm",
+          "why": "Document orientation, memory, language, and focal deficits to guide urgency.",
+          "guideline": "AAN"
+        },
+        {
+          "id": "ct",
+          "label": "CT Head non-contrast",
+          "correct_zone": "zone-monitor",
+          "why": "Rule out hemorrhage, mass effect, or acute structural lesion.",
+          "guideline": "AHA/ACEP"
+        },
+        {
+          "id": "labs",
+          "label": "BMP · CBC · TSH · B12 · RPR · Tox screen",
+          "correct_zone": "zone-blood",
+          "why": "Metabolic, infectious, endocrine, nutritional, and toxic causes of memory change.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "mri",
+          "label": "MRI Brain / Neuroimaging",
+          "correct_zone": "zone-monitor",
+          "why": "Higher yield for subacute stroke, encephalitis, and structural lesions when CT is unrevealing.",
+          "guideline": "AAN"
+        },
+        {
+          "id": "neuro-consult",
+          "label": "Neurology Consult + Admit",
+          "correct_zone": "zone-icu",
+          "why": "Progressive or unexplained cognitive decline needs inpatient evaluation and safety planning.",
+          "guideline": "ACEP"
+        }
+      ]
+    },
     "Rash and Lethargy": {
       "clinical_tip": "Petechiae + fever in a sick patient — treat empirically for meningococcemia.",
       "objective": "Recognize toxic rash syndromes. Resuscitate and cover infection.",
@@ -551,9 +613,73 @@
           "guideline": "SSC 2021"
         }
       ]
+    },
+    "Poor Feeding": {
+      "clinical_tip": "Febrile infant — sepsis workup, fluids, and close monitoring before disposition.",
+      "objective": "Stabilize the pediatric patient and complete emergent workup before disposition.",
+      "interventions": [
+        {
+          "id": "monitor",
+          "label": "Cardiac Monitor + Pulse ox",
+          "correct_zone": "zone-monitor",
+          "why": "Continuous vitals in a potentially septic infant.",
+          "guideline": "AAP"
+        },
+        {
+          "id": "iv",
+          "label": "IV Access + Fluids",
+          "correct_zone": "zone-iv-bag",
+          "why": "Maintain perfusion while workup proceeds.",
+          "guideline": "PALS"
+        },
+        {
+          "id": "labs",
+          "label": "Stat Labs (CBC, BMP, glucose)",
+          "correct_zone": "zone-blood",
+          "why": "Screen for dehydration, infection, and metabolic derangement.",
+          "guideline": "AAP"
+        },
+        {
+          "id": "cultures",
+          "label": "Blood Culture",
+          "correct_zone": "zone-blood",
+          "why": "Obtain before antibiotics in febrile infant workup.",
+          "guideline": "AAP"
+        },
+        {
+          "id": "ua",
+          "label": "Urinalysis + Culture",
+          "correct_zone": "zone-blood",
+          "why": "UTI is a common occult source in poor feeding and fever.",
+          "guideline": "AAP"
+        },
+        {
+          "id": "cxr",
+          "label": "Chest X-ray",
+          "correct_zone": "zone-monitor",
+          "why": "Evaluate respiratory source if tachypneic or hypoxic.",
+          "guideline": "AAP"
+        },
+        {
+          "id": "antipyretic",
+          "label": "Antipyretic + Comfort care",
+          "correct_zone": "zone-arm",
+          "why": "Treat fever while avoiding premature closure on sepsis.",
+          "guideline": "AAP"
+        },
+        {
+          "id": "admit",
+          "label": "Admit / Observation",
+          "correct_zone": "zone-icu",
+          "why": "High-risk infant needs monitored workup and serial exams.",
+          "guideline": "AAP"
+        }
+      ]
     }
   },
   "casePlaybooks": {
-    "_comment": "Map CCS case id → presentation key. Example: \"023\": \"Sepsis\""
+    "_comment": "Map CCS case id → presentation key. Example: \"023\": \"Sepsis\"",
+    "073": "Memory Loss",
+    "143": "Poor Feeding"
   }
 }

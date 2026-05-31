@@ -17,6 +17,7 @@ import {
   readPlayCheckpoint,
 } from './lib/playSessionResume.js';
 import { endPlaySession } from './lib/caseUserLog.js';
+import { startIcuMonitor, endSessionMonitor, unlockAmbience, prefetchMonitorAudio } from './lib/audio.js';
 
 const SCREENS = {
   home: 'home',
@@ -38,6 +39,10 @@ export default function App() {
 
   const refreshResumeCheckpoint = useCallback(() => {
     setResumeCheckpoint(readPlayCheckpoint());
+  }, []);
+
+  useEffect(() => {
+    prefetchMonitorAudio();
   }, []);
 
   useEffect(() => {
@@ -69,6 +74,8 @@ export default function App() {
     setPlayMode(mode);
     setLastMode(mode);
     setCurrentCase(gameCase);
+    unlockAmbience();
+    startIcuMonitor({ fadeMs: 1800 });
     setScreen(SCREENS.briefing);
   }, []);
 
@@ -99,6 +106,8 @@ export default function App() {
   }, []);
 
   const beginPlay = useCallback(() => {
+    unlockAmbience();
+    startIcuMonitor({ fadeMs: 0 });
     setScreen(SCREENS.play);
   }, []);
 
@@ -106,6 +115,7 @@ export default function App() {
     setPlayMode('browse');
     setLastMode('browse');
     setCurrentCase(gameCase);
+    startIcuMonitor({ fadeMs: 0 });
   }, []);
 
   const finishCase = useCallback(
@@ -116,16 +126,19 @@ export default function App() {
       clearPlayCheckpoint();
       setResumeCheckpoint(null);
       setStats(result);
+      startIcuMonitor({ fadeMs: 0 });
       setScreen(SCREENS.complete);
     },
     [currentCase],
   );
 
   const playAgain = useCallback(() => {
+    startIcuMonitor({ fadeMs: 0 });
     setScreen(SCREENS.briefing);
   }, []);
 
   const goHome = useCallback(() => {
+    endSessionMonitor({ fadeMs: 900 });
     setScreen(SCREENS.home);
     refreshResumeCheckpoint();
     setHomeKey((k) => k + 1);
@@ -200,6 +213,7 @@ export default function App() {
           onBegin={beginPlay}
           onBack={goHome}
           onSelectCase={switchBriefingCase}
+          studioCapture={studioBuild}
         />
       )}
       {screen === SCREENS.play && currentCase && (

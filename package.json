@@ -13,6 +13,7 @@
     "step3:serve": "node step3/serve_ccs_local.js",
     "step3:record": "node step3/record_ccs_cache.js",
     "refresh:case-bank": "npm run build:catalog && npm run build:cases",
+    "audio:compress": "node scripts/compress-icu-audio.mjs",
     "predev": "npm run build:data && node scripts/smoke-test.mjs",
     "dev": "concurrently -n api,web -c blue,green \"node server/index.js\" \"vite\"",
     "dev:studio": "concurrently -n api,web -c blue,green \"node server/index.js\" \"vite --open /studio.html\"",

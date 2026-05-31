@@ -132,6 +132,54 @@ async function main() {
   ok(recHi.bestAccuracy >= threshold, "progress: bestAccuracy updated");
 
   console.log("\nSmoke test complete.");
+
+  // --- Case bank vs preparedCases (random sample) ---
+  const { loadCaseBank } = await import(
+    url.pathToFileURL(path.join(root, "scripts/caseBankLoader.mjs")).href
+  );
+  const bank = loadCaseBank();
+  ok(bank.size >= 100, "case bank: loaded scraped cases", `${bank.size} entries`);
+
+  const catalogIds = catalog.cases.map((c) => Number(c.caseNumber));
+  const sampleSize = Math.min(12, catalogIds.length);
+  const shuffled = [...catalogIds].sort(() => Math.random() - 0.5).slice(0, sampleSize);
+  let matchOk = 0;
+  let matchFail = 0;
+  const failSamples = [];
+
+  for (const caseNum of shuffled) {
+    const key = String(caseNum).padStart(3, "0");
+    const prep = prepared.cases?.[key];
+    const bankCase = bank.get(caseNum);
+    if (!prep || !bankCase?.correct_orders?.length) {
+      matchFail += 1;
+      failSamples.push({ caseNum, reason: "missing prep or bank orders" });
+      continue;
+    }
+    const prepLabels = new Set((prep.interventions || []).map((iv) => iv.label.toLowerCase()));
+    const bankLabels = bankCase.correct_orders.map((o) => String(o).toLowerCase());
+    const overlap = bankLabels.filter((l) => prepLabels.has(l)).length;
+    const ratio = overlap / Math.max(bankLabels.length, 1);
+    if (ratio >= 0.8) {
+      matchOk += 1;
+    } else {
+      matchFail += 1;
+      failSamples.push({
+        caseNum,
+        topic: bankCase.topic,
+        diagnosis: bankCase.diagnosis,
+        overlap,
+        bankTotal: bankLabels.length,
+        prepTotal: prepLabels.size,
+      });
+    }
+  }
+
+  ok(
+    matchOk >= Math.floor(sampleSize * 0.85),
+    "case bank: random sample matches prepared treatments",
+    `${matchOk}/${sampleSize} matched` + (failSamples.length ? ` fails=${JSON.stringify(failSamples.slice(0, 3))}` : ""),
+  );
 }
 
 main().catch((e) => {

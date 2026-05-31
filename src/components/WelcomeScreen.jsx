@@ -35,6 +35,8 @@ import {
   markOnboardingComplete,
 } from '../lib/onboarding.js';
 import GridPlacementLayer from './GridPlacementLayer.jsx';
+import AudioSettingsPanel from './AudioSettingsPanel.jsx';
+import GlobalUiSettingsPanel from './GlobalUiSettingsPanel.jsx';
 import ResumeSessionBanner from './ResumeSessionBanner.jsx';
 import {
   createGridItem,
@@ -676,6 +678,8 @@ export default function WelcomeScreen({
           <button type="button" className="welcome-panel-btn" onClick={toggleTheme}>
             Theme: {theme === 'light' ? 'Light' : 'Dark'}
           </button>
+          <GlobalUiSettingsPanel />
+          <AudioSettingsPanel />
           <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => loadPatientImage(e.target.files?.[0])} />
           {patientSet ? (
             <button type="button" className="welcome-panel-btn" onClick={clearPatientImage}>

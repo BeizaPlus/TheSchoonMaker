@@ -97,7 +97,8 @@ export function toGameCase(ccsCase, catalog) {
     '';
   const clinicalTip = prepared?.clinical_tip || pb.clinical_tip;
   const objective = prepared?.objective || pb.objective;
-  const interventions = pb.interventions;
+  const interventions =
+    prepared?.interventions?.length > 0 ? prepared.interventions : pb.interventions;
   const chiefComplaint = introText || `${ccsCase.title} — CCS Case ${ccsCase.caseNumber}`;
   const sexHint = prepared?.patientSex && prepared.patientSex !== 'unknown'
     ? prepared.patientSex

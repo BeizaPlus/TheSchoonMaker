@@ -26,12 +26,27 @@ export function defaultPlayDockLayout() {
   return { x, y, width, height, clinicalPx };
 }
 
-export function readPlayDockLayout() {
+export function defaultBriefingDockLayout() {
+  const base = defaultPlayDockLayout();
+  if (typeof window === 'undefined') return base;
+  return {
+    ...base,
+    x: Math.max(12, window.innerWidth - base.width - 18),
+    y: 52,
+    height: clamp(Math.round(window.innerHeight * 0.72), 360, 780),
+  };
+}
+
+export function readPlayDockLayout(storageKey = STORAGE.playDockLayout) {
   try {
-    const raw = localStorage.getItem(STORAGE.playDockLayout);
-    if (!raw) return defaultPlayDockLayout();
+    const raw = localStorage.getItem(storageKey);
+    const fallback =
+      storageKey === STORAGE.briefingDockLayout
+        ? defaultBriefingDockLayout()
+        : defaultPlayDockLayout();
+    if (!raw) return fallback;
     const parsed = JSON.parse(raw);
-    const base = defaultPlayDockLayout();
+    const base = fallback;
     return {
       x: Number(parsed.x) || base.x,
       y: Number(parsed.y) || base.y,
@@ -40,13 +55,15 @@ export function readPlayDockLayout() {
       clinicalPx: Number(parsed.clinicalPx) || base.clinicalPx,
     };
   } catch {
-    return defaultPlayDockLayout();
+    return storageKey === STORAGE.briefingDockLayout
+      ? defaultBriefingDockLayout()
+      : defaultPlayDockLayout();
   }
 }
 
-export function writePlayDockLayout(layout) {
+export function writePlayDockLayout(layout, storageKey = STORAGE.playDockLayout) {
   try {
-    localStorage.setItem(STORAGE.playDockLayout, JSON.stringify(layout));
+    localStorage.setItem(storageKey, JSON.stringify(layout));
   } catch {
     /* ignore */
   }
