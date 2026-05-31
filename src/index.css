@@ -1678,12 +1678,101 @@ button {
   z-index: 30;
   border: 1px solid var(--border);
   border-radius: 12px;
-  height: min(82vh, 860px);
-  min-height: 360px;
-  min-width: 300px;
-  resize: both;
+  display: flex;
+  flex-direction: column;
+  min-height: 280px;
+  min-width: 260px;
+  max-width: calc(100vw - 8px);
+  max-height: calc(100vh - 48px);
+  resize: none;
   overflow: hidden;
   box-shadow: 0 24px 52px rgba(0, 0, 0, 0.45);
+}
+
+.dock-panel-clinical {
+  flex: 0 0 var(--clinical-panel-h, 200px);
+  min-height: 96px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.dock-panel-clinical .play-case-scroll {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.dock-panel-stacks {
+  flex: 1 1 auto;
+  min-height: 120px;
+}
+
+.dock-split-handle {
+  flex: 0 0 10px;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  cursor: row-resize;
+  touch-action: none;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(232, 184, 75, 0.35),
+    transparent
+  );
+}
+
+.dock-split-handle:hover,
+.dock-split-handle:active {
+  background: rgba(232, 184, 75, 0.22);
+}
+
+.dock-resize-handle {
+  position: absolute;
+  z-index: 3;
+  touch-action: none;
+}
+
+.dock-resize-e {
+  top: 24px;
+  right: 0;
+  bottom: 12px;
+  width: 12px;
+  cursor: ew-resize;
+}
+
+.dock-resize-s {
+  left: 8px;
+  right: 8px;
+  bottom: 0;
+  height: 12px;
+  cursor: ns-resize;
+}
+
+.dock-resize-se {
+  right: 0;
+  bottom: 0;
+  width: 18px;
+  height: 18px;
+  cursor: nwse-resize;
+}
+
+.dock-reset-btn {
+  margin-left: auto;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 2px 6px;
+}
+
+.dock-reset-btn:hover {
+  color: var(--gold);
 }
 
 .sidebar-stacks {
@@ -1706,6 +1795,18 @@ button {
   overflow-y: auto;
   overflow-x: hidden;
   padding: 4px 12px 12px;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  gap: 8px;
+  align-content: flex-start;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pill-list-panel .drag-pill-wrap.pack-item {
+  flex: 1 1 min(100%, 240px);
+  max-width: 100%;
+  min-width: min(100%, 180px);
 }
 
 .game-sidebar.floating.dragging {
@@ -1757,6 +1858,7 @@ button {
 
 .dock-handle {
   height: 24px;
+  flex-shrink: 0;
   border-bottom: 1px solid var(--border);
   color: var(--muted);
   font-size: 0.58rem;
@@ -1765,6 +1867,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   cursor: move;
   user-select: none;
 }
@@ -1966,10 +2069,19 @@ button {
   border-bottom: 1px solid var(--border);
   min-height: 88px;
   max-height: none;
-  overflow: visible;
+  overflow: hidden;
   position: sticky;
   top: 0;
   z-index: 2;
+}
+
+.dock-panel-clinical.sidebar-top {
+  position: relative;
+  top: auto;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .clinical-pack-top {
@@ -2378,12 +2490,15 @@ button {
 
 .pill-flow-chip {
   font-size: 0.62rem;
-  line-height: 1.25;
+  line-height: 1.35;
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 999px;
-  padding: 2px 7px;
+  padding: 4px 8px;
   color: rgba(240, 238, 232, 0.82);
   background: rgba(255, 255, 255, 0.04);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  max-width: 100%;
 }
 
 .pill-flow-chip.ok {
@@ -2486,7 +2601,8 @@ button {
 }
 
 .drag-pill.pill {
-  min-height: var(--pill-h, 52px);
+  min-height: var(--pill-h, 44px);
+  height: auto;
   padding: 10px 14px;
   border-radius: 10px;
   border: 1px solid var(--border);
@@ -2496,7 +2612,7 @@ button {
   font-weight: 600;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   cursor: grab;
 }
@@ -2505,7 +2621,10 @@ button {
   flex: 1;
   min-width: 0;
   white-space: normal;
+  overflow: visible;
   overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.35;
 }
 
 .drag-pill.pill:hover {
@@ -2530,8 +2649,9 @@ button {
 
 .pill-meta {
   display: inline-flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .pill-stack {
@@ -2549,13 +2669,18 @@ button {
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
+  flex-shrink: 0;
 }
 
 .mode-legend {
   font-size: 0.58rem;
   color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
+  flex: 1 1 100%;
 }
 
 .progress-dots {
@@ -5693,8 +5818,8 @@ button {
   }
 
   .game-sidebar.floating {
-    width: min(var(--sidebar-w, 320px), calc(100vw - 16px));
-    max-height: min(72vh, 640px);
+    max-width: calc(100vw - 8px);
+    max-height: calc(100vh - 52px);
   }
 
   .play-hud {
@@ -5734,17 +5859,13 @@ button {
   }
 
   .game-sidebar.floating {
-    position: fixed;
-    left: 8px;
-    right: 8px;
-    bottom: 8px;
-    top: auto;
-    width: auto;
-    max-height: min(58vh, 520px);
+    max-width: calc(100vw - 16px);
+    max-height: calc(100vh - 56px);
   }
 
-  .game-sidebar.floating.collapsed {
-    max-height: 52px;
+  .pill-list-panel .drag-pill-wrap.pack-item {
+    flex: 1 1 100%;
+    min-width: 100%;
   }
 
   .briefing-layout {
@@ -5753,10 +5874,6 @@ button {
 
   .briefing h1 {
     font-size: clamp(1.8rem, 6vw, 2.6rem);
-  }
-
-  .play-case-scroll {
-    max-height: min(24vh, 180px);
   }
 }
 
@@ -5788,4 +5905,29 @@ button {
 .case-browser-row {
   content-visibility: auto;
   contain-intrinsic-size: auto 52px;
+}
+
+[data-perf='low'] .drag-pill.pill.dragging,
+[data-perf='medium'] .drag-pill.pill.dragging {
+  box-shadow: 0 2px 8px rgba(232, 184, 75, 0.25);
+}
+
+[data-perf='low'] .game-sidebar.floating,
+[data-perf='medium'] .game-sidebar.floating {
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.38);
+}
+
+[data-perf='low'] .clinical-pack-top,
+[data-perf='medium'] .clinical-pack-top {
+  background: rgba(20, 20, 28, 0.92);
+}
+
+[data-viewport='compact'] .play-bottom-bar {
+  padding-bottom: max(6px, env(safe-area-inset-bottom));
+}
+
+[data-viewport='compact'] .sidebar-foot .btn-ghost {
+  flex: 1 1 calc(50% - 8px);
+  min-width: 0;
+  text-align: center;
 }

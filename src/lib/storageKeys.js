@@ -21,6 +21,7 @@ export const STORAGE = {
   caseChatHistory: 'schoonmaker_case_chat_history',
   activePlayCheckpoint: 'schoonmaker_active_play_checkpoint',
   soapDraft: 'schoonmaker_soap_draft',
+  playDockLayout: 'schoonmaker_play_dock_layout',
 };
 
 const LEGACY = {

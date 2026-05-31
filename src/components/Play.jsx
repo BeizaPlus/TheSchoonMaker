@@ -5,6 +5,7 @@ import WhyPanel from './WhyPanel.jsx';
 import { getDragConfig } from '../data/gameData.js';
 import { useDragGame } from '../hooks/useDragGame.js';
 import { useGridDragGame } from '../hooks/useGridDragGame.js';
+import { usePlayDockLayout } from '../hooks/usePlayDockLayout.js';
 import { isCorrectGridPlacement, zoneIdForCell } from '../lib/placementGrid.js';
 import SceneGridOverlay from './SceneGridOverlay.jsx';
 import { playWrong, playComplete } from '../lib/audio.js';
@@ -111,15 +112,9 @@ export default function Play({
   const [playSessionId, setPlaySessionId] = useState(null);
   const playSessionIdRef = useRef(null);
   const [dockCollapsed, setDockCollapsed] = useState(false);
-  const [dockPos, setDockPos] = useState(() => {
-    const width = 360;
-    return {
-      x: Math.max(12, window.innerWidth - width - 18),
-      y: 52,
-    };
-  });
+  const { layout: dockLayout, startDrag: startDockDrag, resetLayout: resetDockLayout } =
+    usePlayDockLayout();
   const [theme, setTheme] = useState(() => readTheme());
-  const [dockDragging, setDockDragging] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [dropMode, setDropMode] = useState(() => {
     try {
@@ -141,7 +136,6 @@ export default function Play({
   const sceneRef = useRef(null);
   const patientImgRef = useRef(null);
   const dockRef = useRef(null);
-  const dockDragRef = useRef({ active: false, dx: 0, dy: 0 });
   const [imageFrame, setImageFrame] = useState({ x: 0, y: 0, w: 1, h: 1 });
 
   const interventions = caseData.interventions;
@@ -1018,42 +1012,9 @@ export default function Play({
     return () => window.removeEventListener('resize', onResize);
   }, [syncImageFrame]);
 
-  useEffect(() => {
-    if (!dockDragging) return undefined;
-
-    const onMove = (event) => {
-      const width = layout.sidebarWidthPx || 360;
-      const height = dockRef.current?.offsetHeight || 520;
-      const x = event.clientX - dockDragRef.current.dx;
-      const y = event.clientY - dockDragRef.current.dy;
-      const clampedX = Math.min(Math.max(8, x), Math.max(8, window.innerWidth - width - 8));
-      const clampedY = Math.min(Math.max(48, y), Math.max(48, window.innerHeight - height - 44));
-      setDockPos({ x: clampedX, y: clampedY });
-    };
-
-    const onUp = () => {
-      dockDragRef.current.active = false;
-      setDockDragging(false);
-    };
-
-    window.addEventListener('pointermove', onMove);
-    window.addEventListener('pointerup', onUp);
-    return () => {
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerup', onUp);
-    };
-  }, [dockDragging, layout.sidebarWidthPx]);
-
   const onDockDragStart = (event) => {
     if (event.button !== 0 || dockCollapsed) return;
-    const rect = dockRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    dockDragRef.current = {
-      active: true,
-      dx: event.clientX - rect.left,
-      dy: event.clientY - rect.top,
-    };
-    setDockDragging(true);
+    startDockDrag('move', event);
   };
 
   useEffect(() => {
@@ -1863,17 +1824,30 @@ export default function Play({
 
       <aside
         ref={dockRef}
-        className={`game-sidebar floating dock-return-zone ${dockCollapsed ? 'collapsed' : ''} ${dockDragging ? 'dragging' : ''} ${finalMode ? 'final-mode-minimized' : ''}`}
+        className={`game-sidebar floating dock-return-zone ${dockCollapsed ? 'collapsed' : ''} ${finalMode ? 'final-mode-minimized' : ''}`}
         style={{
-          left: `${dockPos.x}px`,
-          top: `${dockPos.y}px`,
-          width: `${layout.sidebarWidthPx || 360}px`,
+          left: `${dockLayout.x}px`,
+          top: `${dockLayout.y}px`,
+          width: `${dockLayout.width}px`,
+          height: `${dockLayout.height}px`,
+          '--clinical-panel-h': `${dockLayout.clinicalPx}px`,
         }}
       >
         <div className="dock-handle" onPointerDown={onDockDragStart} title="Drag to move panel">
           ⋮⋮ {brand.name}
+          <button
+            type="button"
+            className="dock-reset-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              resetDockLayout();
+            }}
+            title="Reset panel size"
+          >
+            ↺
+          </button>
         </div>
-        <div className="sidebar-top clinical-pack-top clinical-pack-minimal">
+        <div className="dock-panel-clinical sidebar-top clinical-pack-top clinical-pack-minimal">
           <p className="sidebar-case-id">Case {caseData.ccsNumber}</p>
           <h2 className="sidebar-title" title={caseData.title}>
             {caseData.title}
@@ -1935,7 +1909,14 @@ export default function Play({
             <span className={`play-sidebar-timer ${timerState}`}>{timerLabel}</span>
           </p>
         </div>
-        <section className="sidebar-stacks" aria-label="Treatment stacks">
+        <div
+          className="dock-split-handle"
+          role="separator"
+          aria-orientation="horizontal"
+          aria-label="Resize case and stacks panels"
+          onPointerDown={(e) => startDockDrag('split', e)}
+        />
+        <section className="sidebar-stacks dock-panel-stacks" aria-label="Treatment stacks">
           <p className="sidebar-section-label">Stacks — drag to patient</p>
           {teachMeMode && (
             <div className="teach-panel">
@@ -2034,7 +2015,6 @@ export default function Play({
                         {expectedOrderIds.map((id, idx) => {
                           const current = id === iv.id;
                           const label = interventions.find((x) => x.id === id)?.label || `Step ${idx + 1}`;
-                          const short = label.length > 18 ? `${label.slice(0, 18)}...` : label;
                           const placedIdx = placementOrder.indexOf(id);
                           const expectedIdx = idx;
                           const orderOk = placedIdx >= 0 && placedIdx === expectedIdx;
@@ -2044,7 +2024,7 @@ export default function Play({
                               className={`pill-flow-chip ${current ? 'current' : ''} ${orderOk ? 'ok' : ''}`}
                               title={`${idx + 1}. ${label}`}
                             >
-                              {idx + 1}. {short}
+                              {idx + 1}. {label}
                             </span>
                           );
                         })}
@@ -2087,6 +2067,21 @@ export default function Play({
           </button>
         </div>
         {reviewedAt && <div className="reviewed-stamp">Reviewed at {reviewedAt.toLocaleTimeString()}</div>}
+        <div
+          className="dock-resize-handle dock-resize-e"
+          aria-hidden
+          onPointerDown={(e) => startDockDrag('resize-e', e)}
+        />
+        <div
+          className="dock-resize-handle dock-resize-s"
+          aria-hidden
+          onPointerDown={(e) => startDockDrag('resize-s', e)}
+        />
+        <div
+          className="dock-resize-handle dock-resize-se"
+          aria-hidden
+          onPointerDown={(e) => startDockDrag('resize-se', e)}
+        />
       </aside>
 
       <WhyPanel

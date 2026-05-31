@@ -30,7 +30,10 @@ export function useDragGame({
     }
 
     interact('.drag-pill-wrap').draggable({
-      inertia: { resistance: 10, minSpeed: 100, endSpeed: 50 },
+      inertia:
+        typeof document !== 'undefined' && document.documentElement.dataset.perf === 'low'
+          ? false
+          : { resistance: 10, minSpeed: 100, endSpeed: 50 },
       autoScroll: true,
       listeners: {
         start(event) {
