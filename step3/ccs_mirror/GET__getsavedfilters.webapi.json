@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "url": "https://app.ccscases.com/getsavedfilters.webapi",
+  "pathname": "/getsavedfilters.webapi",
+  "status": 200,
+  "headers": {
+    "access-control-allow-origin": "*",
+    "cache-control": "private",
+    "x-aspnet-version": "4.0.30319",
+    "date": "Wed, 20 May 2026 04:13:28 GMT",
+    "content-type": "application/json; charset=utf-8",
+    "x-powered-by": "",
+    "server": ""
+  },
+  "bodyBase64": "eyJzb3J0T3JkZXIiOiJJZCIsInNvcnREaXJlY3Rpb24iOiJBc2NlbmRpbmciLCJjYXRlZ29yaWVzIjp7IkludGVybmFsIE1lZGljaW5lIjp0cnVlLCJOZXVyb2xvZ3kiOnRydWUsIk9CL0dZTiI6dHJ1ZSwiUGVkaWF0cmljcyI6dHJ1ZSwiRW1lcmdlbmN5IE1lZGljaW5lIjp0cnVlLCJQc3ljaGlhdHJ5Ijp0cnVlfSwic2hvd0Nhc2VEaWFnbm9zaXMiOmZhbHNlLCJzaG93Q2FzZVRpdGxlIjp0cnVlLCJoaWRlQ29tcGxldGVkIjpmYWxzZSwiaGlkZUluY29tcGxldGUiOmZhbHNlLCJ0aW1lZEV4YW0iOnRydWUsImN1c3RvbVRpbWVMaW1pdCI6Im5vbmUiLCJuZXR3b3JrTGFnIjoibm9uZSJ9",
+  "savedAt": "2026-05-20T04:13:27.427Z"
+}

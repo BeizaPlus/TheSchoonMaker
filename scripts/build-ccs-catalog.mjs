@@ -7,7 +7,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const STEP3 = path.join(__dirname, '../../../Step 3');
+const ROOT = path.join(__dirname, '..');
+const STEP3_CANDIDATES = [
+  path.join(ROOT, 'step3'),
+  path.join(__dirname, '../../../Step 3'),
+];
+const STEP3 = STEP3_CANDIDATES.find((p) => fs.existsSync(path.join(p, 'ccs_mirror'))) || STEP3_CANDIDATES[0];
 const OUT = path.join(__dirname, '../src/data/ccsCatalog.json');
 const PRES_DIR = path.join(STEP3, 'ccs_presentations');
 

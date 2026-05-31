@@ -1,0 +1,56 @@
+Case 1: Chest Pain
+Intro screens captured: 3
+
+--- Case Introduction ---
+
+Case Introduction
+
+Day 1 @ 16:00
+Emergency Department
+A 65-year-old white man is brought in to the emergency department because of sharp chest pain and difficulty breathing. At bedside, he currently is in acute distress, and is moaning and holding his hands over the right side of his chest
+
+--- Initial Vital Signs ---
+
+Initial Vital Signs
+
+Day 1 @ 16:00
+
+Temperature:
+
+37.0 C (98.6 degrees F)
+
+Pulse:
+
+120 beats/min, Weak
+
+Respiratory rate:
+
+34 /minute
+
+Blood pressure, systolic:
+
+100 mm Hg
+
+Blood pressure, diastolic:
+
+60 mm Hg
+
+Height:
+
+183cm (72.0 in)
+
+Weight:
+
+97.5 kg (215 lb)
+
+Body Mass Index:
+
+29.1 kg/m2
+
+--- Initial History ---
+
+Initial History
+
+Reason(s) for visit: Chest pain; respiratory distress
+History of present Illness:
+The patient, a 65-year-old accountant, is brought to the emergency department by ambulance from the trucking company, where he works. Ten minutes prior to the ambulance’s arrival, the patient developed excruciating, sharp pain on the right side of his chest accompanied by marked respiratory distress. He rates the pain as an 8 on a 10-point scale. The pain increases on respiration, and he is unable to answer questions. A coworker who accompanied the patient to the hospital says that this has never happened to the patient in the past. Coworker mentions patient has a past medical history of emphysema and asthma. Oxygen was administered during transport.

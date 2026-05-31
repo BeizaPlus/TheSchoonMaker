@@ -1,0 +1,82 @@
+Case 3: Pelvic Pain
+Intro screens: 3
+
+--- Case Introduction ---
+
+Case Introduction
+
+Day 1 @ 9:00
+Office
+A 20-year-old female presents to your office with pelvic pain which has been occurring for the last month.
+
+--- Initial Vital Signs ---
+
+Initial Vital Signs
+
+Day 1 @ 9:00
+
+Temperature:
+
+37.0 C (98.6 degrees F)
+
+Pulse:
+
+110 beat/min, Tachycardic
+
+Respiratory rate:
+
+22 /minute
+
+Blood pressure, systolic:
+
+140 mm Hg
+
+Blood pressure, diastolic:
+
+92 mm Hg
+
+Height:
+
+175.3 cm (69.0 in)
+
+Weight:
+
+65.8 kg (145 lb)
+
+Body Mass Index:
+
+21.4 kg/m2
+
+--- Initial History ---
+
+Initial History
+
+Reason(s) for visit: Pelvic pain
+History of present Illness:
+This is a 20-year-old previously healthy female presenting to your office complaining of pelvic pain for the last month. She rates the pain as a constant 7/10 sharp pain which worsens when she moves. She was encouraged by her boyfriend to come to you because she is having extreme pain during sex. Ibuprofen "takes the edge off." The pain is severe enough that she reports having difficulty sleeping. Her pain worsens during her menstruation and that the pain is "unbearable." She admits that she has had unprotected sex with her boyfriend a few times, but reports that she is taking an oral contraceptive. She denies multiple sexual partners in the past. She has had a few episodes of vomiting and still feels nauseous. No fevers or chills. She also reports pain when having a bowel movement. She denies any vaginal discharge. 
+
+Past Medical History: 
+Current medications: Oral Contraceptive
+Allergies: None
+Vaccinations: Received Childhood vaccinations.
+Women's health: She has never been to a gynecologist. 
+Family History: The patient's mother has a history of breast cancer in her 50s. Her father had a 'heart attack' in his 40s. 
+
+Marital/Family: The patient is the oldest of 3 children. Both of her siblings are healthy without medical problems. 
+Personal habits: She admits to smoking 2 cigarettes a day to help lose weight. She also admits to smoking marijuana occasionally at parties. She also drinks alcohol once a week with friends. 
+Occupation/educational: She is a college student and currently studying Art History and would like to be a teacher. 
+Recreational: She enjoys to paint and train dogs. 
+
+Review of systems:
+General: See HPI
+Skin: Negative
+HEENT: Negative
+Cardiorespiratory: Negative
+Gastrointestinal: See HPI
+Genitourinary: Negative
+Neuropsychiatric: Negative
+
+--- Chart tabs ---
+
+* Chart: Progress Notes → presentation_3_Pelvic_Pain_chart_Progress_Notes.png
+* Chart: Vital Signs → presentation_3_Pelvic_Pain_chart_Vital_Signs.png

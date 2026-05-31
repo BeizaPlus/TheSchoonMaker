@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "url": "https://app.ccscases.com/announcementnew.webapi",
+  "pathname": "/announcementnew.webapi",
+  "status": 200,
+  "headers": {
+    "access-control-allow-origin": "*",
+    "cache-control": "private",
+    "x-aspnet-version": "4.0.30319",
+    "date": "Wed, 20 May 2026 04:13:27 GMT",
+    "content-type": "application/json; charset=utf-8",
+    "x-powered-by": "",
+    "server": ""
+  },
+  "bodyBase64": "eyJBbm5vdW5jZW1lbnQiOiIifQ==",
+  "savedAt": "2026-05-20T04:13:26.668Z"
+}

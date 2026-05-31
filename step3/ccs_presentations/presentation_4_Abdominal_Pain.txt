@@ -1,0 +1,84 @@
+Case 4: Abdominal Pain
+Intro screens: 3
+
+--- Case Introduction ---
+
+Case Introduction
+
+Day 1 @ 18:00
+Emergency Department
+A 22-year-old female presents to the emergency room complaining of abdominal pain
+
+--- Initial Vital Signs ---
+
+Initial Vital Signs
+
+Day 1 @ 18:00
+
+Temperature:
+
+37.2 C (98.9 degrees F)
+
+Pulse:
+
+106 beat/min, Tachycardic
+
+Respiratory rate:
+
+20 /minute
+
+Blood pressure, systolic:
+
+114 mm Hg
+
+Blood pressure, diastolic:
+
+79 mm Hg
+
+Height:
+
+160.0 cm (63.0 in)
+
+Weight:
+
+80.5 kg (177.4 lb)
+
+Body Mass Index:
+
+31.4 kg/m2
+
+--- Initial History ---
+
+Initial History
+
+Reason(s) for visit: Abdominal Pain
+History of present Illness:
+A 22-year-old female presents to the emergency room with abdominal pain, lethargy, and vomiting x2 days. Her vomiting is non-bloody. Her abdominal pain is diffuse, which she rates as a 6/10. She also claims to have had an increased appetite prior to having these symptoms. She also claims that she’s been developing blurry vision, dizziness, and drowsiness. She also states that she is having increased urination
+
+Past Medical History
+
+Past Medical History: None
+Current medications: Birth control
+Allergies: None
+Vaccinations: The patient received her childhood vaccinations. She has never received any HPV vaccines.
+Women's health: The patient cannot remember when her last pap smear was done.
+Family History: The patient has a brother with Diabetes. 
+
+Social History:
+Marital/Family: Single. She is an undergraduate student at a local university.
+Personal habits: The patient denies smoking. She drinks socially. She smoked marijuana "a few times" with her friends. She denies other illicit drugs or misuse of medications. Occupation/educational: She is a student at a local university
+Recreational: She plays the piano and sings in a band. 
+
+Review of systems:
+General: See HPI
+Skin: Her skin is dry. 
+HEENT: Her throat is dry. 
+Cardiorespiratory: She feels that her heart is beating faster.
+Gastrointestinal: See HPI
+Genitourinary: See HPI
+Neuropsychiatric: See HPI
+
+--- Chart tabs ---
+
+* Chart: Progress Notes → presentation_4_Abdominal_Pain_chart_Progress_Notes.png
+* Chart: Vital Signs → presentation_4_Abdominal_Pain_chart_Vital_Signs.png

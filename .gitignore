@@ -5,3 +5,10 @@ dist/
 captures/
 user-data/
 .env
+src/data/.preparedCases-llm-progress.json
+extract-llm.log
+step3/node_modules/
+step3/ccs_browser_profile/
+step3/ccs_screenshots/
+step3/ccs_credentials.json
+step3/ccs_mirror/POST__login.webapi*.json

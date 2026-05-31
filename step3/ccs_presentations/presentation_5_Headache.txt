@@ -1,0 +1,85 @@
+Case 5: Headache
+Intro screens: 3
+
+--- Case Introduction ---
+
+Case Introduction
+
+Day 1 @ 9:00
+Office
+A 55-year-old female with a past medical history of hypertension presents to your office with a 6-day history of occipital headache, mild vertigo, and a tendency to fall when walking.
+
+--- Initial Vital Signs ---
+
+Initial Vital Signs
+
+Day 1 @ 9:00
+
+Temperature:
+
+38.3 C (101.0 degrees F)
+
+Pulse:
+
+88 beats/min. Regular rhythm
+
+Respiratory rate:
+
+18 /minute
+
+Blood pressure, systolic:
+
+118 mm Hg
+
+Blood pressure, diastolic:
+
+70 mm Hg
+
+Height:
+
+175.3 cm (69.0 in)
+
+Weight:
+
+65.8 kg (145 lb)
+
+Body Mass Index:
+
+21.4 kg/m2
+
+--- Initial History ---
+
+Initial History
+
+Reason(s) for visit: Headache
+History of present Illness:
+A 55-year-old female with a past medical history of hypertension presents to your office with a an occipital headache, mild vertigo, and a tendency to fall when walking for 6 days. She states that she never had any problems walking or being off-balance. Eight days ago, she stated that she had a pink rash on her arms and torso and felt feverish. The rash improved after a couple days, but the headache and tendency to fall persisted. She had nausea, but she denied any vomiting. She feels weak and "under the weather."  She denies travel, but went hiking 2 weeks ago nearby her house which she routinely does every summer. She denies any history of migraines. She will occasionally get a tension headache which she will treat with Ibuprofen. She has never had a headache that has lasted this long. She denies any trauma to her head. She denies any sick contacts. She denies any recent antibiotic use.  She is very concerned about her symptoms.
+
+PMH:
+Past Medical History: Hypertension. The patient recently had a colonoscopy screening which was normal. 
+Current medications: HCTZ 25mg PO daily
+Allergies: None
+Vaccinations: Received Childhood vaccinations.
+Women's health: The patient cannot remember when her last pap smear was done.
+Family History:
+Her father has a history of Hypertension and died of a stroke. Her mother has no health problems and is still living.
+
+Social History:
+Marital/Family: She is married with one child. She lives in Gaithersburg, Maryland.
+Personal habits: The patient denies smoking. She lives an active lifestyle. She drinks alcohol socially. She denies use of illegal drugs or misuse of medications.
+Occupation/educational: She works as a public relations specialist. She is a college graduate with a BS in communication.
+Recreational: The patient enjoys to bike and hike. She loves the outdoors and spends as much time as she is able.
+
+Review of systems:
+General: See HPI
+Skin: See HPI
+HEENT: Negative
+Cardiorespiratory: Negative
+Gastrointestinal: See HPI
+Genitourinary: Negative
+Neuropsychiatric: See HPI
+
+--- Chart tabs ---
+
+* Chart: Progress Notes → presentation_5_Headache_chart_Progress_Notes.png
+* Chart: Vital Signs → presentation_5_Headache_chart_Vital_Signs.png

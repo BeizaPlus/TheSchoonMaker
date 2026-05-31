@@ -1,0 +1,51 @@
+{
+  "presetId": "case4-zones-v1",
+  "name": "Case 4 exact placement (locked)",
+  "locked": true,
+  "fitMode": "cover",
+  "version": 1,
+  "zones": {
+    "zone-monitor": {
+      "cx": 0.75,
+      "cy": 0.15,
+      "w": 0.1,
+      "h": 0.1,
+      "label": "Monitor & vitals"
+    },
+    "zone-iv-bag": {
+      "cx": 0.0918,
+      "cy": 0.0998,
+      "w": 0.121,
+      "h": 0.1361,
+      "label": "IV fluids"
+    },
+    "zone-blood": {
+      "cx": 0.6552,
+      "cy": 0.4342,
+      "w": 0.0898,
+      "h": 0.1098,
+      "label": "Blood draw"
+    },
+    "zone-arm": {
+      "cx": 0.4,
+      "cy": 0.6,
+      "w": 0.15,
+      "h": 0.15,
+      "label": "IV line / meds"
+    },
+    "zone-icu": {
+      "cx": 0.5,
+      "cy": 0.9,
+      "w": 0.2,
+      "h": 0.1,
+      "label": "ICU · ward · obs · transfer"
+    },
+    "zone-custom-1": {
+      "cx": 0.484,
+      "cy": 0.4106,
+      "w": 0.1698,
+      "h": 0.1698,
+      "label": "Abdomen"
+    }
+  }
+}

@@ -1,0 +1,53 @@
+Case 6: Rash and Lethargy
+Intro screens: 2
+
+--- Case Introduction ---
+
+Case Introduction
+
+Day 1 @ 9:00
+Office
+A 6-year-old boy presents to your office with complaints of 3 days of lethargy and a rash.
+
+--- Initial Vital Signs ---
+
+Initial Vital Signs
+
+Day 1 @ 9:00
+
+Temperature:
+
+38.2 C (100.7 degrees F)
+
+Pulse:
+
+80 beats/min. Regular rhythm
+
+Respiratory rate:
+
+20 / minute
+
+Blood pressure, systolic:
+
+90 mm Hg
+
+Blood pressure, diastolic:
+
+60 mm Hg
+
+Height:
+
+Not available
+
+Weight:
+
+Not available
+
+Body Mass Index:
+
+Not available
+
+--- Chart tabs ---
+
+* Chart: Progress Notes → presentation_6_Rash_and_Lethargy_chart_Progress_Notes.png
+* Chart: Vital Signs → presentation_6_Rash_and_Lethargy_chart_Vital_Signs.png
