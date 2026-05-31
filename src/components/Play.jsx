@@ -24,6 +24,8 @@ import {
   FiSun,
   FiUnlock,
   FiLock,
+  FiRotateCcw,
+  FiMessageCircle,
 } from 'react-icons/fi';
 import { readTheme, writeTheme } from '../lib/theme.js';
 import { getBuiltInPatientSrc, getPatientImagePayload } from '../lib/patientImage.js';
@@ -37,9 +39,46 @@ import {
 } from '../lib/gridPlacement.js';
 import { nextAttemptNumber, peekAttemptNumber, saveScreenshotToServer } from '../lib/captureScreenshot.js';
 import { STORAGE } from '../lib/storageKeys.js';
+import {
+  getPresentationHistory,
+  getPresentationIntro,
+  getPresentationVitals,
+} from '../lib/casePresentation.js';
+import { readAudienceProfile } from '../lib/audienceProfile.js';
+import {
+  DEFAULT_TIMER_SECONDS,
+  formatTimerLabel,
+  getSessionTimerSeconds,
+} from '../lib/caseTimer.js';
 import { getBranding } from '../data/gameData.js';
+import CaseChatPanel from './CaseChatPanel.jsx';
+import CaseNotesPanel from './CaseNotesPanel.jsx';
+import CaseRecordButton from './CaseRecordButton.jsx';
+import CaseReviewFlagButton from './CaseReviewFlagButton.jsx';
+import {
+  endPlaySession,
+  logPlayEvent,
+  startPlaySession,
+} from '../lib/caseUserLog.js';
+import {
+  clearPlayCheckpoint,
+  hydrateCheckpointTimer,
+  writePlayCheckpoint,
+} from '../lib/playSessionResume.js';
+import {
+  buildSceneSourceSig,
+  clearCaseSceneVariantsForSig,
+  readCaseRegenImage,
+} from '../lib/patientRegen.js';
 
-export default function Play({ caseData, onComplete, onQuit, studioCapture = false }) {
+export default function Play({
+  caseData,
+  playMode = 'browse',
+  initialCheckpoint = null,
+  onComplete,
+  onQuit,
+  studioCapture = false,
+}) {
   const brand = getBranding();
   const completionThreshold =
     caseData.completionThreshold ?? brand.completionThreshold ?? 99;
@@ -68,6 +107,9 @@ export default function Play({ caseData, onComplete, onQuit, studioCapture = fal
   const [dragging, setDragging] = useState(false);
   const [timedOut, setTimedOut] = useState(false);
   const [activeDrawer, setActiveDrawer] = useState(null);
+  const [showCaseChat, setShowCaseChat] = useState(false);
+  const [playSessionId, setPlaySessionId] = useState(null);
+  const playSessionIdRef = useRef(null);
   const [dockCollapsed, setDockCollapsed] = useState(false);
   const [dockPos, setDockPos] = useState(() => {
     const width = 360;
@@ -185,14 +227,12 @@ export default function Play({ caseData, onComplete, onQuit, studioCapture = fal
   }, [interventions]);
   const total = interventions.length;
   const doneCount = Object.keys(placed).length;
-  const timerBase = layout.timerSeconds || 150;
-  const timerMultiplier =
-    caseData.sessionDifficulty === 'easy'
-      ? 1.35
-      : caseData.sessionDifficulty === 'hard'
-        ? 0.75
-        : 1;
-  const timerTotal = Math.round(timerBase * timerMultiplier);
+  const timerBase = layout.timerSeconds || DEFAULT_TIMER_SECONDS;
+  const sessionDifficulty = caseData.sessionDifficulty || 'standard';
+  const timerTotal = useMemo(
+    () => getSessionTimerSeconds(readAudienceProfile(), sessionDifficulty, timerBase),
+    [sessionDifficulty, timerBase, caseData.id],
+  );
   const [timeLeft, setTimeLeft] = useState(timerTotal);
   const hitboxScale = dragCfg.hitboxScale || 1.9;
   const minHitPx = dragCfg.minHitPx || 130;
@@ -218,9 +258,16 @@ export default function Play({ caseData, onComplete, onQuit, studioCapture = fal
     () => exam.map(([k, v]) => `${k}: ${v}`).join(' | '),
     [exam],
   );
+  const presentationIntro = useMemo(() => getPresentationIntro(caseData), [caseData]);
+  const presentationHistory = useMemo(() => getPresentationHistory(caseData), [caseData]);
+  const presentationVitals = useMemo(() => getPresentationVitals(caseData), [caseData]);
+  const caseVitalsLine = useMemo(
+    () =>
+      `BP ${vitals.sbp}/${vitals.dbp} · HR ${vitals.hr} · RR ${vitals.rr} · Temp ${vitals.temp.toFixed(1)} · SpO2 ${vitals.spo2}%`,
+    [vitals],
+  );
   const soapParts = useMemo(() => {
-    const subjective =
-      caseData.historyText || caseData.chief_complaint || 'No subjective history documented.';
+    const subjective = presentationHistory || 'No subjective history documented.';
     const objective = [
       `Vitals: BP ${vitals.sbp}/${vitals.dbp}, HR ${vitals.hr}, RR ${vitals.rr}, Temp ${vitals.temp.toFixed(1)}, SpO2 ${vitals.spo2}%`,
       examSummary || 'Physical exam pending.',
@@ -231,7 +278,7 @@ export default function Play({ caseData, onComplete, onQuit, studioCapture = fal
       assessment: caseData.clinical_tip || 'Assessment pending.',
       plan: caseData.objective || 'Plan pending.',
     };
-  }, [caseData.historyText, caseData.chief_complaint, caseData.clinical_tip, caseData.objective, vitals, examSummary]);
+  }, [presentationHistory, caseData.clinical_tip, caseData.objective, vitals, examSummary]);
 
   const soapDraftKey = `${STORAGE.soapDraft}_${caseData.id}`;
   const [userAssessment, setUserAssessment] = useState('');
@@ -262,7 +309,7 @@ export default function Play({ caseData, onComplete, onQuit, studioCapture = fal
     x: Math.max(16, (window.innerWidth - 520) / 2),
     y: Math.max(64, window.innerHeight - 320),
   }));
-  const [infoTab, setInfoTab] = useState('hpi');
+  const [infoTab, setInfoTab] = useState('case');
   const thanksVideoRef = useRef(null);
   const reviewPanelRef = useRef(null);
   const reviewPanelDragRef = useRef({ dx: 0, dy: 0 });
@@ -273,11 +320,50 @@ export default function Play({ caseData, onComplete, onQuit, studioCapture = fal
     [caseNumber, reviewCount, doneCount],
   );
 
+  const endCurrentPlaySession = useCallback(
+    async (result = {}) => {
+      const sid = playSessionIdRef.current;
+      if (!sid || !caseData?.id) return;
+      await endPlaySession(caseData.id, sid, result);
+      playSessionIdRef.current = null;
+      setPlaySessionId(null);
+    },
+    [caseData?.id],
+  );
+
+  const beginPlaySession = useCallback(async () => {
+    const sid = await startPlaySession(caseData.id, {
+      title: caseData.title,
+      caseNumber: caseData.ccsNumber,
+      diagnosis: caseData.diagnosis,
+    });
+    if (sid) {
+      playSessionIdRef.current = sid;
+      setPlaySessionId(sid);
+    }
+  }, [caseData]);
+
+  const logTimeline = useCallback(
+    (event) => {
+      const sid = playSessionIdRef.current;
+      if (!sid || !caseData?.id) return;
+      void logPlayEvent(caseData.id, sid, event);
+    },
+    [caseData?.id],
+  );
+
+  const resumeHydratedRef = useRef(false);
+  const skipFreshCaseResetRef = useRef(
+    Boolean(initialCheckpoint?.caseId && initialCheckpoint.caseId === caseData.id),
+  );
+
   useEffect(() => {
+    if (skipFreshCaseResetRef.current) return;
     setCareUnit(caseFlow.dispositionUnits?.[0] || 'ER');
   }, [caseFlow.id, caseFlow.dispositionUnits]);
 
   useEffect(() => {
+    if (skipFreshCaseResetRef.current) return;
     setUserAssessment('');
     setUserPlan('');
     setAssessmentRevealed(false);
@@ -312,9 +398,143 @@ export default function Play({ caseData, onComplete, onQuit, studioCapture = fal
   }, [soapDraftKey, userAssessment, userPlan, assessmentRevealed, planRevealed]);
 
   useEffect(() => {
+    if (!playSessionId) return undefined;
+    const timer = setTimeout(() => {
+      if (userAssessment.trim()) {
+        logTimeline({ type: 'soap', field: 'assessment', text: userAssessment.trim() });
+      }
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [userAssessment, playSessionId, logTimeline]);
+
+  useEffect(() => {
+    if (!playSessionId) return undefined;
+    const timer = setTimeout(() => {
+      if (userPlan.trim()) {
+        logTimeline({ type: 'soap', field: 'plan', text: userPlan.trim() });
+      }
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [userPlan, playSessionId, logTimeline]);
+
+  useEffect(() => {
+    if (skipFreshCaseResetRef.current) return;
     setTimeLeft(timerTotal);
     setTimedOut(false);
   }, [caseData.id, timerTotal]);
+
+  useEffect(() => {
+    if (
+      resumeHydratedRef.current ||
+      !initialCheckpoint ||
+      initialCheckpoint.caseId !== caseData.id
+    ) {
+      return;
+    }
+    resumeHydratedRef.current = true;
+    skipFreshCaseResetRef.current = false;
+
+    const c = hydrateCheckpointTimer(initialCheckpoint, timerTotal);
+    if (!c) return;
+
+    setPlaced(c.placed || {});
+    setPlacementOrder(c.placementOrder || []);
+    setPins(Array.isArray(c.pins) ? c.pins : []);
+    if (c.careUnit) setCareUnit(c.careUnit);
+    if (typeof c.timeLeft === 'number') setTimeLeft(c.timeLeft);
+    if (typeof c.timedOut === 'boolean') setTimedOut(c.timedOut);
+    if (typeof c.userAssessment === 'string') setUserAssessment(c.userAssessment);
+    if (typeof c.userPlan === 'string') setUserPlan(c.userPlan);
+    if (typeof c.assessmentRevealed === 'boolean') setAssessmentRevealed(c.assessmentRevealed);
+    if (typeof c.planRevealed === 'boolean') setPlanRevealed(c.planRevealed);
+    if (typeof c.reviewed === 'boolean') setReviewed(c.reviewed);
+    if (c.reviewResults) setReviewResults(c.reviewResults);
+    if (c.orderReview) setOrderReview(c.orderReview);
+    if (typeof c.reviewCount === 'number') setReviewCount(c.reviewCount);
+    if (c.infoTab) setInfoTab(c.infoTab);
+
+    if (initialCheckpoint.playSessionId) {
+      playSessionIdRef.current = initialCheckpoint.playSessionId;
+      setPlaySessionId(initialCheckpoint.playSessionId);
+    }
+  }, [initialCheckpoint, caseData.id, timerTotal]);
+
+  useEffect(() => {
+    if (initialCheckpoint?.caseId === caseData.id && initialCheckpoint?.playSessionId) {
+      playSessionIdRef.current = initialCheckpoint.playSessionId;
+      setPlaySessionId(initialCheckpoint.playSessionId);
+      return undefined;
+    }
+    if (resumeHydratedRef.current) return undefined;
+    void beginPlaySession();
+    return undefined;
+  }, [caseData.id, beginPlaySession, initialCheckpoint?.caseId, initialCheckpoint?.playSessionId]);
+
+  const buildCheckpoint = useCallback(
+    () => ({
+      caseId: caseData.id,
+      caseTitle: caseData.title,
+      caseNumber: caseData.ccsNumber,
+      playMode,
+      screen: 'play',
+      playSessionId: playSessionIdRef.current,
+      checkpoint: {
+        placed,
+        placementOrder,
+        pins,
+        careUnit,
+        timeLeft,
+        timedOut,
+        timerPaused: timedOut || doneCount >= total,
+        placedCount: doneCount,
+        total,
+        userAssessment,
+        userPlan,
+        assessmentRevealed,
+        planRevealed,
+        reviewed,
+        reviewResults,
+        orderReview,
+        reviewCount,
+        infoTab,
+      },
+    }),
+    [
+      caseData.id,
+      caseData.title,
+      caseData.ccsNumber,
+      playMode,
+      placed,
+      placementOrder,
+      pins,
+      careUnit,
+      timeLeft,
+      timedOut,
+      doneCount,
+      total,
+      userAssessment,
+      userPlan,
+      assessmentRevealed,
+      planRevealed,
+      reviewed,
+      reviewResults,
+      orderReview,
+      reviewCount,
+      infoTab,
+    ],
+  );
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      writePlayCheckpoint(buildCheckpoint());
+    }, 900);
+    return () => window.clearTimeout(timer);
+  }, [buildCheckpoint]);
+
+  const handleQuit = useCallback(() => {
+    writePlayCheckpoint(buildCheckpoint());
+    onQuit();
+  }, [buildCheckpoint, onQuit]);
 
   useEffect(() => {
     if (!studioCapture) return;
@@ -324,9 +544,10 @@ export default function Play({ caseData, onComplete, onQuit, studioCapture = fal
 
   useEffect(() => {
     const overrideSrc = localStorage.getItem(STORAGE.patientImage);
-    const erSrc = overrideSrc || getBuiltInPatientSrc(caseData);
-    const payloadSigSource = overrideSrc || erSrc;
-    const sig = `${caseData.id}:${caseData.patientSex || 'unknown'}:${payloadSigSource.slice(0, 96)}:${payloadSigSource.length}`;
+    const regenSrc = readCaseRegenImage(caseData.id);
+    const erSrc = regenSrc || overrideSrc || getBuiltInPatientSrc(caseData);
+    const payloadSigSource = erSrc;
+    const sig = buildSceneSourceSig(caseData, payloadSigSource);
     setSceneSourceSig(sig);
     setSceneByUnit({ ER: erSrc });
     try {
@@ -407,9 +628,16 @@ export default function Play({ caseData, onComplete, onQuit, studioCapture = fal
       setPostVideoRows([]);
       setReviewPanelCollapsed(false);
       setPendingCompleteResult(null);
+      void endCurrentPlaySession({
+        ...result,
+        placed: doneCount,
+        total,
+        completed: true,
+      });
+      clearPlayCheckpoint();
       onComplete(result);
     },
-    [onComplete],
+    [onComplete, endCurrentPlaySession, doneCount, total],
   );
 
   const playThanksAndComplete = useCallback(
@@ -556,8 +784,14 @@ export default function Play({ caseData, onComplete, onQuit, studioCapture = fal
       setReviewedAt(null);
       setWhyPanel(null);
       showToast(`Placed ${iv.label}`, '');
+      logTimeline({
+        type: 'stack',
+        stackId: iv.id,
+        label: iv.label,
+        correct: ok,
+      });
     },
-    [interventions, dropMode, dragCfg.snapBackMs, zones, teachMeMode],
+    [interventions, dropMode, dragCfg.snapBackMs, zones, teachMeMode, logTimeline],
   );
 
   const handleMovePin = useCallback(
@@ -726,9 +960,7 @@ export default function Play({ caseData, onComplete, onQuit, studioCapture = fal
   const lifePct = Math.max(8, Math.min(100, 42 + doneCount * 12 - misses * 8));
   const lifeState = lifePct > 70 ? 'stable' : lifePct > 40 ? 'guarded' : 'critical';
   const timerState = timeLeft > 60 ? 'safe' : timeLeft > 25 ? 'warn' : 'critical';
-  const timerLabel = `${Math.floor(timeLeft / 60)
-    .toString()
-    .padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`;
+  const timerLabel = formatTimerLabel(timeLeft);
 
   useEffect(() => {
     try {
@@ -750,8 +982,18 @@ export default function Play({ caseData, onComplete, onQuit, studioCapture = fal
     const onFs = () => {
       setIsFullscreen(Boolean(document.fullscreenElement));
     };
+    const onKeyDown = (event) => {
+      if (event.key !== 'Escape') return;
+      if (!document.fullscreenElement) return;
+      document.exitFullscreen?.().catch(() => {});
+    };
+
     document.addEventListener('fullscreenchange', onFs);
-    return () => document.removeEventListener('fullscreenchange', onFs);
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('fullscreenchange', onFs);
+      window.removeEventListener('keydown', onKeyDown);
+    };
   }, []);
 
   const syncImageFrame = useCallback(() => {
@@ -860,6 +1102,59 @@ export default function Play({ caseData, onComplete, onQuit, studioCapture = fal
     setWhyPanel(null);
     showToast('Placements reset', '');
   };
+
+  const restartCurrentCase = useCallback(() => {
+    const ok = window.confirm(
+      'Restart this case from scratch? Timer, placements, and SOAP notes reset.',
+    );
+    if (!ok) return;
+
+    setPlaced({});
+    setPlacementOrder([]);
+    setPins([]);
+    setReviewed(false);
+    setReviewResults({});
+    setOrderReview({});
+    setReviewedAt(null);
+    setExpandedStackId(null);
+    setWhyPanel(null);
+    setAttempts(0);
+    setCorrectAttempts(0);
+    setReviewCount(0);
+    setTimedOut(false);
+    setTimeLeft(timerTotal);
+    setCareUnit(caseFlow.dispositionUnits?.[0] || 'ER');
+    setUserAssessment('');
+    setUserPlan('');
+    setAssessmentRevealed(false);
+    setPlanRevealed(false);
+    setShowThanksVideo(false);
+    setActiveThanksVideo(null);
+    setThanksVideoIssue('');
+    setShowPostVideoReview(false);
+    setPostVideoRows([]);
+    setPendingCompleteResult(null);
+    setReviewPanelCollapsed(false);
+    setActiveDrawer(null);
+    setShowCaseChat(false);
+
+    void (async () => {
+      await endCurrentPlaySession({ restarted: true, placed: doneCount, total });
+      clearPlayCheckpoint();
+      await beginPlaySession();
+    })();
+
+    startRef.current = Date.now();
+
+    try {
+      localStorage.removeItem(soapDraftKey);
+    } catch {
+      /* ignore */
+    }
+
+    sceneRef.current?.querySelectorAll('.drag-pill-wrap').forEach(snapWrapHome);
+    showToast('Case restarted from scratch', 'ok');
+  }, [timerTotal, caseFlow.dispositionUnits, soapDraftKey, showToast, caseData?.id, endCurrentPlaySession, beginPlaySession, doneCount, total]);
 
   const persistGridItems = useCallback(
     (next) => {
@@ -997,7 +1292,34 @@ export default function Play({ caseData, onComplete, onQuit, studioCapture = fal
       if (!unit || unit === 'ER' || sceneByUnit[unit] || !sceneSourceSig) return;
       setSceneBusy(true);
       try {
-        const payload = await getPatientImagePayload(caseData);
+        const regenSrc = readCaseRegenImage(caseData.id);
+        const overrideSrc = localStorage.getItem(STORAGE.patientImage);
+        const erSrc = sceneByUnit.ER || regenSrc || overrideSrc || getBuiltInPatientSrc(caseData);
+        let payload;
+        if (erSrc.startsWith('data:')) {
+          payload = {
+            base64: erSrc.split(',')[1] || '',
+            mimeType: erSrc.slice(5, erSrc.indexOf(';')) || 'image/png',
+            source: `regen:${caseData.id}`,
+          };
+        } else if (erSrc.startsWith('http')) {
+          const resp = await fetch(erSrc);
+          const blob = await resp.blob();
+          const mimeType = blob.type || 'image/png';
+          const dataUrl = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(String(reader.result || ''));
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+          payload = {
+            base64: dataUrl.split(',')[1] || '',
+            mimeType,
+            source: erSrc,
+          };
+        } else {
+          payload = await getPatientImagePayload(caseData);
+        }
         const resp = await fetch('http://127.0.0.1:3001/api/generate-scene', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1032,7 +1354,7 @@ export default function Play({ caseData, onComplete, onQuit, studioCapture = fal
         setSceneBusy(false);
       }
     },
-    [sceneByUnit, sceneSourceSig],
+    [sceneByUnit, sceneSourceSig, caseData],
   );
 
   useEffect(() => {
@@ -1101,7 +1423,7 @@ export default function Play({ caseData, onComplete, onQuit, studioCapture = fal
 
   return (
     <div
-      className={`game ${finalMode ? 'final-mode' : ''}`}
+      className={`game ${finalMode ? 'final-mode' : ''} ${activeDrawer ? 'drawer-open' : ''}`}
       style={{
         gridTemplateColumns: '1fr',
         ['--algo-h']: `${layout.algorithmPanelHeightPx || 220}px`,
@@ -1137,8 +1459,8 @@ export default function Play({ caseData, onComplete, onQuit, studioCapture = fal
                 );
               })}
             </div>
-            <span className={`play-hud-timer ${timerState}`}>{timerLabel}</span>
-            <button type="button" className="play-hud-exit" onClick={onQuit} title="Exit case">
+            <span className={`play-hud-timer ${timerState}`} title="Case countdown">{timerLabel}</span>
+            <button type="button" className="play-hud-exit" onClick={handleQuit} title="Exit case (saved for resume)">
               Exit
             </button>
           </div>
@@ -1337,7 +1659,10 @@ export default function Play({ caseData, onComplete, onQuit, studioCapture = fal
             <span>Clinical note · SOAP</span>
             <button type="button" onClick={() => setActiveDrawer(null)}>✕</button>
           </div>
-          <div className="soap-wrap">
+          <div
+            className="soap-wrap"
+            onPointerDown={(e) => e.stopPropagation()}
+          >
             <section className="soap-section">
               <h4 className="soap-heading">S: Subjective</h4>
               <p className="soap-body">{soapParts.subjective}</p>
@@ -1548,22 +1873,22 @@ export default function Play({ caseData, onComplete, onQuit, studioCapture = fal
         <div className="dock-handle" onPointerDown={onDockDragStart} title="Drag to move panel">
           ⋮⋮ {brand.name}
         </div>
-        <div className="sidebar-top clinical-pack-top">
-          <div className="pack-heading-row">
-            <p className="sidebar-case-id">Case {caseData.ccsNumber}</p>
-            <span className="pack-tag">{brand.name}</span>
-          </div>
+        <div className="sidebar-top clinical-pack-top clinical-pack-minimal">
+          <p className="sidebar-case-id">Case {caseData.ccsNumber}</p>
           <h2 className="sidebar-title" title={caseData.title}>
             {caseData.title}
           </h2>
+          {caseData.diagnosis && (
+            <p className="play-diagnosis-line">{caseData.diagnosis}</p>
+          )}
           <div className="case-info-tabs" role="tablist" aria-label="Case context tabs">
             <button
               type="button"
-              className={infoTab === 'hpi' ? 'case-info-tab active' : 'case-info-tab'}
-              onClick={() => setInfoTab('hpi')}
-              aria-selected={infoTab === 'hpi'}
+              className={infoTab === 'case' ? 'case-info-tab active' : 'case-info-tab'}
+              onClick={() => setInfoTab('case')}
+              aria-selected={infoTab === 'case'}
             >
-              HPI
+              Case
             </button>
             <button
               type="button"
@@ -1571,20 +1896,44 @@ export default function Play({ caseData, onComplete, onQuit, studioCapture = fal
               onClick={() => setInfoTab('exam')}
               aria-selected={infoTab === 'exam'}
             >
-              Physical exam
+              Exam
+            </button>
+            <button
+              type="button"
+              className={infoTab === 'notes' ? 'case-info-tab active' : 'case-info-tab'}
+              onClick={() => setInfoTab('notes')}
+              aria-selected={infoTab === 'notes'}
+            >
+              Notes
             </button>
           </div>
-          <p className="sub" title={infoTab === 'hpi' ? caseData.chief_complaint : examSummary}>
-            {infoTab === 'hpi' ? caseData.chief_complaint : examSummary || 'No physical exam findings documented yet.'}
+          {infoTab === 'case' && (
+            <div className="play-case-scroll">
+              <p>{presentationHistory || presentationIntro || 'No presentation text available.'}</p>
+              {(presentationVitals || caseVitalsLine) && (
+                <p className="play-case-vitals">{presentationVitals || caseVitalsLine}</p>
+              )}
+            </div>
+          )}
+          {infoTab === 'exam' && (
+            <div className="play-case-scroll">
+              <p>{examSummary || 'No physical exam findings documented yet.'}</p>
+            </div>
+          )}
+          {infoTab === 'notes' && (
+            <CaseNotesPanel
+              caseId={caseData.id}
+              sessionId={playSessionId}
+              compact
+              minimal
+              onTimelineNote={(text) => logTimeline({ type: 'note', text })}
+              onRecordingSaved={() => showToast('Intuition recording saved', 'ok')}
+            />
+          )}
+          <p className="play-sidebar-foot">
+            <span>{doneCount}/{total} placed</span>
+            <span className={`play-sidebar-timer ${timerState}`}>{timerLabel}</span>
           </p>
-          <div className="pack-stats">
-            <span>Ready {total - doneCount}</span>
-            <span>Placed {doneCount}/{total}</span>
-          </div>
-          <div className={`pack-timer ${timerState}`}>
-            <span>Save timer</span>
-            <strong>{timerLabel}</strong>
-          </div>
         </div>
         <section className="sidebar-stacks" aria-label="Treatment stacks">
           <p className="sidebar-section-label">Stacks — drag to patient</p>
@@ -1747,6 +2096,13 @@ export default function Play({ caseData, onComplete, onQuit, studioCapture = fal
         onClose={() => setWhyPanel(null)}
       />
 
+      <CaseChatPanel
+        caseData={caseData}
+        open={showCaseChat}
+        onClose={() => setShowCaseChat(false)}
+        playSessionId={playSessionId}
+      />
+
       <div className={`toast ${toast.type} ${toast.msg ? 'show' : ''}`}>{toast.msg}</div>
       <div className="play-bottom-bar">
         <button
@@ -1814,6 +2170,34 @@ export default function Play({ caseData, onComplete, onQuit, studioCapture = fal
         </button>
         <button
           type="button"
+          className={showCaseChat ? 'bottom-chip active' : 'bottom-chip'}
+          onClick={() => setShowCaseChat((v) => !v)}
+          title="Chat with this case (OpenAI)"
+          aria-label="Chat with case"
+        >
+          <FiMessageCircle className="chip-icon" />
+        </button>
+        <CaseRecordButton
+          caseId={caseData.id}
+          sessionId={playSessionId}
+          compact
+          iconOnly
+          className="bottom-chip case-record-chip"
+          onSaved={() => showToast('Intuition recording saved to case log', 'ok')}
+          onError={(e) => showToast(e?.message || 'Recording failed', 'bad')}
+        />
+        <CaseReviewFlagButton
+          caseId={caseData.id}
+          compact
+          iconOnly
+          className="bottom-chip case-review-flag-chip"
+          onChange={(flagged) => {
+            logTimeline({ type: 'review_flag', flagged });
+            showToast(flagged ? 'Flagged for review next time' : 'Removed from review list', 'ok');
+          }}
+        />
+        <button
+          type="button"
           className={dropMode === 'strict' ? 'bottom-chip active' : 'bottom-chip'}
           onClick={() => setDropMode((m) => (m === 'free' ? 'strict' : 'free'))}
           title="Drop mode"
@@ -1853,6 +2237,16 @@ export default function Play({ caseData, onComplete, onQuit, studioCapture = fal
             </button>
           </>
         )}
+        <button
+          type="button"
+          className="bottom-chip bottom-chip-text"
+          onClick={restartCurrentCase}
+          title="Restart this case from scratch"
+          aria-label="Restart case"
+        >
+          <FiRotateCcw className="chip-icon" aria-hidden />
+          Restart case
+        </button>
         <span className="bottom-status">
           Unit: {careUnit} · {dropMode}
           {studioCapture && selectedGridId ? ' · selected: move or dbl-click remove' : ''}

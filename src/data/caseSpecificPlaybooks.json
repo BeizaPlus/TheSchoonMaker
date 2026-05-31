@@ -1,0 +1,1289 @@
+{
+  "version": 1,
+  "builtAt": "2026-05-31T04:11:37.091Z",
+  "source": "High-Yield USMLE Step 3 CCS Case Synthesis Guide + 181-Case Inventory (diagnosis list)",
+  "totalAuthored": 25,
+  "cases": {
+    "111": {
+      "diagnosis": "Fat Embolism Syndrome",
+      "clinical_tip": "Triad after long-bone fracture: hypoxemia, AMS, petechial rash (axilla/neck).",
+      "objective": "ICU support — recognition and stabilization; no specific drug cure.",
+      "interventions": [
+        {
+          "id": "icu",
+          "label": "Intensive care unit",
+          "correct_zone": "zone-icu",
+          "why": "Respiratory failure and AMS need ICU.",
+          "guideline": "ATLS"
+        },
+        {
+          "id": "o2",
+          "label": "Pulse oximetry + supplemental O₂",
+          "correct_zone": "zone-monitor",
+          "why": "Treat hypoxemia aggressively.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "abg",
+          "label": "Arterial blood gas",
+          "correct_zone": "zone-blood",
+          "why": "Document hypoxemia severity.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "cxr",
+          "label": "Chest X-ray",
+          "correct_zone": "zone-monitor",
+          "why": "Bilateral infiltrates support diagnosis.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "fluids",
+          "label": "IV fluids",
+          "correct_zone": "zone-iv-bag",
+          "why": "Supportive hemodynamic care.",
+          "guideline": "ATLS"
+        },
+        {
+          "id": "support",
+          "label": "Respiratory support as needed",
+          "correct_zone": "zone-monitor",
+          "why": "Escalate to mechanical ventilation if tiring.",
+          "guideline": "ACEP"
+        }
+      ]
+    },
+    "122": {
+      "diagnosis": "Stevens-Johnson Syndrome",
+      "clinical_tip": "Burn unit or ICU transfer is mandatory — not a ward case.",
+      "objective": "Aggressive fluids, pain control, electrolytes, ophthalmology involvement.",
+      "interventions": [
+        {
+          "id": "burn",
+          "label": "Burn unit / ICU transfer",
+          "correct_zone": "zone-icu",
+          "why": "Major point item — wrong location loses points.",
+          "guideline": "AAD"
+        },
+        {
+          "id": "fluids",
+          "label": "IV fluid resuscitation",
+          "correct_zone": "zone-iv-bag",
+          "why": "Large insensible losses from skin slough.",
+          "guideline": "SSC"
+        },
+        {
+          "id": "bmp",
+          "label": "BMP / electrolytes",
+          "correct_zone": "zone-blood",
+          "why": "Sodium and potassium management.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "pain",
+          "label": "IV pain control (morphine)",
+          "correct_zone": "zone-iv-bag",
+          "why": "SJS is extremely painful.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "biopsy",
+          "label": "Skin biopsy",
+          "correct_zone": "zone-arm",
+          "why": "Confirm diagnosis when needed.",
+          "guideline": "Derm"
+        },
+        {
+          "id": "ophtho",
+          "label": "Ophthalmology consult",
+          "correct_zone": "zone-icu",
+          "why": "Prevent ocular complications.",
+          "guideline": "AAD"
+        },
+        {
+          "id": "monitor",
+          "label": "Infection monitoring",
+          "correct_zone": "zone-monitor",
+          "why": "Watch for secondary sepsis.",
+          "guideline": "IDSA"
+        }
+      ]
+    },
+    "127": {
+      "diagnosis": "Immune Thrombocytopenia (ITP)",
+      "clinical_tip": "Stool guaiac and blood cultures are required red items in pediatrics.",
+      "objective": "Isolated thrombocytopenia workup; treat if bleeding or very low platelets.",
+      "interventions": [
+        {
+          "id": "setting",
+          "label": "Office or ED as acuity dictates",
+          "correct_zone": "zone-icu",
+          "why": "Match location to bleeding risk.",
+          "guideline": "AAP"
+        },
+        {
+          "id": "cbc",
+          "label": "CBC",
+          "correct_zone": "zone-blood",
+          "why": "Isolated low platelets after viral illness.",
+          "guideline": "AAP"
+        },
+        {
+          "id": "smear",
+          "label": "Peripheral smear",
+          "correct_zone": "zone-blood",
+          "why": "Rule out pseudothrombocytopenia and other causes.",
+          "guideline": "AAP"
+        },
+        {
+          "id": "culture",
+          "label": "Blood culture",
+          "correct_zone": "zone-blood",
+          "why": "Required red item in rubric.",
+          "guideline": "AAP"
+        },
+        {
+          "id": "stool",
+          "label": "Stool occult blood",
+          "correct_zone": "zone-blood",
+          "why": "Screen for GI bleeding.",
+          "guideline": "AAP"
+        },
+        {
+          "id": "tx",
+          "label": "Observation or IVIG / steroids",
+          "correct_zone": "zone-iv-bag",
+          "why": "Treat if platelets <20k or active bleeding.",
+          "guideline": "AAP"
+        }
+      ]
+    },
+    "133": {
+      "diagnosis": "Ankylosing Spondylitis",
+      "clinical_tip": "Morning back stiffness improving with activity — image sacroiliac joints, not lumbar spine alone.",
+      "objective": "Inflammatory back pain workup and NSAID first-line therapy.",
+      "interventions": [
+        {
+          "id": "office",
+          "label": "Office / clinic",
+          "correct_zone": "zone-icu",
+          "why": "Chronic inflammatory back pain evaluation.",
+          "guideline": "ACR"
+        },
+        {
+          "id": "exam",
+          "label": "Musculoskeletal + back exam",
+          "correct_zone": "zone-arm",
+          "why": "Document inflammatory features.",
+          "guideline": "ACR"
+        },
+        {
+          "id": "hlab27",
+          "label": "HLA-B27",
+          "correct_zone": "zone-blood",
+          "why": "Supports spondyloarthropathy diagnosis.",
+          "guideline": "ACR"
+        },
+        {
+          "id": "esr",
+          "label": "ESR and CRP",
+          "correct_zone": "zone-blood",
+          "why": "Inflammatory markers.",
+          "guideline": "ACR"
+        },
+        {
+          "id": "si",
+          "label": "X-ray sacroiliac joints",
+          "correct_zone": "zone-monitor",
+          "why": "Look for sacroiliitis.",
+          "guideline": "ACR"
+        },
+        {
+          "id": "nsaid",
+          "label": "NSAID (indomethacin / naproxen)",
+          "correct_zone": "zone-arm",
+          "why": "First-line symptomatic therapy.",
+          "guideline": "ACR"
+        }
+      ]
+    },
+    "135": {
+      "diagnosis": "Hypertensive Emergency (ACE-I / NSAID induced)",
+      "clinical_tip": "Triple whammy: ACE-I + NSAID + diuretic → acute kidney injury. Check K⁺ and bicarbonate.",
+      "objective": "ICU IV antihypertensives with electrolyte monitoring.",
+      "interventions": [
+        {
+          "id": "icu",
+          "label": "Intensive care unit",
+          "correct_zone": "zone-icu",
+          "why": "Titratable IV antihypertensives.",
+          "guideline": "ACC"
+        },
+        {
+          "id": "bmp",
+          "label": "BMP (Cr, K, bicarbonate)",
+          "correct_zone": "zone-blood",
+          "why": "Red-item electrolytes and renal function.",
+          "guideline": "ACC"
+        },
+        {
+          "id": "ua",
+          "label": "Urinalysis",
+          "correct_zone": "zone-blood",
+          "why": "Assess renal injury.",
+          "guideline": "ACC"
+        },
+        {
+          "id": "ekg",
+          "label": "12-lead EKG",
+          "correct_zone": "zone-monitor",
+          "why": "End-organ ischemia screening.",
+          "guideline": "ACC"
+        },
+        {
+          "id": "ivbp",
+          "label": "IV antihypertensive titration",
+          "correct_zone": "zone-iv-bag",
+          "why": "Controlled BP reduction in emergency.",
+          "guideline": "ACC"
+        },
+        {
+          "id": "hold",
+          "label": "Hold offending ACE-I / NSAID",
+          "correct_zone": "zone-arm",
+          "why": "Remove precipitant of renal failure.",
+          "guideline": "ACC"
+        }
+      ]
+    },
+    "138": {
+      "diagnosis": "End-Stage Renal Failure",
+      "clinical_tip": "Fatigue in ESRF — CXR, EKG, and ABG are red items; do not skip them.",
+      "objective": "Evaluate uremia complications and dialytic indications (AEIOU).",
+      "interventions": [
+        {
+          "id": "ward",
+          "label": "Admit to ward",
+          "correct_zone": "zone-icu",
+          "why": "Chronic renal failure decompensation.",
+          "guideline": "KDIGO"
+        },
+        {
+          "id": "io",
+          "label": "Strict intake / output",
+          "correct_zone": "zone-monitor",
+          "why": "Volume status assessment.",
+          "guideline": "KDIGO"
+        },
+        {
+          "id": "bmp",
+          "label": "BMP / BUN / creatinine",
+          "correct_zone": "zone-blood",
+          "why": "Hyperkalemia and acidosis.",
+          "guideline": "KDIGO"
+        },
+        {
+          "id": "cbc",
+          "label": "CBC (anemia)",
+          "correct_zone": "zone-blood",
+          "why": "Uremic anemia workup.",
+          "guideline": "KDIGO"
+        },
+        {
+          "id": "pth",
+          "label": "PTH, vitamin D, phosphorus",
+          "correct_zone": "zone-blood",
+          "why": "Mineral bone disorder panel.",
+          "guideline": "KDIGO"
+        },
+        {
+          "id": "abg",
+          "label": "Arterial blood gas",
+          "correct_zone": "zone-blood",
+          "why": "Red item — assess acidosis.",
+          "guideline": "KDIGO"
+        },
+        {
+          "id": "cxr",
+          "label": "Chest X-ray PA and lateral",
+          "correct_zone": "zone-monitor",
+          "why": "Fluid overload / uremic lung.",
+          "guideline": "KDIGO"
+        },
+        {
+          "id": "ekg",
+          "label": "12-lead EKG",
+          "correct_zone": "zone-monitor",
+          "why": "Hyperkalemia and pericarditis.",
+          "guideline": "KDIGO"
+        },
+        {
+          "id": "epo",
+          "label": "Erythropoietin",
+          "correct_zone": "zone-iv-bag",
+          "why": "Treat anemia of CKD.",
+          "guideline": "KDIGO"
+        },
+        {
+          "id": "binders",
+          "label": "Phosphate binder + calcium carbonate",
+          "correct_zone": "zone-arm",
+          "why": "Mineral bone disease management.",
+          "guideline": "KDIGO"
+        }
+      ]
+    },
+    "139": {
+      "diagnosis": "Squamous Cell Carcinoma of the Lip",
+      "clinical_tip": "HEENT and skin exam before biopsy — sequencing matters for points.",
+      "objective": "Biopsy non-healing lip lesion and stage with imaging.",
+      "interventions": [
+        {
+          "id": "office",
+          "label": "Office / clinic",
+          "correct_zone": "zone-icu",
+          "why": "Stable lip lesion workup.",
+          "guideline": "NCCN"
+        },
+        {
+          "id": "heent",
+          "label": "HEENT exam",
+          "correct_zone": "zone-arm",
+          "why": "Document ulcerated/crusting lesion.",
+          "guideline": "NCCN"
+        },
+        {
+          "id": "skin",
+          "label": "Skin exam",
+          "correct_zone": "zone-arm",
+          "why": "Complete dermatologic survey.",
+          "guideline": "NCCN"
+        },
+        {
+          "id": "biopsy",
+          "label": "Shave or punch biopsy",
+          "correct_zone": "zone-arm",
+          "why": "Tissue diagnosis.",
+          "guideline": "NCCN"
+        },
+        {
+          "id": "ct",
+          "label": "CT head and neck",
+          "correct_zone": "zone-monitor",
+          "why": "Local invasion and nodes.",
+          "guideline": "NCCN"
+        },
+        {
+          "id": "surg",
+          "label": "Surgery / Mohs referral",
+          "correct_zone": "zone-icu",
+          "why": "Definitive oncologic management.",
+          "guideline": "NCCN"
+        }
+      ]
+    },
+    "142": {
+      "diagnosis": "Maple Syrup Urine Disease (MSUD)",
+      "clinical_tip": "Treat seizures immediately while awaiting amino acid results.",
+      "objective": "NICU/PICU metabolic emergency with anticonvulsants and thiamine.",
+      "interventions": [
+        {
+          "id": "nicu",
+          "label": "NICU / PICU",
+          "correct_zone": "zone-icu",
+          "why": "Neonatal metabolic crisis.",
+          "guideline": "AAP"
+        },
+        {
+          "id": "amino",
+          "label": "Serum amino acids (Leu, Ile, Val)",
+          "correct_zone": "zone-blood",
+          "why": "Confirm MSUD pattern.",
+          "guideline": "Genetics"
+        },
+        {
+          "id": "seizure",
+          "label": "Phenobarbital or lorazepam",
+          "correct_zone": "zone-iv-bag",
+          "why": "Treat active seizures without delay.",
+          "guideline": "AAP"
+        },
+        {
+          "id": "thiamine",
+          "label": "Thiamine",
+          "correct_zone": "zone-iv-bag",
+          "why": "Cofactor support in organic acidemias.",
+          "guideline": "Genetics"
+        },
+        {
+          "id": "glucose",
+          "label": "Monitor glucose",
+          "correct_zone": "zone-blood",
+          "why": "Avoid hypoglycemia during crisis.",
+          "guideline": "AAP"
+        }
+      ]
+    },
+    "145": {
+      "diagnosis": "Trigeminal Postherpetic Neuropathy",
+      "clinical_tip": "Standard analgesics fail — gabapentinoid or amitriptyline; fluorescein if V1 eye involved.",
+      "objective": "Neuropathic pain control after shingles.",
+      "interventions": [
+        {
+          "id": "office",
+          "label": "Office / clinic",
+          "correct_zone": "zone-icu",
+          "why": "Outpatient neuropathic pain management.",
+          "guideline": "AAN"
+        },
+        {
+          "id": "gaba",
+          "label": "Gabapentin or pregabalin",
+          "correct_zone": "zone-arm",
+          "why": "First-line neuropathic agents.",
+          "guideline": "AAN"
+        },
+        {
+          "id": "amit",
+          "label": "Amitriptyline if needed",
+          "correct_zone": "zone-arm",
+          "why": "Adjunct neuropathic therapy.",
+          "guideline": "AAN"
+        },
+        {
+          "id": "eye",
+          "label": "Fluorescein stain if eye involved",
+          "correct_zone": "zone-monitor",
+          "why": "V1 distribution corneal protection.",
+          "guideline": "Ophtho"
+        }
+      ]
+    },
+    "148": {
+      "diagnosis": "Post-MI Pericarditis (Dressler syndrome)",
+      "clinical_tip": "Pleuritic pain days–weeks post-MI; pain better leaning forward. Avoid anticoag if large effusion.",
+      "objective": "Confirm pericarditis; treat with aspirin/NSAID + colchicine.",
+      "interventions": [
+        {
+          "id": "ed",
+          "label": "ED or ward",
+          "correct_zone": "zone-icu",
+          "why": "Post-MI inflammatory chest pain.",
+          "guideline": "ACC"
+        },
+        {
+          "id": "trop",
+          "label": "Troponin",
+          "correct_zone": "zone-blood",
+          "why": "Assess myocardial injury overlap.",
+          "guideline": "ACC"
+        },
+        {
+          "id": "esr",
+          "label": "ESR",
+          "correct_zone": "zone-blood",
+          "why": "Inflammatory marker.",
+          "guideline": "ACC"
+        },
+        {
+          "id": "ekg",
+          "label": "EKG",
+          "correct_zone": "zone-monitor",
+          "why": "Diffuse ST elevation pattern.",
+          "guideline": "ACC"
+        },
+        {
+          "id": "echo",
+          "label": "Echocardiogram",
+          "correct_zone": "zone-monitor",
+          "why": "Effusion / tamponade risk.",
+          "guideline": "ACC"
+        },
+        {
+          "id": "asa",
+          "label": "High-dose aspirin or NSAID",
+          "correct_zone": "zone-arm",
+          "why": "Anti-inflammatory therapy.",
+          "guideline": "ACC"
+        },
+        {
+          "id": "colch",
+          "label": "Colchicine",
+          "correct_zone": "zone-arm",
+          "why": "Reduce recurrence.",
+          "guideline": "ACC"
+        }
+      ]
+    },
+    "150": {
+      "diagnosis": "Multiple Myeloma",
+      "clinical_tip": "Order UPEP — UA dipstick misses Bence-Jones protein. Skeletal survey, NOT bone scan.",
+      "objective": "CRAB features workup and hematology referral.",
+      "interventions": [
+        {
+          "id": "setting",
+          "label": "Office or ward",
+          "correct_zone": "zone-icu",
+          "why": "Bone pain, fatigue, weight loss in elderly.",
+          "guideline": "NCCN"
+        },
+        {
+          "id": "cbc",
+          "label": "CBC",
+          "correct_zone": "zone-blood",
+          "why": "Anemia and cytopenias.",
+          "guideline": "NCCN"
+        },
+        {
+          "id": "calcium",
+          "label": "BMP with calcium",
+          "correct_zone": "zone-blood",
+          "why": "Hypercalcemia screening.",
+          "guideline": "NCCN"
+        },
+        {
+          "id": "spep",
+          "label": "Serum protein electrophoresis",
+          "correct_zone": "zone-blood",
+          "why": "Monoclonal protein.",
+          "guideline": "NCCN"
+        },
+        {
+          "id": "upep",
+          "label": "Urine protein electrophoresis (UPEP)",
+          "correct_zone": "zone-blood",
+          "why": "Red item — light chains.",
+          "guideline": "NCCN"
+        },
+        {
+          "id": "survey",
+          "label": "Skeletal survey",
+          "correct_zone": "zone-monitor",
+          "why": "Osteolytic lesions — not bone scan.",
+          "guideline": "NCCN"
+        },
+        {
+          "id": "bis",
+          "label": "Bisphosphonates",
+          "correct_zone": "zone-iv-bag",
+          "why": "Prevent pathologic fractures.",
+          "guideline": "NCCN"
+        },
+        {
+          "id": "heme",
+          "label": "Hematology / oncology referral",
+          "correct_zone": "zone-icu",
+          "why": "Definitive treatment planning.",
+          "guideline": "NCCN"
+        }
+      ]
+    },
+    "151": {
+      "diagnosis": "Carbon Monoxide Poisoning",
+      "clinical_tip": "Pulse ox lies — order 100% O₂ before carboxyhemoglobin returns.",
+      "objective": "ED oxygenation and CO level confirmation.",
+      "interventions": [
+        {
+          "id": "ed",
+          "label": "Emergency Department",
+          "correct_zone": "zone-icu",
+          "why": "Found unconscious in enclosed space.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "o2",
+          "label": "100% O₂ non-rebreather",
+          "correct_zone": "zone-monitor",
+          "why": "Displace CO from hemoglobin immediately.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "cohb",
+          "label": "Carboxyhemoglobin level",
+          "correct_zone": "zone-blood",
+          "why": "Confirm exposure severity.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "iv",
+          "label": "IV access",
+          "correct_zone": "zone-iv-bag",
+          "why": "Supportive care access.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "monitor",
+          "label": "Cardiac monitor",
+          "correct_zone": "zone-monitor",
+          "why": "Arrhythmia risk with hypoxia.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "neuro",
+          "label": "Neurologic checks",
+          "correct_zone": "zone-monitor",
+          "why": "Track delayed neuro toxicity.",
+          "guideline": "ACEP"
+        }
+      ]
+    },
+    "152": {
+      "diagnosis": "Carbon Monoxide Poisoning",
+      "clinical_tip": "Family with flu-like headaches in winter — think CO; 100% O₂ first.",
+      "objective": "Same as Case 151 — high-flow O₂ and CO level.",
+      "interventions": [
+        {
+          "id": "ed",
+          "label": "Emergency Department",
+          "correct_zone": "zone-icu",
+          "why": "Headache cluster suggests exposure.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "o2",
+          "label": "100% O₂ non-rebreather",
+          "correct_zone": "zone-monitor",
+          "why": "Do not wait for lab to start treatment.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "cohb",
+          "label": "Carboxyhemoglobin level",
+          "correct_zone": "zone-blood",
+          "why": "Diagnostic confirmation.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "iv",
+          "label": "IV access",
+          "correct_zone": "zone-iv-bag",
+          "why": "Supportive pathway.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "monitor",
+          "label": "Cardiac monitor + pulse ox",
+          "correct_zone": "zone-monitor",
+          "why": "Note: pulse ox unreliable in CO.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "neuro",
+          "label": "Neurologic exam serially",
+          "correct_zone": "zone-monitor",
+          "why": "Detect delayed encephalopathy.",
+          "guideline": "ACEP"
+        }
+      ]
+    },
+    "153": {
+      "diagnosis": "Porphyria Cutanea Tarda",
+      "clinical_tip": "Sun-exposed blistering hands — screen Hep C and check urine porphyrins.",
+      "objective": "Reduce iron load; sun and alcohol counseling.",
+      "interventions": [
+        {
+          "id": "office",
+          "label": "Office / clinic",
+          "correct_zone": "zone-icu",
+          "why": "Chronic photosensitive blistering.",
+          "guideline": "Derm"
+        },
+        {
+          "id": "porph",
+          "label": "Urine porphyrin screen",
+          "correct_zone": "zone-blood",
+          "why": "Confirm porphyria cutanea tarda.",
+          "guideline": "Derm"
+        },
+        {
+          "id": "iron",
+          "label": "Serum ferritin / iron studies",
+          "correct_zone": "zone-blood",
+          "why": "Iron overload association.",
+          "guideline": "Derm"
+        },
+        {
+          "id": "hcv",
+          "label": "Hepatitis C screening",
+          "correct_zone": "zone-blood",
+          "why": "Strong PCT association.",
+          "guideline": "Derm"
+        },
+        {
+          "id": "phleb",
+          "label": "Phlebotomy or hydroxychloroquine",
+          "correct_zone": "zone-iv-bag",
+          "why": "Reduce hepatic iron.",
+          "guideline": "Derm"
+        },
+        {
+          "id": "sun",
+          "label": "Sun protection counseling",
+          "correct_zone": "zone-arm",
+          "why": "Prevent blistering flares.",
+          "guideline": "Derm"
+        },
+        {
+          "id": "etoh",
+          "label": "Alcohol cessation counseling",
+          "correct_zone": "zone-arm",
+          "why": "Common precipitant.",
+          "guideline": "Derm"
+        }
+      ]
+    },
+    "154": {
+      "diagnosis": "Trichomoniasis",
+      "clinical_tip": "One STD diagnosed — screen all others and treat the partner.",
+      "objective": "Metronidazole plus full STI panel.",
+      "interventions": [
+        {
+          "id": "clinic",
+          "label": "Clinic",
+          "correct_zone": "zone-icu",
+          "why": "Outpatient GU complaint.",
+          "guideline": "CDC"
+        },
+        {
+          "id": "wet",
+          "label": "Wet mount",
+          "correct_zone": "zone-blood",
+          "why": "Motile trichomonads / strawberry cervix.",
+          "guideline": "CDC"
+        },
+        {
+          "id": "ph",
+          "label": "Vaginal pH",
+          "correct_zone": "zone-blood",
+          "why": "Elevated pH supports trichomoniasis.",
+          "guideline": "CDC"
+        },
+        {
+          "id": "sti",
+          "label": "HIV, RPR, chlamydia/gonorrhea NAAT",
+          "correct_zone": "zone-blood",
+          "why": "Co-infection screening mandatory.",
+          "guideline": "CDC"
+        },
+        {
+          "id": "metro",
+          "label": "Oral metronidazole",
+          "correct_zone": "zone-arm",
+          "why": "First-line therapy.",
+          "guideline": "CDC"
+        },
+        {
+          "id": "partner",
+          "label": "Treat sexual partner",
+          "correct_zone": "zone-arm",
+          "why": "Prevent reinfection — separate order.",
+          "guideline": "CDC"
+        }
+      ]
+    },
+    "157": {
+      "diagnosis": "Diabetes Mellitus Type II",
+      "clinical_tip": "At diagnosis order eye referral and foot exam — automatic CCS points.",
+      "objective": "Confirm hyperglycemia and start metformin with screening bundle.",
+      "interventions": [
+        {
+          "id": "office",
+          "label": "Office / clinic",
+          "correct_zone": "zone-icu",
+          "why": "New polyuria/polydipsia workup.",
+          "guideline": "ADA"
+        },
+        {
+          "id": "glucose",
+          "label": "Fasting plasma glucose",
+          "correct_zone": "zone-blood",
+          "why": "Diagnostic threshold.",
+          "guideline": "ADA"
+        },
+        {
+          "id": "a1c",
+          "label": "HbA1c",
+          "correct_zone": "zone-blood",
+          "why": "Chronic glycemic control baseline.",
+          "guideline": "ADA"
+        },
+        {
+          "id": "ua",
+          "label": "Urinalysis glucose/ketones",
+          "correct_zone": "zone-blood",
+          "why": "Assess ketosis risk.",
+          "guideline": "ADA"
+        },
+        {
+          "id": "lipids",
+          "label": "Lipid panel",
+          "correct_zone": "zone-blood",
+          "why": "Cardiovascular risk management.",
+          "guideline": "ADA"
+        },
+        {
+          "id": "micro",
+          "label": "Microalbumin/creatinine ratio",
+          "correct_zone": "zone-blood",
+          "why": "Nephropathy screening.",
+          "guideline": "ADA"
+        },
+        {
+          "id": "metformin",
+          "label": "Start metformin",
+          "correct_zone": "zone-arm",
+          "why": "First-line unless contraindicated.",
+          "guideline": "ADA"
+        },
+        {
+          "id": "eye",
+          "label": "Ophthalmology referral",
+          "correct_zone": "zone-icu",
+          "why": "Retinopathy screening at diagnosis.",
+          "guideline": "ADA"
+        },
+        {
+          "id": "foot",
+          "label": "Diabetic foot exam",
+          "correct_zone": "zone-arm",
+          "why": "Neuropathy and ulcer screening.",
+          "guideline": "ADA"
+        }
+      ]
+    },
+    "163": {
+      "diagnosis": "Acute Otitis Media",
+      "clinical_tip": "Office or home — placing simple AOM in the ED loses points.",
+      "objective": "Pneumatic otoscopy diagnosis and amoxicillin.",
+      "interventions": [
+        {
+          "id": "office",
+          "label": "Office or home (not ED)",
+          "correct_zone": "zone-icu",
+          "why": "Stable pediatric ear pain — wrong location deducts points.",
+          "guideline": "AAP"
+        },
+        {
+          "id": "otoscopy",
+          "label": "Pneumatic otoscopy",
+          "correct_zone": "zone-monitor",
+          "why": "Confirm middle ear effusion.",
+          "guideline": "AAP"
+        },
+        {
+          "id": "amox",
+          "label": "Oral amoxicillin",
+          "correct_zone": "zone-arm",
+          "why": "First-line antibacterial therapy.",
+          "guideline": "AAP"
+        }
+      ]
+    },
+    "166": {
+      "diagnosis": "Hemophilia A",
+      "clinical_tip": "Avoid NSAIDs and IM injections — replace factor VIII.",
+      "objective": "Stop bleeding with factor replacement after confirming deficiency.",
+      "interventions": [
+        {
+          "id": "ed",
+          "label": "ED or ward",
+          "correct_zone": "zone-icu",
+          "why": "Oral bleeding or hemarthrosis in male child.",
+          "guideline": "ASH"
+        },
+        {
+          "id": "cbc",
+          "label": "CBC",
+          "correct_zone": "zone-blood",
+          "why": "Baseline counts.",
+          "guideline": "ASH"
+        },
+        {
+          "id": "ptt",
+          "label": "PTT",
+          "correct_zone": "zone-blood",
+          "why": "Prolonged in hemophilia.",
+          "guideline": "ASH"
+        },
+        {
+          "id": "factor",
+          "label": "Factor VIII assay",
+          "correct_zone": "zone-blood",
+          "why": "Confirm hemophilia A.",
+          "guideline": "ASH"
+        },
+        {
+          "id": "replace",
+          "label": "Factor VIII replacement",
+          "correct_zone": "zone-iv-bag",
+          "why": "Definitive hemostatic therapy.",
+          "guideline": "ASH"
+        },
+        {
+          "id": "avoid",
+          "label": "Avoid NSAIDs / IM injections",
+          "correct_zone": "zone-arm",
+          "why": "Prevent worsening bleeding.",
+          "guideline": "ASH"
+        }
+      ]
+    },
+    "167": {
+      "diagnosis": "Diabetic Gastroparesis",
+      "clinical_tip": "Gastric emptying study is gold standard; EGD if acute obstruction concern.",
+      "objective": "Prokinetic therapy after confirming delayed emptying.",
+      "interventions": [
+        {
+          "id": "ward",
+          "label": "Ward if dehydrated",
+          "correct_zone": "zone-icu",
+          "why": "Chronic diabetic nausea/vomiting.",
+          "guideline": "ADA"
+        },
+        {
+          "id": "bmp",
+          "label": "BMP / electrolytes",
+          "correct_zone": "zone-blood",
+          "why": "Correct dehydration and electrolytes.",
+          "guideline": "ADA"
+        },
+        {
+          "id": "ges",
+          "label": "Gastric emptying study",
+          "correct_zone": "zone-monitor",
+          "why": "Gold standard diagnostic test.",
+          "guideline": "ADA"
+        },
+        {
+          "id": "prok",
+          "label": "Metoclopramide or erythromycin",
+          "correct_zone": "zone-iv-bag",
+          "why": "Enhance gastric motility.",
+          "guideline": "ADA"
+        },
+        {
+          "id": "egd",
+          "label": "EGD if obstruction suspected",
+          "correct_zone": "zone-monitor",
+          "why": "Rule out mechanical blockage.",
+          "guideline": "ADA"
+        }
+      ]
+    },
+    "169": {
+      "diagnosis": "Hypercalcemia Secondary to Malignancy",
+      "clinical_tip": "Aggressive NS hydration before bisphosphonate; no loop diuretics until replete.",
+      "objective": "Volume resuscitation then zoledronic acid in ED.",
+      "interventions": [
+        {
+          "id": "ed",
+          "label": "Emergency Department",
+          "correct_zone": "zone-icu",
+          "why": "Somnolence and confusion from hypercalcemia.",
+          "guideline": "Endocrine"
+        },
+        {
+          "id": "iv",
+          "label": "Continuous IV access",
+          "correct_zone": "zone-iv-bag",
+          "why": "High-volume hydration pathway.",
+          "guideline": "Endocrine"
+        },
+        {
+          "id": "calcium",
+          "label": "Ionized calcium, PTH, PTHrp",
+          "correct_zone": "zone-blood",
+          "why": "Confirm malignancy-mediated mechanism.",
+          "guideline": "Endocrine"
+        },
+        {
+          "id": "bmp",
+          "label": "BMP",
+          "correct_zone": "zone-blood",
+          "why": "Renal function and electrolytes.",
+          "guideline": "Endocrine"
+        },
+        {
+          "id": "cxr",
+          "label": "Chest X-ray",
+          "correct_zone": "zone-monitor",
+          "why": "Screen for lung malignancy.",
+          "guideline": "Endocrine"
+        },
+        {
+          "id": "ns",
+          "label": "Normal saline IV hydration",
+          "correct_zone": "zone-iv-bag",
+          "why": "First-line — volume repletion.",
+          "guideline": "Endocrine"
+        },
+        {
+          "id": "bis",
+          "label": "IV zoledronic acid",
+          "correct_zone": "zone-iv-bag",
+          "why": "Definitive calcium lowering after hydration.",
+          "guideline": "Endocrine"
+        }
+      ]
+    },
+    "170": {
+      "diagnosis": "Orthostatic Hypotension",
+      "clinical_tip": "Start in office/home — unnecessary ED transfer loses points unless unstable.",
+      "objective": "Orthostatic vitals and review offending antihypertensives/diuretics.",
+      "interventions": [
+        {
+          "id": "office",
+          "label": "Office or home (not ED)",
+          "correct_zone": "zone-icu",
+          "why": "Stable lightheadedness on standing — location trap.",
+          "guideline": "ACC"
+        },
+        {
+          "id": "ortho",
+          "label": "Orthostatic vital signs",
+          "correct_zone": "zone-monitor",
+          "why": "Diagnostic cornerstone.",
+          "guideline": "ACC"
+        },
+        {
+          "id": "ekg",
+          "label": "EKG",
+          "correct_zone": "zone-monitor",
+          "why": "Arrhythmia and ischemia screen.",
+          "guideline": "ACC"
+        },
+        {
+          "id": "labs",
+          "label": "BMP and CBC",
+          "correct_zone": "zone-blood",
+          "why": "Anemia, dehydration, electrolytes.",
+          "guideline": "ACC"
+        },
+        {
+          "id": "fluids",
+          "label": "IV fluid bolus if acutely symptomatic",
+          "correct_zone": "zone-iv-bag",
+          "why": "Volume repletion when needed.",
+          "guideline": "ACC"
+        },
+        {
+          "id": "meds",
+          "label": "Stop offending diuretics / antihypertensives",
+          "correct_zone": "zone-arm",
+          "why": "Remove precipitating agents.",
+          "guideline": "ACC"
+        }
+      ]
+    },
+    "001": {
+      "diagnosis": "Tension Pneumothorax",
+      "clinical_tip": "Needle decompression before CXR in the unstable patient — do not delay treatment for imaging.",
+      "objective": "Immediate decompression and chest tube; 100% oxygen.",
+      "interventions": [
+        {
+          "id": "ed",
+          "label": "Move to Emergency Department",
+          "correct_zone": "zone-icu",
+          "why": "Acute respiratory failure requires ED care.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "o2",
+          "label": "100% Oxygen",
+          "correct_zone": "zone-monitor",
+          "why": "Maximize oxygenation while preparing decompression.",
+          "guideline": "ATLS"
+        },
+        {
+          "id": "monitor",
+          "label": "Pulse ox + cardiac monitor",
+          "correct_zone": "zone-monitor",
+          "why": "Track oxygenation and hemodynamics continuously.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "iv",
+          "label": "IV access",
+          "correct_zone": "zone-iv-bag",
+          "why": "Large-bore access if hypotensive or peri-arrest.",
+          "guideline": "ATLS"
+        },
+        {
+          "id": "needle",
+          "label": "Needle decompression",
+          "correct_zone": "zone-arm",
+          "why": "Clinical diagnosis — treat before imaging if unstable.",
+          "guideline": "ATLS"
+        },
+        {
+          "id": "chest-tube",
+          "label": "Tube thoracostomy",
+          "correct_zone": "zone-icu",
+          "why": "Definitive management after needle decompression.",
+          "guideline": "ATLS"
+        },
+        {
+          "id": "cxr",
+          "label": "Chest X-ray",
+          "correct_zone": "zone-monitor",
+          "why": "Confirm tube placement after stabilization.",
+          "guideline": "ACEP"
+        }
+      ]
+    },
+    "002": {
+      "diagnosis": "Subdural Hematoma",
+      "clinical_tip": "Elderly or alcoholic with AMS after minor trauma — non-contrast CT head first.",
+      "objective": "Identify bleed, reverse coagulopathy, neurosurgical evacuation if indicated.",
+      "interventions": [
+        {
+          "id": "ed",
+          "label": "Emergency Department",
+          "correct_zone": "zone-icu",
+          "why": "Acute neurologic change needs ED evaluation.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "seizure",
+          "label": "Seizure precautions",
+          "correct_zone": "zone-monitor",
+          "why": "Prevent secondary brain injury from seizures.",
+          "guideline": "AAN"
+        },
+        {
+          "id": "ct",
+          "label": "Non-contrast CT head",
+          "correct_zone": "zone-monitor",
+          "why": "Crescent-shaped subdural collection.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "coag",
+          "label": "PT/INR and platelets",
+          "correct_zone": "zone-blood",
+          "why": "Identify coagulopathy before neurosurgery.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "cbc",
+          "label": "CBC",
+          "correct_zone": "zone-blood",
+          "why": "Baseline and transfusion planning.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "neuro",
+          "label": "Neurosurgery consult",
+          "correct_zone": "zone-icu",
+          "why": "Evacuation if midline shift or decline.",
+          "guideline": "AAN"
+        },
+        {
+          "id": "monitor",
+          "label": "Neurologic checks + monitor",
+          "correct_zone": "zone-monitor",
+          "why": "Detect herniation early.",
+          "guideline": "ACEP"
+        }
+      ]
+    },
+    "091": {
+      "diagnosis": "Breast Cancer",
+      "clinical_tip": "Order the biopsy yourself — do not defer workup to the consultant.",
+      "objective": "Diagnostic mammography, ultrasound, and tissue diagnosis.",
+      "interventions": [
+        {
+          "id": "clinic",
+          "label": "Clinic / office setting",
+          "correct_zone": "zone-icu",
+          "why": "Stable mass evaluation in outpatient setting.",
+          "guideline": "NCCN"
+        },
+        {
+          "id": "exam",
+          "label": "Breast + HEENT exam",
+          "correct_zone": "zone-arm",
+          "why": "Document fixed painless mass before imaging.",
+          "guideline": "NCCN"
+        },
+        {
+          "id": "mammo",
+          "label": "Diagnostic mammography",
+          "correct_zone": "zone-monitor",
+          "why": "Characterize malignant features.",
+          "guideline": "NCCN"
+        },
+        {
+          "id": "us",
+          "label": "Breast ultrasound",
+          "correct_zone": "zone-monitor",
+          "why": "Guide biopsy of solid lesions.",
+          "guideline": "NCCN"
+        },
+        {
+          "id": "biopsy",
+          "label": "Core needle biopsy or FNA",
+          "correct_zone": "zone-arm",
+          "why": "Tissue diagnosis is mandatory.",
+          "guideline": "NCCN"
+        },
+        {
+          "id": "onc",
+          "label": "Surgical oncology referral",
+          "correct_zone": "zone-icu",
+          "why": "Definitive cancer management pathway.",
+          "guideline": "NCCN"
+        }
+      ]
+    },
+    "099": {
+      "diagnosis": "Cauda Equina Syndrome",
+      "clinical_tip": "Saddle anesthesia + bowel/bladder dysfunction = surgical emergency.",
+      "objective": "Urgent MRI and emergent decompression consult.",
+      "interventions": [
+        {
+          "id": "ed",
+          "label": "Emergency Department",
+          "correct_zone": "zone-icu",
+          "why": "Acute cord compression syndrome.",
+          "guideline": "AAN"
+        },
+        {
+          "id": "mri",
+          "label": "Urgent MRI spine",
+          "correct_zone": "zone-monitor",
+          "why": "Confirm compressive lesion level.",
+          "guideline": "AAN"
+        },
+        {
+          "id": "neuro",
+          "label": "Emergency neurosurgery / ortho consult",
+          "correct_zone": "zone-icu",
+          "why": "Order with MRI — do not wait for full workup.",
+          "guideline": "AAN"
+        },
+        {
+          "id": "bladder",
+          "label": "Bladder scan / catheter if retention",
+          "correct_zone": "zone-arm",
+          "why": "Document urinary retention.",
+          "guideline": "AAN"
+        },
+        {
+          "id": "cbc",
+          "label": "CBC + BMP",
+          "correct_zone": "zone-blood",
+          "why": "Pre-op labs and baseline.",
+          "guideline": "ACEP"
+        },
+        {
+          "id": "monitor",
+          "label": "Neurologic checks",
+          "correct_zone": "zone-monitor",
+          "why": "Track progressive deficits.",
+          "guideline": "AAN"
+        }
+      ]
+    }
+  }
+}

@@ -4,7 +4,6 @@ import {
   FiLogOut,
   FiSettings,
   FiUser,
-  FiX,
   FiZap,
 } from 'react-icons/fi';
 import { getCatalog, getCaseById } from '../data/useCcsCatalog.js';
@@ -26,7 +25,17 @@ import {
   sliderFromLevel,
   writeAudienceProfile,
 } from '../lib/audienceProfile.js';
+import { DEFAULT_TIMER_SECONDS, normalizeTimerSeconds } from '../lib/caseTimer.js';
+import { getReadyPracticeCount, getStackTestingCount } from '../lib/caseReadyPractice.js';
+import { getFlaggedReviewCount } from '../data/caseProgress.js';
+import { fetchOverallUserStats } from '../lib/caseUserLog.js';
+import {
+  applyPhysicianProfile,
+  hasCompletedOnboarding,
+  markOnboardingComplete,
+} from '../lib/onboarding.js';
 import GridPlacementLayer from './GridPlacementLayer.jsx';
+import ResumeSessionBanner from './ResumeSessionBanner.jsx';
 import {
   createGridItem,
   moveGridItem,
@@ -42,26 +51,42 @@ const NAV = [
   { id: 'exit', label: 'Exit', Icon: FiLogOut, action: 'exit' },
 ];
 
-export default function WelcomeScreen({ onPlay, onOpenCases, studioBuild = false }) {
+export default function WelcomeScreen({
+  onPlay,
+  onOpenCases,
+  onOpenReadyCases,
+  onOpenStackTestingCases,
+  onOpenFlaggedCases,
+  resumeCheckpoint,
+  resumeCase,
+  onResumeSession,
+  onDiscardSession,
+  studioBuild = false,
+}) {
   const brand = getBranding();
   const plateSrc = brand.welcomePlate || '/welcome-plate.png';
   const catalog = getCatalog();
   const stats = useMemo(() => getCompletionStats(catalog.totalCases), [catalog.totalCases]);
-  const lastCaseId = useMemo(() => getLastPlayedCaseId(), []);
-  const lastCase = lastCaseId ? getCaseById(lastCaseId) : null;
+  const readyCount = getReadyPracticeCount();
+  const stackTestingCount = useMemo(() => getStackTestingCount(catalog.cases), [catalog.cases]);
   const [activeNav, setActiveNav] = useState('play');
   const [panel, setPanel] = useState(null);
+  const flaggedCount = useMemo(() => getFlaggedReviewCount(), [panel]);
+  const lastCaseId = useMemo(() => getLastPlayedCaseId(), []);
+  const lastCase = lastCaseId ? getCaseById(lastCaseId) : null;
   const [theme, setTheme] = useState(() => readTheme());
   const [showGrid, setShowGrid] = useState(studioBuild);
   const [placeMode, setPlaceMode] = useState(studioBuild);
   const [gridItems, setGridItems] = useState(() => readGridItems(STORAGE.welcomeGridItems));
   const [selectedGridId, setSelectedGridId] = useState(null);
   const [placingNavId, setPlacingNavId] = useState(null);
-  const [audienceReady, setAudienceReady] = useState(false);
+  const [audienceReady, setAudienceReady] = useState(() => hasCompletedOnboarding());
+  const [showFullSetup, setShowFullSetup] = useState(false);
   const [condition, setCondition] = useState('diabetes');
-  const [understanding, setUnderstanding] = useState(0.5);
+  const [understanding, setUnderstanding] = useState(1);
   const [playRole, setPlayRole] = useState('doctor');
   const [difficulty, setDifficulty] = useState('standard');
+  const [timerMinutes, setTimerMinutes] = useState(2.5);
   const fileRef = useRef(null);
   const magicFileRef = useRef(null);
   const [patientSet, setPatientSet] = useState(() => {
@@ -75,6 +100,7 @@ export default function WelcomeScreen({ onPlay, onOpenCases, studioBuild = false
   const [magicBusy, setMagicBusy] = useState(false);
   const [magicLink, setMagicLink] = useState('');
   const [magicMsg, setMagicMsg] = useState('');
+  const [journalStats, setJournalStats] = useState(null);
 
   const allCaseIds = useMemo(() => catalog.cases.map((c) => c.id), [catalog]);
   const audienceLevel = useMemo(() => levelFromSlider(understanding), [understanding]);
@@ -106,7 +132,19 @@ export default function WelcomeScreen({ onPlay, onOpenCases, studioBuild = false
     setUnderstanding(sliderFromLevel(saved.level));
     if (saved.playRole) setPlayRole(saved.playRole);
     if (saved.difficulty) setDifficulty(saved.difficulty);
+    if (saved.timerSeconds) setTimerMinutes(Math.round((saved.timerSeconds / 60) * 10) / 10);
   }, []);
+
+  useEffect(() => {
+    if (panel !== 'profiles') return undefined;
+    let cancelled = false;
+    fetchOverallUserStats().then((stats) => {
+      if (!cancelled) setJournalStats(stats);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [panel]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -146,6 +184,10 @@ export default function WelcomeScreen({ onPlay, onOpenCases, studioBuild = false
   };
 
   const handleContinue = () => {
+    if (resumeCheckpoint?.caseId && onResumeSession) {
+      onResumeSession();
+      return;
+    }
     if (lastCase) {
       onPlay(lastCase, readProgress().lastMode || 'browse');
       return;
@@ -154,9 +196,30 @@ export default function WelcomeScreen({ onPlay, onOpenCases, studioBuild = false
   };
 
   const dismissEntryModal = useCallback(() => {
-    writeAudienceProfile({ level: audienceLevel, condition, playRole, difficulty });
+    writeAudienceProfile({
+      level: audienceLevel,
+      condition,
+      playRole,
+      difficulty,
+      timerSeconds: normalizeTimerSeconds(Math.round(timerMinutes * 60), DEFAULT_TIMER_SECONDS),
+    });
+    markOnboardingComplete();
     setAudienceReady(true);
-  }, [audienceLevel, condition, playRole, difficulty]);
+  }, [audienceLevel, condition, playRole, difficulty, timerMinutes]);
+
+  const continueAsPhysician = useCallback(() => {
+    const profile = applyPhysicianProfile(timerMinutes);
+    setUnderstanding(sliderFromLevel(profile.level));
+    setPlayRole(profile.playRole);
+    setDifficulty(profile.difficulty);
+    setAudienceReady(true);
+    setShowFullSetup(false);
+  }, [timerMinutes]);
+
+  const ensureReadyForCases = useCallback(() => {
+    if (audienceReady) return;
+    continueAsPhysician();
+  }, [audienceReady, continueAsPhysician]);
 
   const runNavAction = (id) => {
     if (id === 'play') handlePlay();
@@ -325,141 +388,129 @@ export default function WelcomeScreen({ onPlay, onOpenCases, studioBuild = false
       {!audienceReady && (
         <>
           <div className="welcome-entry-backdrop" aria-hidden />
-          <section className="welcome-entry-modal welcome-entry-card" aria-label="Audience level">
+          <section className="welcome-entry-modal welcome-entry-card welcome-onboarding-slim" aria-label="One-time setup">
+            <p className="welcome-entry-kicker">One-time setup</p>
+            <h2>Physician mode</h2>
+            <p className="welcome-entry-note">
+              Full case library, clinical prompts, drag-and-drop CCS stacks. This screen appears once — then
+              straight to cases.
+            </p>
+            <button type="button" className="btn-primary welcome-physician-cta" onClick={continueAsPhysician}>
+              Continue as physician →
+            </button>
             <button
               type="button"
-              className="welcome-entry-close"
-              onClick={dismissEntryModal}
-              aria-label="Close setup and go to menu"
-              title="Close"
+              className="btn-ghost welcome-customize-toggle"
+              onClick={() => setShowFullSetup((v) => !v)}
+              aria-expanded={showFullSetup}
             >
-              <FiX aria-hidden size={28} strokeWidth={2.5} />
+              {showFullSetup ? 'Hide custom setup' : 'Customize audience & timer…'}
             </button>
-            <p className="welcome-entry-kicker">Public Mode</p>
-            <h2>Pick a condition and understanding level</h2>
-            <p className="welcome-entry-note">
-              Reddit-informed common conditions for launch: layperson mode limits case complexity.
-            </p>
-            <div className="welcome-condition-grid">
-              {conditionChoices.map((opt) => (
-                <button
-                  key={opt.id}
-                  type="button"
-                  className={condition === opt.id ? 'welcome-cond-pill active' : 'welcome-cond-pill'}
-                  onClick={() => setCondition(opt.id)}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-            <label className="welcome-understanding">
-              <span>Explain it like I&apos;m…</span>
-              <strong>
-                {audienceLevel === 'kid'
-                  ? 'a 5-year-old'
-                  : audienceLevel === 'layperson'
-                    ? 'a curious adult'
-                    : audienceLevel === 'mid'
-                      ? 'a pre-med student'
-                      : 'a physician'}
-              </strong>
-            </label>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.01"
-              value={understanding}
-              onChange={(e) => setUnderstanding(Number(e.target.value))}
-            />
-            <div className="welcome-understanding-meta">
-              <span>5 years old</span>
-              <span>physician</span>
-            </div>
-            <p className="welcome-entry-note">
-              Available right now: {allowedCaseIds.length} cases in {audienceLevel} mode
-            </p>
-            <div className="welcome-session-row">
-              <span className="welcome-entry-kicker">Play as</span>
-              <div className="welcome-session-toggle">
-                <button
-                  type="button"
-                  className={playRole === 'doctor' ? 'active' : ''}
-                  onClick={() => setPlayRole('doctor')}
-                >
-                  Doctor
-                </button>
-                <button
-                  type="button"
-                  className={playRole === 'patient' ? 'active' : ''}
-                  onClick={() => setPlayRole('patient')}
-                >
-                  Patient
-                </button>
-              </div>
-            </div>
-            <div className="welcome-session-row">
-              <span className="welcome-entry-kicker">Session difficulty</span>
-              <div className="welcome-session-toggle">
-                <button
-                  type="button"
-                  className={difficulty === 'easy' ? 'active' : ''}
-                  onClick={() => setDifficulty('easy')}
-                >
-                  Easier
-                </button>
-                <button
-                  type="button"
-                  className={difficulty === 'standard' ? 'active' : ''}
-                  onClick={() => setDifficulty('standard')}
-                >
-                  Standard
-                </button>
-                <button
-                  type="button"
-                  className={difficulty === 'hard' ? 'active' : ''}
-                  onClick={() => setDifficulty('hard')}
-                >
-                  Harder
-                </button>
-              </div>
-            </div>
-            <p className="welcome-entry-note muted">
-              {playRole === 'patient'
-                ? 'Patient mode uses first-person prompts and softer coaching.'
-                : 'Doctor mode uses traditional clinical prompts and teaching text.'}
-              {' '}
-              {difficulty === 'easy' && 'Easier sessions give more time and hints.'}
-              {difficulty === 'hard' && 'Harder sessions use stricter scoring and less coaching.'}
-            </p>
-            <button type="button" className="btn-primary" onClick={dismissEntryModal}>
-              Enter
-            </button>
-            <div className="welcome-magic">
-              <p className="welcome-entry-kicker">Hyper-personalize with magic link</p>
-              <input
-                ref={magicFileRef}
-                type="file"
-                accept="image/*"
-                className="welcome-magic-input"
-              />
-              <input
-                type="email"
-                className="welcome-magic-input"
-                placeholder="Email (optional)"
-                value={magicEmail}
-                onChange={(e) => setMagicEmail(e.target.value)}
-              />
-              <button type="button" className="btn-ghost" onClick={createMagicLink} disabled={magicBusy}>
-                {magicBusy ? 'Generating personalized link…' : 'Create magic link'}
-              </button>
-              {magicMsg && <p className="welcome-entry-note">{magicMsg}</p>}
-              {magicLink && (
-                <p className="welcome-entry-note" title={magicLink}>
-                  Link: {magicLink}
+            {showFullSetup && (
+              <div className="welcome-onboarding-custom">
+                <p className="welcome-entry-note muted">
+                  Reddit-informed common conditions for launch: layperson mode limits case complexity.
                 </p>
-              )}
-            </div>
+                <div className="welcome-condition-grid">
+                  {conditionChoices.map((opt) => (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      className={condition === opt.id ? 'welcome-cond-pill active' : 'welcome-cond-pill'}
+                      onClick={() => setCondition(opt.id)}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+                <label className="welcome-understanding">
+                  <span>Explain it like I&apos;m…</span>
+                  <strong>
+                    {audienceLevel === 'kid'
+                      ? 'a 5-year-old'
+                      : audienceLevel === 'layperson'
+                        ? 'a curious adult'
+                        : audienceLevel === 'mid'
+                          ? 'a pre-med student'
+                          : 'a physician'}
+                  </strong>
+                </label>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={understanding}
+                  onChange={(e) => setUnderstanding(Number(e.target.value))}
+                />
+                <div className="welcome-understanding-meta">
+                  <span>5 years old</span>
+                  <span>physician</span>
+                </div>
+                <p className="welcome-entry-note">
+                  Available right now: {allowedCaseIds.length} cases in {audienceLevel} mode
+                </p>
+                <div className="welcome-session-row">
+                  <span className="welcome-entry-kicker">Play as</span>
+                  <div className="welcome-session-toggle">
+                    <button
+                      type="button"
+                      className={playRole === 'doctor' ? 'active' : ''}
+                      onClick={() => setPlayRole('doctor')}
+                    >
+                      Doctor
+                    </button>
+                    <button
+                      type="button"
+                      className={playRole === 'patient' ? 'active' : ''}
+                      onClick={() => setPlayRole('patient')}
+                    >
+                      Patient
+                    </button>
+                  </div>
+                </div>
+                <div className="welcome-session-row">
+                  <span className="welcome-entry-kicker">Session difficulty</span>
+                  <div className="welcome-session-toggle">
+                    <button
+                      type="button"
+                      className={difficulty === 'easy' ? 'active' : ''}
+                      onClick={() => setDifficulty('easy')}
+                    >
+                      Easier
+                    </button>
+                    <button
+                      type="button"
+                      className={difficulty === 'standard' ? 'active' : ''}
+                      onClick={() => setDifficulty('standard')}
+                    >
+                      Standard
+                    </button>
+                    <button
+                      type="button"
+                      className={difficulty === 'hard' ? 'active' : ''}
+                      onClick={() => setDifficulty('hard')}
+                    >
+                      Harder
+                    </button>
+                  </div>
+                </div>
+                <label className="welcome-timer-field">
+                  <span className="welcome-entry-kicker">Case timer (minutes)</span>
+                  <input
+                    type="number"
+                    min={1}
+                    max={60}
+                    step={0.5}
+                    value={timerMinutes}
+                    onChange={(e) => setTimerMinutes(Number(e.target.value))}
+                  />
+                </label>
+                <button type="button" className="btn-primary" onClick={dismissEntryModal}>
+                  Save &amp; continue
+                </button>
+              </div>
+            )}
           </section>
         </>
       )}
@@ -476,6 +527,15 @@ export default function WelcomeScreen({ onPlay, onOpenCases, studioBuild = false
           </div>
         </header>
 
+        {resumeCheckpoint?.caseId && onResumeSession && onDiscardSession && (
+          <ResumeSessionBanner
+            checkpoint={resumeCheckpoint}
+            caseMeta={resumeCase}
+            onResume={onResumeSession}
+            onDiscard={onDiscardSession}
+          />
+        )}
+
         <nav className="welcome-nav" aria-label="Main menu">
           {NAV.map(({ id, label, Icon }) => (
             <button
@@ -485,9 +545,21 @@ export default function WelcomeScreen({ onPlay, onOpenCases, studioBuild = false
               onClick={() => onNav(id)}
               onMouseEnter={() => setActiveNav(id)}
               onFocus={() => setActiveNav(id)}
-              disabled={(id === 'continue' && !lastCase) || (!audienceReady && id !== 'settings' && id !== 'profiles')}
-              aria-disabled={!audienceReady && id !== 'settings' && id !== 'profiles'}
-              title={id === 'continue' && !lastCase ? 'No saved session yet' : label}
+              disabled={
+                (id === 'continue' && !lastCase && !resumeCheckpoint?.caseId) ||
+                (!audienceReady && id !== 'settings' && id !== 'profiles')
+              }
+              aria-disabled={
+                (id === 'continue' && !lastCase && !resumeCheckpoint?.caseId) ||
+                (!audienceReady && id !== 'settings' && id !== 'profiles')
+              }
+              title={
+                id === 'continue' && !lastCase && !resumeCheckpoint?.caseId
+                  ? 'No saved session yet'
+                  : id === 'continue' && resumeCheckpoint?.caseId
+                    ? 'Resume your recent in-progress case'
+                    : label
+              }
             >
               <Icon className="welcome-nav-icon" aria-hidden />
               <span>{label}</span>
@@ -514,11 +586,66 @@ export default function WelcomeScreen({ onPlay, onOpenCases, studioBuild = false
             <strong>{stats.completed}</strong> / {stats.total} cases mastered
           </p>
           <p className="welcome-panel-stat muted">{stats.pct}% complete · {stats.played} played</p>
+          {journalStats && (
+            <div className="welcome-journal-stats">
+              <p className="welcome-panel-kicker">Practice journal</p>
+              <p className="welcome-panel-stat muted">
+                {journalStats.totalSessions} runs · {journalStats.totalChatMessages} chat ·{' '}
+                {journalStats.totalRecordings} recordings · {journalStats.totalNoteEvents} notes logged
+              </p>
+            </div>
+          )}
           {lastCase && (
             <p className="welcome-panel-meta">
               Last case: <strong>{lastCase.title}</strong>
             </p>
           )}
+          <div className="welcome-panel-actions">
+            <button
+              type="button"
+              className="welcome-panel-btn"
+              onClick={() => {
+                ensureReadyForCases();
+                onOpenReadyCases();
+              }}
+            >
+              Ready to practice ({readyCount}) →
+            </button>
+            {stackTestingCount > 0 && onOpenStackTestingCases && (
+              <button
+                type="button"
+                className="welcome-panel-btn"
+                onClick={() => {
+                  ensureReadyForCases();
+                  onOpenStackTestingCases();
+                }}
+              >
+                Stack testing ({stackTestingCount}) →
+              </button>
+            )}
+            {onOpenFlaggedCases && (
+              <button
+                type="button"
+                className="welcome-panel-btn"
+                onClick={() => {
+                  ensureReadyForCases();
+                  onOpenFlaggedCases();
+                }}
+              >
+                Review next ({flaggedCount}) →
+              </button>
+            )}
+            <button
+              type="button"
+              className="welcome-panel-btn btn-ghost"
+              onClick={() => {
+                ensureReadyForCases();
+                onOpenCases();
+              }}
+            >
+              Browse all cases →
+            </button>
+          </div>
         </aside>
       )}
       {panel === 'settings' && (
@@ -527,6 +654,25 @@ export default function WelcomeScreen({ onPlay, onOpenCases, studioBuild = false
             ✕
           </button>
           <h2>Settings</h2>
+          <label className="welcome-settings-field">
+            <span>Case timer (minutes)</span>
+            <input
+              type="number"
+              min={1}
+              max={60}
+              step={0.5}
+              value={timerMinutes}
+              onChange={(e) => {
+                const next = Number(e.target.value);
+                setTimerMinutes(next);
+                const profile = readAudienceProfile() || {};
+                writeAudienceProfile({
+                  ...profile,
+                  timerSeconds: normalizeTimerSeconds(Math.round(next * 60), DEFAULT_TIMER_SECONDS),
+                });
+              }}
+            />
+          </label>
           <button type="button" className="welcome-panel-btn" onClick={toggleTheme}>
             Theme: {theme === 'light' ? 'Light' : 'Dark'}
           </button>

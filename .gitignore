@@ -3,4 +3,5 @@ dist/
 .scene-cache/
 .magic-links/
 captures/
+user-data/
 .env

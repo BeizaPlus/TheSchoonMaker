@@ -1,11 +1,18 @@
 import { useEffect, useState } from 'react';
 import PatientScene from './PatientScene.jsx';
 import BriefingCasePicker from './BriefingCasePicker.jsx';
+import CaseReviewFlagButton from './CaseReviewFlagButton.jsx';
 import {
   getPatientImagePayload,
   readVisionZones,
   writeVisionZones,
 } from '../lib/patientImage.js';
+import {
+  getPresentationHistory,
+  getPresentationIntro,
+  getPresentationVitals,
+} from '../lib/casePresentation.js';
+import { readCaseRegenImage } from '../lib/patientRegen.js';
 
 function clampZone(z) {
   const clamp01 = (v) => Math.max(0, Math.min(1, v));
@@ -30,24 +37,43 @@ function normalizeZones(zones) {
 }
 
 export default function Briefing({ caseData, onBegin, onBack, onSelectCase }) {
-  const [ready, setReady] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [regenSrc, setRegenSrc] = useState(() => readCaseRegenImage(caseData?.id));
 
   useEffect(() => {
-    setReady(false);
-    setLoading(true);
-    const t = setTimeout(() => {
-      setReady(true);
-      setLoading(false);
-    }, 2200);
-    return () => clearTimeout(t);
+    setRegenSrc(readCaseRegenImage(caseData?.id));
   }, [caseData?.id]);
 
   useEffect(() => {
     let cancelled = false;
     async function run() {
       try {
-        const payload = await getPatientImagePayload(caseData);
+        const savedRegen = readCaseRegenImage(caseData.id);
+        let payload;
+        if (savedRegen?.startsWith('data:')) {
+          payload = {
+            base64: savedRegen.split(',')[1] || '',
+            mimeType: savedRegen.slice(5, savedRegen.indexOf(';')) || 'image/png',
+            source: `regen:${caseData.id}`,
+          };
+        } else if (savedRegen?.startsWith('http')) {
+          if (readVisionZones(savedRegen)) return;
+          const resp = await fetch(savedRegen);
+          const blob = await resp.blob();
+          const mimeType = blob.type || 'image/png';
+          const dataUrl = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(String(reader.result || ''));
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+          payload = {
+            base64: dataUrl.split(',')[1] || '',
+            mimeType,
+            source: savedRegen,
+          };
+        } else {
+          payload = await getPatientImagePayload(caseData);
+        }
         if (readVisionZones(payload.source)) return;
 
         const r = await fetch('http://127.0.0.1:3001/api/detect-zones', {
@@ -73,10 +99,16 @@ export default function Briefing({ caseData, onBegin, onBack, onSelectCase }) {
     };
   }, [caseData?.id]);
 
+  const presentationIntro = getPresentationIntro(caseData);
+  const presentationHistory = getPresentationHistory(caseData);
+  const presentationVitals = getPresentationVitals(caseData);
+  const presentationText =
+    presentationHistory || presentationIntro || 'No presentation text available.';
+
   return (
-    <main className="briefing briefing-with-scene">
+    <main className="briefing briefing-with-scene briefing-minimal">
       <div className="briefing-scene-wrap" aria-hidden>
-        <PatientScene scene={caseData.patientScene} className="briefing-scene-img" />
+        <PatientScene scene={caseData.patientScene} className="briefing-scene-img" forceSrc={regenSrc} />
         <div className="briefing-scene-dim" />
       </div>
 
@@ -92,25 +124,21 @@ export default function Briefing({ caseData, onBegin, onBack, onSelectCase }) {
             {caseData.timeLimit ? ` · ${caseData.timeLimit}` : ''}
           </p>
           <h1>{caseData.title}</h1>
-          <p className="briefing-intro">{caseData.chief_complaint}</p>
-          <p className="briefing-tip">{caseData.clinical_tip}</p>
-          <p className="briefing-objective">Objective — {caseData.objective}</p>
-          <div className="briefing-load">
-            <div className="briefing-dots" aria-hidden>
-              <span className="brief-dot filled" />
-              <span className="brief-dot" />
-              <span className="brief-dot" />
-              <span className="brief-dot" />
-              <span className="brief-dot" />
-            </div>
-            <div className="briefing-bar" aria-hidden>
-              <div className={`briefing-bar-fill ${loading ? 'loading' : ''}`} />
-            </div>
+          {caseData.diagnosis && (
+            <p className="briefing-diagnosis-line">{caseData.diagnosis}</p>
+          )}
+          <div className="briefing-scroll">
+            <p>{presentationText}</p>
+            {presentationVitals && (
+              <p className="briefing-vitals-line">{presentationVitals}</p>
+            )}
           </div>
+          <p className="briefing-objective">Objective — {caseData.objective}</p>
           <div className="briefing-actions">
-            <button type="button" className="btn-primary" onClick={onBegin} disabled={!ready}>
-              {ready ? 'Begin case →' : 'Loading…'}
+            <button type="button" className="btn-primary" onClick={onBegin}>
+              Begin case →
             </button>
+            <CaseReviewFlagButton caseId={caseData.id} compact />
             <button type="button" className="btn-ghost" onClick={onBack}>
               Back
             </button>

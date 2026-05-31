@@ -1,4 +1,4 @@
-import preparedCases from '../data/preparedCases.json';
+import preparedCases from '../data/preparedCases.json' with { type: 'json' };
 import { getCompletionThresholdAdjust } from './sessionProfile.js';
 
 const PREPARED = preparedCases?.cases || {};

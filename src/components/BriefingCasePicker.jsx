@@ -1,7 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiChevronDown, FiChevronUp, FiSearch } from 'react-icons/fi';
 import { getAllGameCases, getCategories, getCasesInCategory } from '../data/useCcsCatalog.js';
-import { getCaseRecord } from '../data/caseProgress.js';
+import { getCaseRecord, getCompletionStats } from '../data/caseProgress.js';
+import CaseProgressTag from './CaseProgressTag.jsx';
+import CaseReadyTag from './CaseReadyTag.jsx';
+import { hasCaseSpecificPlaybook } from '../data/resolvePlaybook.js';
+import {
+  getReadyPracticeCases,
+  getReadyPracticeCount,
+} from '../lib/caseReadyPractice.js';
 import { STORAGE } from '../lib/storageKeys.js';
 import { getAllowedCaseIds, readAudienceProfile } from '../lib/audienceProfile.js';
 
@@ -55,11 +62,14 @@ export default function BriefingCasePicker({ currentCaseId, onSelectCase }) {
   );
   const pickerRef = useRef(null);
   const dragRef = useRef({ dx: 0, dy: 0 });
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [pos, setPos] = useState(readPickerPos);
   const [dragging, setDragging] = useState(false);
   const [categoryId, setCategoryId] = useState(visibleCategories[0]?.id);
   const [query, setQuery] = useState('');
+  const [readyOnly, setReadyOnly] = useState(false);
+  const readyCount = getReadyPracticeCount();
+  const readyCases = useMemo(() => getReadyPracticeCases(allCases), [allCases]);
 
   useEffect(() => {
     const cat = visibleCategories.find((c) => c.caseIds?.includes(currentCaseId));
@@ -73,7 +83,12 @@ export default function BriefingCasePicker({ currentCaseId, onSelectCase }) {
 
   const filteredCases = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const pool = q ? visibleAllCases : casesInCategory;
+    let pool;
+    if (readyOnly) {
+      pool = readyCases.filter((c) => allowedSet.has(c.id));
+    } else {
+      pool = q ? visibleAllCases : casesInCategory;
+    }
     if (!q) return pool;
     return pool.filter((c) => {
       const num = String(c.ccsNumber || '');
@@ -81,12 +96,14 @@ export default function BriefingCasePicker({ currentCaseId, onSelectCase }) {
         c.title.toLowerCase().includes(q) ||
         num.includes(q) ||
         (c.category || '').toLowerCase().includes(q) ||
-        (c.chief_complaint || '').toLowerCase().includes(q)
+        (c.chief_complaint || '').toLowerCase().includes(q) ||
+        (c.diagnosis || '').toLowerCase().includes(q)
       );
     });
-  }, [visibleAllCases, casesInCategory, query]);
+  }, [visibleAllCases, casesInCategory, query, readyOnly, readyCases, allowedSet]);
 
   const activeCategory = visibleCategories.find((c) => c.id === categoryId);
+  const overallStats = useMemo(() => getCompletionStats(allCases.length), [allCases.length]);
 
   const clampPos = useCallback((x, y) => {
     const width = pickerRef.current?.offsetWidth || PICKER_WIDTH;
@@ -165,7 +182,10 @@ export default function BriefingCasePicker({ currentCaseId, onSelectCase }) {
           <span className="briefing-picker-grip" aria-hidden>
             ⋮⋮
           </span>
-          <span>Switch case</span>
+          <span>Cases</span>
+          <span className="briefing-picker-completion" title="Cases mastered / total">
+            {overallStats.completed}/{overallStats.total}
+          </span>
         </div>
         <button
           type="button"
@@ -212,13 +232,26 @@ export default function BriefingCasePicker({ currentCaseId, onSelectCase }) {
             </span>
           </label>
 
+          <button
+            type="button"
+            className={readyOnly ? 'briefing-ready-filter active' : 'briefing-ready-filter'}
+            onClick={() => {
+              setReadyOnly((v) => !v);
+              setQuery('');
+            }}
+            aria-pressed={readyOnly}
+          >
+            Ready to practice ({readyCount})
+          </button>
+
           <p className="briefing-picker-meta">
-            {query.trim()
-              ? `${filteredCases.length} match${filteredCases.length === 1 ? '' : 'es'} · all categories`
-              : activeCategory
-                ? `${filteredCases.length} of ${activeCategory.count} · ${activeCategory.label}`
-                : ''}
-            {!query.trim() ? ' · click a case to switch' : ''}
+            {readyOnly
+              ? `${filteredCases.length} ready case${filteredCases.length === 1 ? '' : 's'}`
+              : query.trim()
+                ? `${filteredCases.length} match${filteredCases.length === 1 ? '' : 'es'}`
+                : activeCategory
+                  ? `${filteredCases.length} in ${activeCategory.label}`
+                  : ''}
           </p>
 
           <div className="briefing-picker-list" role="listbox" aria-label="Cases in category">
@@ -228,13 +261,14 @@ export default function BriefingCasePicker({ currentCaseId, onSelectCase }) {
             {filteredCases.map((c) => {
               const rec = getCaseRecord(c.id);
               const selected = c.id === currentCaseId;
+              const rowState = rec?.completed ? 'done' : rec?.plays ? 'attempted' : '';
               return (
                 <button
                   key={c.id}
                   type="button"
                   role="option"
                   aria-selected={selected}
-                  className={`briefing-picker-row ${selected ? 'selected' : ''} ${rec?.completed ? 'done' : ''}`}
+                  className={`briefing-picker-row ${selected ? 'selected' : ''} ${rowState}`}
                   onClick={() => onSelectCase(c)}
                   title={`Switch to ${c.title}`}
                 >
@@ -246,7 +280,8 @@ export default function BriefingCasePicker({ currentCaseId, onSelectCase }) {
                     ) : null}
                   </span>
                   <span className="briefing-picker-status">
-                    {rec?.completed ? `✓ ${rec.bestAccuracy}%` : rec?.plays ? `${rec.bestAccuracy}%` : '—'}
+                    {hasCaseSpecificPlaybook(c.id) && <CaseReadyTag compact />}
+                    <CaseProgressTag record={rec} showNew />
                   </span>
                 </button>
               );

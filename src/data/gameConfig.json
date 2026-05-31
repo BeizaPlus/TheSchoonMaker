@@ -139,6 +139,7 @@
     "previewCardHeightPx": 300,
     "algorithmPanelHeightPx": 220,
     "pillRowHeightPx": 52,
+    "timerSeconds": 150,
     "zoneDisplay": "never",
     "placementMode": "grid"
   }

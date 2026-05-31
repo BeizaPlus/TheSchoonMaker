@@ -5,6 +5,7 @@
   "scripts": {
     "build:catalog": "node scripts/build-ccs-catalog.mjs",
     "build:cases": "node scripts/build-prepared-cases.mjs",
+    "seed:case-playbooks": "node scripts/seed-case-specific-playbooks.mjs",
     "build:data": "npm run build:catalog && npm run build:cases",
     "predev": "npm run build:data && node scripts/smoke-test.mjs",
     "dev": "concurrently -n api,web -c blue,green \"node server/index.js\" \"vite\"",

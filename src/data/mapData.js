@@ -1,4 +1,4 @@
-import erMap from './erMap.json';
+import erMap from './erMap.json' with { type: 'json' };
 
 const DISPO_IDS = erMap.dispositionNodeIds || ['icu', 'ward', 'obs', 'transfer'];
 

@@ -41,6 +41,15 @@ function parsePresentationFile(filePath) {
 }
 
 const listPath = path.join(STEP3, 'ccs_screenshots/ccs_case_list.json');
+if (!fs.existsSync(listPath)) {
+  if (fs.existsSync(OUT)) {
+    console.log(`Step 3 export not found at ${listPath}; keeping existing ${OUT}`);
+    process.exit(0);
+  }
+  console.error(`Missing Step 3 export: ${listPath}`);
+  console.error(`Expected CCS case list JSON. Copy Step 3 data or restore ${OUT}.`);
+  process.exit(1);
+}
 const data = JSON.parse(fs.readFileSync(listPath, 'utf8'));
 
 const presentations = {};

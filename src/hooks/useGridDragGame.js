@@ -1,8 +1,9 @@
 import { useEffect, useRef } from 'react';
 import interact from 'interactjs';
+import { cellFromDropSurface } from '../components/SceneGridOverlay.jsx';
 
 /**
- * Drag pills onto invisible grid cells; optional reposition of placed pins.
+ * Drag pills onto invisible grid surface; optional reposition of placed pins.
  */
 export function useGridDragGame({
   sceneRef,
@@ -33,6 +34,32 @@ export function useGridDragGame({
     const overlapMode =
       overlap === 'pointer' ? 'pointer' : typeof overlap === 'number' ? overlap : 0.15;
 
+    const clearHover = () => {
+      scene.querySelectorAll('.scene-grid-hover-cell').forEach((el) => el.remove());
+    };
+
+    const showHoverAt = (clientX, clientY) => {
+      const surface = scene.querySelector('.scene-grid-overlay.drop-target');
+      if (!surface) return;
+      const cell = cellFromDropSurface(surface, clientX, clientY);
+      if (!cell) {
+        clearHover();
+        return;
+      }
+      let hover = surface.querySelector('.scene-grid-hover-cell');
+      if (!hover) {
+        hover = document.createElement('div');
+        hover.className = 'scene-grid-hover-cell zone-hover';
+        surface.appendChild(hover);
+      }
+      const cols = Number(surface.dataset.cols) || 48;
+      const rows = Number(surface.dataset.rows) || 32;
+      hover.style.left = `${(cell.col / cols) * 100}%`;
+      hover.style.top = `${(cell.row / rows) * 100}%`;
+      hover.style.width = `${100 / cols}%`;
+      hover.style.height = `${100 / rows}%`;
+    };
+
     interact('.drag-pill-wrap').draggable({
       inertia: { resistance: 10, minSpeed: 100, endSpeed: 50 },
       autoScroll: true,
@@ -50,15 +77,14 @@ export function useGridDragGame({
           wrap.style.transform = `translate(${x}px, ${y}px)`;
           wrap.setAttribute('data-x', x);
           wrap.setAttribute('data-y', y);
+          showHoverAt(event.clientX, event.clientY);
         },
         end(event) {
           const wrap = event.target;
           const pill = wrap.querySelector('.drag-pill');
           if (pill) pill.classList.remove('dragging');
           scene.classList.remove('grid-drag-active');
-          scene.querySelectorAll('.scene-grid-cell').forEach((c) => {
-            c.classList.remove('zone-hover');
-          });
+          clearHover();
           if (!event.relatedTarget && wrap.getAttribute('data-dropped') !== 'true') {
             wrap.style.transition = `transform ${snapBackMs}ms cubic-bezier(0.34, 1.56, 0.64, 1)`;
             wrap.style.transform = 'translate(0, 0)';
@@ -73,29 +99,22 @@ export function useGridDragGame({
       },
     });
 
-    interact('.scene-grid-cell').dropzone({
+    interact('.scene-grid-overlay.drop-target').dropzone({
       accept: '.drag-pill-wrap, .pin-grid',
       overlap: overlapMode,
       listeners: {
-        dragenter(event) {
-          event.target.classList.add('zone-hover');
-        },
-        dragleave(event) {
-          event.target.classList.remove('zone-hover');
-        },
         drop(event) {
-          const cell = event.target;
+          const surface = event.target;
           const wrap = event.relatedTarget;
           const pill = wrap?.querySelector?.('.drag-pill');
           const pinIv = wrap?.dataset?.ivId;
+          const dragEvent = event.dragEvent || event;
+          const clientX = dragEvent.clientX ?? dragEvent.pageX;
+          const clientY = dragEvent.clientY ?? dragEvent.pageY;
+          const cell = cellFromDropSurface(surface, clientX, clientY);
+          if (!cell) return;
 
-          const col = Number(cell.dataset.col);
-          const row = Number(cell.dataset.row);
-          const cx = Number(cell.dataset.cx);
-          const cy = Number(cell.dataset.cy);
-          if (Number.isNaN(col) || Number.isNaN(row)) return;
-
-          const placement = { col, row, cx, cy };
+          const placement = { col: cell.col, row: cell.row, cx: cell.cx, cy: cell.cy };
 
           if (pinIv && wrap.classList.contains('pin-grid')) {
             wrap.setAttribute('data-dropped', 'true');
@@ -105,7 +124,17 @@ export function useGridDragGame({
 
           if (!pill) return;
 
-          const zr = cell.getBoundingClientRect();
+          const sr = surface.getBoundingClientRect();
+          const cellLeft = sr.left + (cell.col / (Number(surface.dataset.cols) || 48)) * sr.width;
+          const cellTop = sr.top + (cell.row / (Number(surface.dataset.rows) || 32)) * sr.height;
+          const cellW = sr.width / (Number(surface.dataset.cols) || 48);
+          const cellH = sr.height / (Number(surface.dataset.rows) || 32);
+          const zr = {
+            left: cellLeft,
+            top: cellTop,
+            width: cellW,
+            height: cellH,
+          };
           const wr = wrap.getBoundingClientRect();
           const dx = parseFloat(wrap.getAttribute('data-x')) || 0;
           const dy = parseFloat(wrap.getAttribute('data-y')) || 0;
@@ -119,7 +148,7 @@ export function useGridDragGame({
           wrap.setAttribute('data-y', ty);
 
           const ivId = pill.dataset.ivId;
-          onDropRef.current(ivId, placement, { wrap, pill, cell });
+          onDropRef.current(ivId, placement, { wrap, pill, cell: surface });
         },
       },
     });
@@ -153,11 +182,13 @@ export function useGridDragGame({
           el.style.transform = `translate(calc(-50% + ${x}px), calc(-100% + ${y}px))`;
           el.setAttribute('data-x', x);
           el.setAttribute('data-y', y);
+          showHoverAt(event.clientX, event.clientY);
         },
         end(event) {
           const el = event.target;
           el.classList.remove('pin-dragging');
           scene.classList.remove('grid-drag-active');
+          clearHover();
           if (event.relatedTarget) {
             el.style.transform = 'translate(-50%, -100%)';
           } else {
@@ -176,10 +207,11 @@ export function useGridDragGame({
 
     return () => {
       interact('.drag-pill-wrap').unset();
-      interact('.scene-grid-cell').unset();
+      interact('.scene-grid-overlay.drop-target').unset();
       interact('.pin-grid').unset();
       interact('.dock-return-zone').unset();
       scene.classList.remove('grid-drag-active');
+      clearHover();
     };
   }, [enabled, sceneRef, overlap, snapBackMs]);
 }

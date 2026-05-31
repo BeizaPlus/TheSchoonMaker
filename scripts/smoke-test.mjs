@@ -72,31 +72,25 @@ async function main() {
   const parsedVitals = Object.values(prepared.cases || {}).filter((c) => c.vitalsSource === "parsed").length;
   ok(parsedVitals >= 8, "preparedCases: CCS vitals parsed", `${parsedVitals} parsed`);
 
-  function resolvePlaybook(ccsCase) {
-    const override = playbooks.casePlaybooks?.[ccsCase.id] || playbooks.casePlaybooks?.[ccsCase.caseNumber];
-    const key = override && !String(override).startsWith("_") ? override : ccsCase.title;
-    return (
-      playbooks.presentations?.[key] ||
-      playbooks.presentations?.[ccsCase.title] ||
-      playbooks.default
-    );
-  }
+  const { resolvePlaybook, getCaseSpecificPlaybookIds } = await import(
+    url.pathToFileURL(path.join(root, "src/data/resolvePlaybook.js")).href
+  );
+  const specificIds = getCaseSpecificPlaybookIds();
+  ok(specificIds.length >= 20, "case-specific playbooks seeded from study guides", `${specificIds.length} cases`);
 
   // Validate playbook interventions match what the drag UI expects.
-  // (In this dataset, every case should resolve to 5 interventions.)
   const bad = { zones: 0, count: 0, guideline: 0, why: 0 };
   for (const c of catalog.cases) {
     const pb = resolvePlaybook(c);
     const ivs = pb?.interventions || [];
-    if (ivs.length !== 5) bad.count += 1;
+    if (ivs.length < 3) bad.count += 1;
     for (const iv of ivs) {
       if (!zoneKeys.includes(iv.correct_zone)) bad.zones += 1;
       if (!iv.guideline || String(iv.guideline).trim().length < 2) bad.guideline += 1;
-      // why can be shorter for some cases; keep this soft.
       if (!iv.why || String(iv.why).trim().length < 5) bad.why += 1;
     }
   }
-  ok(bad.count === 0, "catalog: every case resolves to 5 interventions", `bad.count=${bad.count}`);
+  ok(bad.count === 0, "catalog: every case has at least 3 interventions", `bad.count=${bad.count}`);
   ok(bad.zones === 0, "catalog: correct_zone always valid zone key", `bad.zones=${bad.zones}`);
   ok(bad.guideline === 0, "catalog: guideline present", `bad.guideline=${bad.guideline}`);
 
@@ -126,15 +120,16 @@ async function main() {
   const r = progress.pickRandomId(ids);
   ok(ids.includes(r), "random: pickRandomId returns member");
 
-  // recordCaseComplete should mark completed at >=80
+  // recordCaseComplete should mark completed at >= completionThreshold
+  const threshold = gameCfg.branding?.completionThreshold ?? 99;
   progress.clearProgress();
-  progress.recordCaseComplete(ids[0], { accuracy: 79, attempts: 10, seconds: 30 });
+  progress.recordCaseComplete(ids[0], { accuracy: threshold - 1, attempts: 10, seconds: 30 });
   const recLow = progress.getCaseRecord(ids[0]);
-  ok(recLow && recLow.completed === false, "progress: <80 not completed");
-  progress.recordCaseComplete(ids[0], { accuracy: 80, attempts: 5, seconds: 20 });
+  ok(recLow && recLow.completed === false, `progress: <${threshold} not completed`);
+  progress.recordCaseComplete(ids[0], { accuracy: threshold, attempts: 5, seconds: 20 });
   const recHi = progress.getCaseRecord(ids[0]);
-  ok(recHi && recHi.completed === true, "progress: >=80 completed");
-  ok(recHi.bestAccuracy >= 80, "progress: bestAccuracy updated");
+  ok(recHi && recHi.completed === true, `progress: >=${threshold} completed`);
+  ok(recHi.bestAccuracy >= threshold, "progress: bestAccuracy updated");
 
   console.log("\nSmoke test complete.");
 }

@@ -9,12 +9,17 @@ export const STORAGE = {
   dropMode: 'schoonmaker_drop_mode',
   showCues: 'schoonmaker_show_cues',
   sceneVariants: 'schoonmaker_scene_variant_urls',
+  caseRegenImages: 'schoonmaker_case_regen_images',
+  caseNotes: 'schoonmaker_case_notes',
   captureAttempt: 'schoonmaker_capture_attempt',
   welcomePlate: 'schoonmaker_welcome_plate',
   welcomeGridItems: 'schoonmaker_welcome_grid',
   playGridItems: 'schoonmaker_play_grid',
   briefingPickerPos: 'schoonmaker_briefing_picker_pos',
   audienceProfile: 'schoonmaker_audience_profile',
+  onboardingComplete: 'schoonmaker_onboarding_complete',
+  caseChatHistory: 'schoonmaker_case_chat_history',
+  activePlayCheckpoint: 'schoonmaker_active_play_checkpoint',
   soapDraft: 'schoonmaker_soap_draft',
 };
 

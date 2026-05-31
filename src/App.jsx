@@ -12,6 +12,11 @@ import {
 } from './data/caseProgress.js';
 import { runEvalSuite } from './data/evalSuite.js';
 import { isStudioApp, playerAppHref } from './lib/appMode.js';
+import {
+  clearPlayCheckpoint,
+  readPlayCheckpoint,
+} from './lib/playSessionResume.js';
+import { endPlaySession } from './lib/caseUserLog.js';
 
 const SCREENS = {
   home: 'home',
@@ -29,6 +34,11 @@ export default function App() {
   const [stats, setStats] = useState({ attempts: 0, accuracy: 100, seconds: 0 });
   const [playMode, setPlayMode] = useState('browse');
   const [homeKey, setHomeKey] = useState(0);
+  const [resumeCheckpoint, setResumeCheckpoint] = useState(() => readPlayCheckpoint());
+
+  const refreshResumeCheckpoint = useCallback(() => {
+    setResumeCheckpoint(readPlayCheckpoint());
+  }, []);
 
   useEffect(() => {
     if (!studioBuild || typeof window === 'undefined') return undefined;
@@ -50,11 +60,42 @@ export default function App() {
     }
   }, [studioBuild, screen]);
 
-  const startCase = useCallback((gameCase, mode = 'browse') => {
+  const startCase = useCallback((gameCase, mode = 'browse', { keepCheckpoint = false } = {}) => {
+    const cp = readPlayCheckpoint();
+    if (!keepCheckpoint && cp && cp.caseId !== gameCase.id) {
+      clearPlayCheckpoint();
+      setResumeCheckpoint(null);
+    }
     setPlayMode(mode);
     setLastMode(mode);
     setCurrentCase(gameCase);
     setScreen(SCREENS.briefing);
+  }, []);
+
+  const resumeSavedSession = useCallback(() => {
+    const cp = readPlayCheckpoint();
+    if (!cp?.caseId) return;
+    const gameCase = getCaseById(cp.caseId);
+    if (!gameCase) {
+      clearPlayCheckpoint();
+      setResumeCheckpoint(null);
+      return;
+    }
+    const mode = cp.playMode || 'browse';
+    setPlayMode(mode);
+    setLastMode(mode);
+    setCurrentCase(gameCase);
+    setResumeCheckpoint(cp);
+    setScreen(SCREENS.play);
+  }, []);
+
+  const discardSavedSession = useCallback(() => {
+    const cp = readPlayCheckpoint();
+    if (cp?.caseId && cp?.playSessionId) {
+      void endPlaySession(cp.caseId, cp.playSessionId, { discarded: true });
+    }
+    clearPlayCheckpoint();
+    setResumeCheckpoint(null);
   }, []);
 
   const beginPlay = useCallback(() => {
@@ -72,6 +113,8 @@ export default function App() {
       if (currentCase?.id) {
         recordCaseComplete(currentCase.id, result);
       }
+      clearPlayCheckpoint();
+      setResumeCheckpoint(null);
       setStats(result);
       setScreen(SCREENS.complete);
     },
@@ -84,8 +127,9 @@ export default function App() {
 
   const goHome = useCallback(() => {
     setScreen(SCREENS.home);
+    refreshResumeCheckpoint();
     setHomeKey((k) => k + 1);
-  }, []);
+  }, [refreshResumeCheckpoint]);
 
   const playNextInMode = useCallback(() => {
     const catalog = getCatalog();
@@ -142,7 +186,13 @@ export default function App() {
       )}
       {studioBuild && screen === SCREENS.studio && <StudioMode onExit={goHome} />}
       {screen === SCREENS.home && (
-        <Home key={homeKey} onPlay={startCase} />
+        <Home
+          key={homeKey}
+          onPlay={startCase}
+          resumeCheckpoint={resumeCheckpoint}
+          onResumeSession={resumeSavedSession}
+          onDiscardSession={discardSavedSession}
+        />
       )}
       {screen === SCREENS.briefing && currentCase && (
         <Briefing
@@ -155,6 +205,10 @@ export default function App() {
       {screen === SCREENS.play && currentCase && (
         <Play
           caseData={currentCase}
+          playMode={playMode}
+          initialCheckpoint={
+            resumeCheckpoint?.caseId === currentCase.id ? resumeCheckpoint : null
+          }
           onComplete={finishCase}
           onQuit={goHome}
           studioCapture={studioBuild}

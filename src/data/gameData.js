@@ -1,7 +1,7 @@
-import gameConfig from './gameConfig.json';
-import playbooks from './playbooks.json';
+import gameConfig from './gameConfig.json' with { type: 'json' };
 import { getPreparedCase } from '../lib/caseNarrative.js';
 import { inferPatientSex } from '../lib/patientSex.js';
+import { resolvePlaybook } from './resolvePlaybook.js';
 
 export function getGameConfig() {
   return gameConfig;
@@ -77,17 +77,8 @@ export function buildAlgorithm(pb, zones) {
   };
 }
 
-export function resolvePlaybook(ccsCase) {
-  const override =
-    playbooks.casePlaybooks?.[ccsCase.id] ||
-    playbooks.casePlaybooks?.[ccsCase.caseNumber];
-  const key =
-    override && !String(override).startsWith('_') ? override : ccsCase.title;
-  return (
-    playbooks.presentations[key] ||
-    playbooks.presentations[ccsCase.title] ||
-    playbooks.default
-  );
+export function resolvePlaybookForCase(ccsCase) {
+  return resolvePlaybook(ccsCase);
 }
 
 export function toGameCase(ccsCase, catalog) {
@@ -117,6 +108,8 @@ export function toGameCase(ccsCase, catalog) {
     ccsNumber: ccsCase.caseNumber,
     title: ccsCase.title.toUpperCase(),
     category: ccsCase.category,
+    diagnosis: pb.diagnosis || null,
+    playbookKey: pb.playbookKey || ccsCase.title,
     chief_complaint: chiefComplaint,
     vitalsText,
     historyText,

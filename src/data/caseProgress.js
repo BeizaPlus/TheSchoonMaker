@@ -33,6 +33,44 @@ export function getCaseRecord(caseId) {
   return readProgress().cases[caseId] || null;
 }
 
+export function isCaseFlaggedForReview(caseId) {
+  return Boolean(getCaseRecord(caseId)?.reviewNext);
+}
+
+export function getFlaggedCaseIds() {
+  return Object.entries(readProgress().cases)
+    .filter(([, rec]) => rec?.reviewNext)
+    .sort((a, b) => String(b[1]?.flaggedAt || '').localeCompare(String(a[1]?.flaggedAt || '')))
+    .map(([id]) => id);
+}
+
+export function getFlaggedReviewCount() {
+  return getFlaggedCaseIds().length;
+}
+
+export function setCaseReviewFlag(caseId, flagged) {
+  if (caseId == null || caseId === '') return false;
+  const p = readProgress();
+  const prev = p.cases[caseId] || {
+    plays: 0,
+    bestAccuracy: 0,
+    completed: false,
+    lastPlayed: null,
+  };
+  const next = {
+    ...prev,
+    reviewNext: Boolean(flagged),
+    flaggedAt: flagged ? new Date().toISOString() : null,
+  };
+  p.cases[caseId] = next;
+  writeProgress(p);
+  return next.reviewNext;
+}
+
+export function toggleCaseReviewFlag(caseId) {
+  return setCaseReviewFlag(caseId, !isCaseFlaggedForReview(caseId));
+}
+
 export function recordCaseComplete(caseId, { accuracy, attempts, seconds }) {
   const p = readProgress();
   const prev = p.cases[caseId] || {
@@ -42,6 +80,7 @@ export function recordCaseComplete(caseId, { accuracy, attempts, seconds }) {
     lastPlayed: null,
   };
   const next = {
+    ...prev,
     plays: prev.plays + 1,
     bestAccuracy: Math.max(prev.bestAccuracy, accuracy),
     completed: prev.completed || accuracy >= (getBranding()?.completionThreshold ?? 99),
@@ -113,6 +152,23 @@ export function setLastMode(mode) {
 
 export function clearProgress() {
   writeProgress(defaultProgress());
+}
+
+/** Wipe case progress and saved SOAP drafts for a full restart. */
+export function restartCaseProgress() {
+  clearProgress();
+  if (typeof window === 'undefined') return;
+  try {
+    const soapPrefix = `${STORAGE.soapDraft}_`;
+    const remove = [];
+    for (let i = 0; i < localStorage.length; i += 1) {
+      const key = localStorage.key(i);
+      if (key?.startsWith(soapPrefix)) remove.push(key);
+    }
+    remove.forEach((key) => localStorage.removeItem(key));
+  } catch {
+    /* ignore */
+  }
 }
 
 /** Most recently played case id, if any. */

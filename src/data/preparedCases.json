@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "builtAt": "2026-05-28T04:09:14.738Z",
+  "builtAt": "2026-05-31T12:27:35.587Z",
   "totalCases": 181,
   "cases": {
     "100": {
@@ -9,6 +9,7 @@
       "category": "OB/GYN",
       "presentationKey": "Vaginal Itching",
       "playbookKey": "Vaginal Itching",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 115,
@@ -120,6 +121,7 @@
       "category": "ID & Dermatology",
       "presentationKey": "Fever",
       "playbookKey": "Fever",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 102,
@@ -231,6 +233,7 @@
       "category": "MSK & General",
       "presentationKey": "Generalized Weakness",
       "playbookKey": "Generalized Weakness",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 122,
@@ -342,6 +345,7 @@
       "category": "Emergency Medicine",
       "presentationKey": "Routine Check-Up",
       "playbookKey": "Routine Check-Up",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 116,
@@ -453,6 +457,7 @@
       "category": "MSK & General",
       "presentationKey": "Back Pain",
       "playbookKey": "Back Pain",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 141,
@@ -564,6 +569,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Abdominal Pain",
       "playbookKey": "Abdominal Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 114,
@@ -675,6 +681,7 @@
       "category": "Emergency Medicine",
       "presentationKey": "Fatigue",
       "playbookKey": "Fatigue",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 104,
@@ -786,6 +793,7 @@
       "category": "Psychiatry & Social",
       "presentationKey": "Paranoia",
       "playbookKey": "Paranoia",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 125,
@@ -897,6 +905,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Abdominal Pain",
       "playbookKey": "Abdominal Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 114,
@@ -1008,6 +1017,7 @@
       "category": "Neurology",
       "presentationKey": "Unresponsive",
       "playbookKey": "Unresponsive",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 151,
@@ -1119,6 +1129,7 @@
       "category": "ID & Dermatology",
       "presentationKey": "Rash",
       "playbookKey": "Rash",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 108,
@@ -1229,7 +1240,8 @@
       "title": "Shortness of Breath",
       "category": "Cardiopulmonary",
       "presentationKey": "Shortness of Breath",
-      "playbookKey": "Shortness of Breath",
+      "playbookKey": "case-111",
+      "diagnosis": "Fat Embolism Syndrome",
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 107,
@@ -1277,14 +1289,15 @@
       ],
       "patientSex": "unknown",
       "difficulty": "standard",
-      "clinical_tip": "ABG or pulse ox + ECG + CXR in the first minutes.",
-      "objective": "Stabilize hypoxia. Differentiate pulmonary vs cardiac vs metabolic.",
+      "clinical_tip": "Triad after long-bone fracture: hypoxemia, AMS, petechial rash (axilla/neck).",
+      "objective": "ICU support — recognition and stabilization; no specific drug cure.",
       "interventionIds": [
+        "icu",
         "o2",
+        "abg",
         "cxr",
-        "d-dimer",
-        "ctpa",
-        "admit"
+        "fluids",
+        "support"
       ],
       "narrative": {
         "doctor": {
@@ -1292,22 +1305,22 @@
             "intro": "Shortness of Breath — emergency presentation.",
             "hpi": "Shortness of Breath — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Teaching hint: ABG or pulse ox + ECG + CXR in the first minutes.",
-            "objective": "Stabilize hypoxia. Differentiate pulmonary vs cardiac vs metabolic. Start with stabilization, then targeted testing."
+            "clinicalTip": "Teaching hint: Triad after long-bone fracture: hypoxemia, AMS, petechial rash (axilla/neck).",
+            "objective": "ICU support — recognition and stabilization; no specific drug cure. Start with stabilization, then targeted testing."
           },
           "standard": {
             "intro": "Shortness of Breath — emergency presentation.",
             "hpi": "Shortness of Breath — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "ABG or pulse ox + ECG + CXR in the first minutes.",
-            "objective": "Stabilize hypoxia. Differentiate pulmonary vs cardiac vs metabolic."
+            "clinicalTip": "Triad after long-bone fracture: hypoxemia, AMS, petechial rash (axilla/neck).",
+            "objective": "ICU support — recognition and stabilization; no specific drug cure."
           },
           "hard": {
             "intro": "Shortness of Breath — emergency presentation.",
             "hpi": "Shortness of Breath — emergency presentation.",
             "vitalsText": "",
             "clinicalTip": "Minimal coaching — prioritize life threats without hand-holding.",
-            "objective": "High-acuity workup: Stabilize hypoxia. Differentiate pulmonary vs cardiac vs metabolic."
+            "objective": "High-acuity workup: ICU support — recognition and stabilization; no specific drug cure."
           }
         },
         "patient": {
@@ -1341,6 +1354,7 @@
       "category": "Neurology",
       "presentationKey": "Found Unconscious",
       "playbookKey": "Found Unconscious",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 139,
@@ -1452,6 +1466,7 @@
       "category": "Trauma & Toxicology",
       "presentationKey": "Drowning",
       "playbookKey": "Drowning",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 82,
@@ -1563,6 +1578,7 @@
       "category": "Emergency Medicine",
       "presentationKey": "Pain in Side",
       "playbookKey": "Pain in Side",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 107,
@@ -1674,6 +1690,7 @@
       "category": "Psychiatry & Social",
       "presentationKey": "Agitation",
       "playbookKey": "Agitation",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 128,
@@ -1785,6 +1802,7 @@
       "category": "Neurology",
       "presentationKey": "Headache",
       "playbookKey": "Headache",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 118,
@@ -1896,6 +1914,7 @@
       "category": "Cardiopulmonary",
       "presentationKey": "Chest Pain",
       "playbookKey": "Chest Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 100,
@@ -2009,6 +2028,7 @@
       "category": "MSK & General",
       "presentationKey": "Muscle Pain",
       "playbookKey": "Muscle Pain",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 141,
@@ -2120,6 +2140,7 @@
       "category": "Emergency Medicine",
       "presentationKey": "Sore Throat",
       "playbookKey": "Sore Throat",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 101,
@@ -2231,6 +2252,7 @@
       "category": "Emergency Medicine",
       "presentationKey": "Sore Throat",
       "playbookKey": "Sore Throat",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 104,
@@ -2342,6 +2364,7 @@
       "category": "Pediatrics",
       "presentationKey": "Poor Feeding",
       "playbookKey": "Poor Feeding",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 93,
@@ -2452,7 +2475,8 @@
       "title": "Painful Rash",
       "category": "ID & Dermatology",
       "presentationKey": "Painful Rash",
-      "playbookKey": "Painful Rash",
+      "playbookKey": "case-122",
+      "diagnosis": "Stevens-Johnson Syndrome",
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 102,
@@ -2500,14 +2524,16 @@
       ],
       "patientSex": "unknown",
       "difficulty": "standard",
-      "clinical_tip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-      "objective": "Identify and treat life threats within the time limit.",
+      "clinical_tip": "Burn unit or ICU transfer is mandatory — not a ward case.",
+      "objective": "Aggressive fluids, pain control, electrolytes, ophthalmology involvement.",
       "interventionIds": [
-        "monitor",
-        "iv",
-        "labs",
-        "imaging",
-        "admit"
+        "burn",
+        "fluids",
+        "bmp",
+        "pain",
+        "biopsy",
+        "ophtho",
+        "monitor"
       ],
       "narrative": {
         "doctor": {
@@ -2515,22 +2541,22 @@
             "intro": "Painful Rash — emergency presentation.",
             "hpi": "Painful Rash — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Teaching hint: Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit. Start with stabilization, then targeted testing."
+            "clinicalTip": "Teaching hint: Burn unit or ICU transfer is mandatory — not a ward case.",
+            "objective": "Aggressive fluids, pain control, electrolytes, ophthalmology involvement. Start with stabilization, then targeted testing."
           },
           "standard": {
             "intro": "Painful Rash — emergency presentation.",
             "hpi": "Painful Rash — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit."
+            "clinicalTip": "Burn unit or ICU transfer is mandatory — not a ward case.",
+            "objective": "Aggressive fluids, pain control, electrolytes, ophthalmology involvement."
           },
           "hard": {
             "intro": "Painful Rash — emergency presentation.",
             "hpi": "Painful Rash — emergency presentation.",
             "vitalsText": "",
             "clinicalTip": "Minimal coaching — prioritize life threats without hand-holding.",
-            "objective": "High-acuity workup: Identify and treat life threats within the time limit."
+            "objective": "High-acuity workup: Aggressive fluids, pain control, electrolytes, ophthalmology involvement."
           }
         },
         "patient": {
@@ -2564,6 +2590,7 @@
       "category": "MSK & General",
       "presentationKey": "Leg Pain",
       "playbookKey": "Leg Pain",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 135,
@@ -2675,6 +2702,7 @@
       "category": "Cardiopulmonary",
       "presentationKey": "Chest Pain",
       "playbookKey": "Chest Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 100,
@@ -2788,6 +2816,7 @@
       "category": "Cardiopulmonary",
       "presentationKey": "Chest Pain",
       "playbookKey": "Chest Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 100,
@@ -2901,6 +2930,7 @@
       "category": "Cardiopulmonary",
       "presentationKey": "Shortness of Breath",
       "playbookKey": "Shortness of Breath",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 89,
@@ -3011,7 +3041,8 @@
       "title": "Rash",
       "category": "ID & Dermatology",
       "presentationKey": "Rash",
-      "playbookKey": "Rash",
+      "playbookKey": "case-127",
+      "diagnosis": "Immune Thrombocytopenia (ITP)",
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 96,
@@ -3059,14 +3090,15 @@
       ],
       "patientSex": "unknown",
       "difficulty": "standard",
-      "clinical_tip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-      "objective": "Identify and treat life threats within the time limit.",
+      "clinical_tip": "Stool guaiac and blood cultures are required red items in pediatrics.",
+      "objective": "Isolated thrombocytopenia workup; treat if bleeding or very low platelets.",
       "interventionIds": [
-        "monitor",
-        "iv",
-        "labs",
-        "imaging",
-        "admit"
+        "setting",
+        "cbc",
+        "smear",
+        "culture",
+        "stool",
+        "tx"
       ],
       "narrative": {
         "doctor": {
@@ -3074,22 +3106,22 @@
             "intro": "Rash — emergency presentation.",
             "hpi": "Rash — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Teaching hint: Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit. Start with stabilization, then targeted testing."
+            "clinicalTip": "Teaching hint: Stool guaiac and blood cultures are required red items in pediatrics.",
+            "objective": "Isolated thrombocytopenia workup; treat if bleeding or very low platelets. Start with stabilization, then targeted testing."
           },
           "standard": {
             "intro": "Rash — emergency presentation.",
             "hpi": "Rash — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit."
+            "clinicalTip": "Stool guaiac and blood cultures are required red items in pediatrics.",
+            "objective": "Isolated thrombocytopenia workup; treat if bleeding or very low platelets."
           },
           "hard": {
             "intro": "Rash — emergency presentation.",
             "hpi": "Rash — emergency presentation.",
             "vitalsText": "",
             "clinicalTip": "Minimal coaching — prioritize life threats without hand-holding.",
-            "objective": "High-acuity workup: Identify and treat life threats within the time limit."
+            "objective": "High-acuity workup: Isolated thrombocytopenia workup; treat if bleeding or very low platelets."
           }
         },
         "patient": {
@@ -3123,6 +3155,7 @@
       "category": "Psychiatry & Social",
       "presentationKey": "Depression",
       "playbookKey": "Depression",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 125,
@@ -3234,6 +3267,7 @@
       "category": "Neurology",
       "presentationKey": "Facial Pain",
       "playbookKey": "Facial Pain",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 148,
@@ -3345,6 +3379,7 @@
       "category": "Cardiopulmonary",
       "presentationKey": "Cough",
       "playbookKey": "Cough",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 101,
@@ -3456,6 +3491,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Abdominal Pain",
       "playbookKey": "Abdominal Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 114,
@@ -3567,6 +3603,7 @@
       "category": "MSK & General",
       "presentationKey": "Foot Pain",
       "playbookKey": "Foot Pain",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 141,
@@ -3677,7 +3714,8 @@
       "title": "Back Pain",
       "category": "MSK & General",
       "presentationKey": "Back Pain",
-      "playbookKey": "Back Pain",
+      "playbookKey": "case-133",
+      "diagnosis": "Ankylosing Spondylitis",
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 123,
@@ -3725,14 +3763,15 @@
       ],
       "patientSex": "unknown",
       "difficulty": "standard",
-      "clinical_tip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-      "objective": "Identify and treat life threats within the time limit.",
+      "clinical_tip": "Morning back stiffness improving with activity — image sacroiliac joints, not lumbar spine alone.",
+      "objective": "Inflammatory back pain workup and NSAID first-line therapy.",
       "interventionIds": [
-        "monitor",
-        "iv",
-        "labs",
-        "imaging",
-        "admit"
+        "office",
+        "exam",
+        "hlab27",
+        "esr",
+        "si",
+        "nsaid"
       ],
       "narrative": {
         "doctor": {
@@ -3740,22 +3779,22 @@
             "intro": "Back Pain — emergency presentation.",
             "hpi": "Back Pain — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Teaching hint: Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit. Start with stabilization, then targeted testing."
+            "clinicalTip": "Teaching hint: Morning back stiffness improving with activity — image sacroiliac joints, not lumbar spine alone.",
+            "objective": "Inflammatory back pain workup and NSAID first-line therapy. Start with stabilization, then targeted testing."
           },
           "standard": {
             "intro": "Back Pain — emergency presentation.",
             "hpi": "Back Pain — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit."
+            "clinicalTip": "Morning back stiffness improving with activity — image sacroiliac joints, not lumbar spine alone.",
+            "objective": "Inflammatory back pain workup and NSAID first-line therapy."
           },
           "hard": {
             "intro": "Back Pain — emergency presentation.",
             "hpi": "Back Pain — emergency presentation.",
             "vitalsText": "",
             "clinicalTip": "Minimal coaching — prioritize life threats without hand-holding.",
-            "objective": "High-acuity workup: Identify and treat life threats within the time limit."
+            "objective": "High-acuity workup: Inflammatory back pain workup and NSAID first-line therapy."
           }
         },
         "patient": {
@@ -3789,6 +3828,7 @@
       "category": "Genitourinary",
       "presentationKey": "Scrotal Pain",
       "playbookKey": "Scrotal Pain",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 116,
@@ -3899,7 +3939,8 @@
       "title": "Muscle Weakness",
       "category": "MSK & General",
       "presentationKey": "Muscle Weakness",
-      "playbookKey": "Muscle Weakness",
+      "playbookKey": "case-135",
+      "diagnosis": "Hypertensive Emergency (ACE-I / NSAID induced)",
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 129,
@@ -3947,14 +3988,15 @@
       ],
       "patientSex": "unknown",
       "difficulty": "standard",
-      "clinical_tip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-      "objective": "Identify and treat life threats within the time limit.",
+      "clinical_tip": "Triple whammy: ACE-I + NSAID + diuretic → acute kidney injury. Check K⁺ and bicarbonate.",
+      "objective": "ICU IV antihypertensives with electrolyte monitoring.",
       "interventionIds": [
-        "monitor",
-        "iv",
-        "labs",
-        "imaging",
-        "admit"
+        "icu",
+        "bmp",
+        "ua",
+        "ekg",
+        "ivbp",
+        "hold"
       ],
       "narrative": {
         "doctor": {
@@ -3962,22 +4004,22 @@
             "intro": "Muscle Weakness — emergency presentation.",
             "hpi": "Muscle Weakness — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Teaching hint: Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit. Start with stabilization, then targeted testing."
+            "clinicalTip": "Teaching hint: Triple whammy: ACE-I + NSAID + diuretic → acute kidney injury. Check K⁺ and bicarbonate.",
+            "objective": "ICU IV antihypertensives with electrolyte monitoring. Start with stabilization, then targeted testing."
           },
           "standard": {
             "intro": "Muscle Weakness — emergency presentation.",
             "hpi": "Muscle Weakness — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit."
+            "clinicalTip": "Triple whammy: ACE-I + NSAID + diuretic → acute kidney injury. Check K⁺ and bicarbonate.",
+            "objective": "ICU IV antihypertensives with electrolyte monitoring."
           },
           "hard": {
             "intro": "Muscle Weakness — emergency presentation.",
             "hpi": "Muscle Weakness — emergency presentation.",
             "vitalsText": "",
             "clinicalTip": "Minimal coaching — prioritize life threats without hand-holding.",
-            "objective": "High-acuity workup: Identify and treat life threats within the time limit."
+            "objective": "High-acuity workup: ICU IV antihypertensives with electrolyte monitoring."
           }
         },
         "patient": {
@@ -4011,6 +4053,7 @@
       "category": "Cardiopulmonary",
       "presentationKey": "Shortness of Breath",
       "playbookKey": "Shortness of Breath",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 98,
@@ -4122,6 +4165,7 @@
       "category": "MSK & General",
       "presentationKey": "Wrist and Ankle Pain",
       "playbookKey": "Wrist and Ankle Pain",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 135,
@@ -4232,7 +4276,8 @@
       "title": "Fatigue",
       "category": "Emergency Medicine",
       "presentationKey": "Fatigue",
-      "playbookKey": "Fatigue",
+      "playbookKey": "case-138",
+      "diagnosis": "End-Stage Renal Failure",
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 116,
@@ -4280,14 +4325,19 @@
       ],
       "patientSex": "unknown",
       "difficulty": "standard",
-      "clinical_tip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-      "objective": "Identify and treat life threats within the time limit.",
+      "clinical_tip": "Fatigue in ESRF — CXR, EKG, and ABG are red items; do not skip them.",
+      "objective": "Evaluate uremia complications and dialytic indications (AEIOU).",
       "interventionIds": [
-        "monitor",
-        "iv",
-        "labs",
-        "imaging",
-        "admit"
+        "ward",
+        "io",
+        "bmp",
+        "cbc",
+        "pth",
+        "abg",
+        "cxr",
+        "ekg",
+        "epo",
+        "binders"
       ],
       "narrative": {
         "doctor": {
@@ -4295,22 +4345,22 @@
             "intro": "Fatigue — emergency presentation.",
             "hpi": "Fatigue — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Teaching hint: Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit. Start with stabilization, then targeted testing."
+            "clinicalTip": "Teaching hint: Fatigue in ESRF — CXR, EKG, and ABG are red items; do not skip them.",
+            "objective": "Evaluate uremia complications and dialytic indications (AEIOU). Start with stabilization, then targeted testing."
           },
           "standard": {
             "intro": "Fatigue — emergency presentation.",
             "hpi": "Fatigue — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit."
+            "clinicalTip": "Fatigue in ESRF — CXR, EKG, and ABG are red items; do not skip them.",
+            "objective": "Evaluate uremia complications and dialytic indications (AEIOU)."
           },
           "hard": {
             "intro": "Fatigue — emergency presentation.",
             "hpi": "Fatigue — emergency presentation.",
             "vitalsText": "",
             "clinicalTip": "Minimal coaching — prioritize life threats without hand-holding.",
-            "objective": "High-acuity workup: Identify and treat life threats within the time limit."
+            "objective": "High-acuity workup: Evaluate uremia complications and dialytic indications (AEIOU)."
           }
         },
         "patient": {
@@ -4343,7 +4393,8 @@
       "title": "Lip Lesion",
       "category": "Emergency Medicine",
       "presentationKey": "Lip Lesion",
-      "playbookKey": "Lip Lesion",
+      "playbookKey": "case-139",
+      "diagnosis": "Squamous Cell Carcinoma of the Lip",
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 119,
@@ -4391,14 +4442,15 @@
       ],
       "patientSex": "unknown",
       "difficulty": "standard",
-      "clinical_tip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-      "objective": "Identify and treat life threats within the time limit.",
+      "clinical_tip": "HEENT and skin exam before biopsy — sequencing matters for points.",
+      "objective": "Biopsy non-healing lip lesion and stage with imaging.",
       "interventionIds": [
-        "monitor",
-        "iv",
-        "labs",
-        "imaging",
-        "admit"
+        "office",
+        "heent",
+        "skin",
+        "biopsy",
+        "ct",
+        "surg"
       ],
       "narrative": {
         "doctor": {
@@ -4406,22 +4458,22 @@
             "intro": "Lip Lesion — emergency presentation.",
             "hpi": "Lip Lesion — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Teaching hint: Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit. Start with stabilization, then targeted testing."
+            "clinicalTip": "Teaching hint: HEENT and skin exam before biopsy — sequencing matters for points.",
+            "objective": "Biopsy non-healing lip lesion and stage with imaging. Start with stabilization, then targeted testing."
           },
           "standard": {
             "intro": "Lip Lesion — emergency presentation.",
             "hpi": "Lip Lesion — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit."
+            "clinicalTip": "HEENT and skin exam before biopsy — sequencing matters for points.",
+            "objective": "Biopsy non-healing lip lesion and stage with imaging."
           },
           "hard": {
             "intro": "Lip Lesion — emergency presentation.",
             "hpi": "Lip Lesion — emergency presentation.",
             "vitalsText": "",
             "clinicalTip": "Minimal coaching — prioritize life threats without hand-holding.",
-            "objective": "High-acuity workup: Identify and treat life threats within the time limit."
+            "objective": "High-acuity workup: Biopsy non-healing lip lesion and stage with imaging."
           }
         },
         "patient": {
@@ -4455,6 +4507,7 @@
       "category": "Neurology",
       "presentationKey": "Headache",
       "playbookKey": "Headache",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 118,
@@ -4566,6 +4619,7 @@
       "category": "ID & Dermatology",
       "presentationKey": "Rash",
       "playbookKey": "Rash",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 96,
@@ -4676,7 +4730,8 @@
       "title": "Seizures",
       "category": "Neurology",
       "presentationKey": "Seizures",
-      "playbookKey": "Seizures",
+      "playbookKey": "case-142",
+      "diagnosis": "Maple Syrup Urine Disease (MSUD)",
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 145,
@@ -4724,14 +4779,14 @@
       ],
       "patientSex": "unknown",
       "difficulty": "standard",
-      "clinical_tip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-      "objective": "Identify and treat life threats within the time limit.",
+      "clinical_tip": "Treat seizures immediately while awaiting amino acid results.",
+      "objective": "NICU/PICU metabolic emergency with anticonvulsants and thiamine.",
       "interventionIds": [
-        "monitor",
-        "iv",
-        "labs",
-        "imaging",
-        "admit"
+        "nicu",
+        "amino",
+        "seizure",
+        "thiamine",
+        "glucose"
       ],
       "narrative": {
         "doctor": {
@@ -4739,22 +4794,22 @@
             "intro": "Seizures — emergency presentation.",
             "hpi": "Seizures — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Teaching hint: Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit. Start with stabilization, then targeted testing."
+            "clinicalTip": "Teaching hint: Treat seizures immediately while awaiting amino acid results.",
+            "objective": "NICU/PICU metabolic emergency with anticonvulsants and thiamine. Start with stabilization, then targeted testing."
           },
           "standard": {
             "intro": "Seizures — emergency presentation.",
             "hpi": "Seizures — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit."
+            "clinicalTip": "Treat seizures immediately while awaiting amino acid results.",
+            "objective": "NICU/PICU metabolic emergency with anticonvulsants and thiamine."
           },
           "hard": {
             "intro": "Seizures — emergency presentation.",
             "hpi": "Seizures — emergency presentation.",
             "vitalsText": "",
             "clinicalTip": "Minimal coaching — prioritize life threats without hand-holding.",
-            "objective": "High-acuity workup: Identify and treat life threats within the time limit."
+            "objective": "High-acuity workup: NICU/PICU metabolic emergency with anticonvulsants and thiamine."
           }
         },
         "patient": {
@@ -4788,6 +4843,7 @@
       "category": "Pediatrics",
       "presentationKey": "Poor Feeding",
       "playbookKey": "Poor Feeding",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 96,
@@ -4899,6 +4955,7 @@
       "category": "Pediatrics",
       "presentationKey": "Short Stature",
       "playbookKey": "Short Stature",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 99,
@@ -5009,7 +5066,8 @@
       "title": "Facial Pain",
       "category": "Neurology",
       "presentationKey": "Facial Pain",
-      "playbookKey": "Facial Pain",
+      "playbookKey": "case-145",
+      "diagnosis": "Trigeminal Postherpetic Neuropathy",
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 154,
@@ -5057,14 +5115,13 @@
       ],
       "patientSex": "unknown",
       "difficulty": "standard",
-      "clinical_tip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-      "objective": "Identify and treat life threats within the time limit.",
+      "clinical_tip": "Standard analgesics fail — gabapentinoid or amitriptyline; fluorescein if V1 eye involved.",
+      "objective": "Neuropathic pain control after shingles.",
       "interventionIds": [
-        "monitor",
-        "iv",
-        "labs",
-        "imaging",
-        "admit"
+        "office",
+        "gaba",
+        "amit",
+        "eye"
       ],
       "narrative": {
         "doctor": {
@@ -5072,22 +5129,22 @@
             "intro": "Facial Pain — emergency presentation.",
             "hpi": "Facial Pain — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Teaching hint: Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit. Start with stabilization, then targeted testing."
+            "clinicalTip": "Teaching hint: Standard analgesics fail — gabapentinoid or amitriptyline; fluorescein if V1 eye involved.",
+            "objective": "Neuropathic pain control after shingles. Start with stabilization, then targeted testing."
           },
           "standard": {
             "intro": "Facial Pain — emergency presentation.",
             "hpi": "Facial Pain — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit."
+            "clinicalTip": "Standard analgesics fail — gabapentinoid or amitriptyline; fluorescein if V1 eye involved.",
+            "objective": "Neuropathic pain control after shingles."
           },
           "hard": {
             "intro": "Facial Pain — emergency presentation.",
             "hpi": "Facial Pain — emergency presentation.",
             "vitalsText": "",
             "clinicalTip": "Minimal coaching — prioritize life threats without hand-holding.",
-            "objective": "High-acuity workup: Identify and treat life threats within the time limit."
+            "objective": "High-acuity workup: Neuropathic pain control after shingles."
           }
         },
         "patient": {
@@ -5121,6 +5178,7 @@
       "category": "Neurology",
       "presentationKey": "Found Unconscious",
       "playbookKey": "Found Unconscious",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 157,
@@ -5232,6 +5290,7 @@
       "category": "Cardiopulmonary",
       "presentationKey": "Heart Palpitations",
       "playbookKey": "Heart Palpitations",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 89,
@@ -5342,7 +5401,8 @@
       "title": "Chest Pain",
       "category": "Cardiopulmonary",
       "presentationKey": "Chest Pain",
-      "playbookKey": "Chest Pain",
+      "playbookKey": "case-148",
+      "diagnosis": "Post-MI Pericarditis (Dressler syndrome)",
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 100,
@@ -5390,16 +5450,16 @@
       ],
       "patientSex": "male",
       "difficulty": "standard",
-      "clinical_tip": "Until proven otherwise, treat unstable chest pain as ACS.",
-      "objective": "Rule out life threats. ECG within 10 minutes.",
+      "clinical_tip": "Pleuritic pain days–weeks post-MI; pain better leaning forward. Avoid anticoag if large effusion.",
+      "objective": "Confirm pericarditis; treat with aspirin/NSAID + colchicine.",
       "interventionIds": [
-        "ecg",
-        "aspirin",
-        "troponin",
-        "heparin",
-        "cxr",
-        "nitro",
-        "cath"
+        "ed",
+        "trop",
+        "esr",
+        "ekg",
+        "echo",
+        "asa",
+        "colch"
       ],
       "narrative": {
         "doctor": {
@@ -5407,22 +5467,22 @@
             "intro": "Case Introduction Day 1 @ 16:00 Emergency Department A 65-year-old white man is brought in to the emergency department because of sharp chest pain and difficulty breathing. At bedside, he currently is in acute distress, and is moaning and holding his hands over the right side of his chest",
             "hpi": "Initial History Reason(s) for visit: Chest pain; respiratory distress History of present Illness: The patient, a 65-year-old accountant, is brought to the emergency department by ambulance from the trucking company, where he works. Ten minutes prior to the ambulance’s arrival, the patient developed excruciating, sharp pain on the right side of his chest accompanied by marked respiratory distress. He rates the pain as an 8 on a 10-point scale. The pain increases on respiration, and he is unable to answer questions. A coworker who accompanied the patient to the hospital says that this has never happened to the patient in the past. Coworker mentions patient has a past medical history of emphysema and asthma. Oxygen was administered during transport.",
             "vitalsText": "Initial Vital Signs\n\nDay 1 @ 16:00\n\nTemperature:\n\n37.0 C (98.6 degrees F)\n\nPulse:\n\n120 beats/min, Weak\n\nRespiratory rate:\n\n34 /minute\n\nBlood pressure, systolic:\n\n100 mm Hg\n\nBlood pressure, diastolic:\n\n60 mm Hg\n\nHeight:\n\n183cm (72.0 in)\n\nWeight:\n\n97.5 kg (215 lb)\n\nBody Mass Index:\n\n29.1 kg/m2",
-            "clinicalTip": "Teaching hint: Until proven otherwise, treat unstable chest pain as ACS.",
-            "objective": "Rule out life threats. ECG within 10 minutes. Start with stabilization, then targeted testing."
+            "clinicalTip": "Teaching hint: Pleuritic pain days–weeks post-MI; pain better leaning forward. Avoid anticoag if large effusion.",
+            "objective": "Confirm pericarditis; treat with aspirin/NSAID + colchicine. Start with stabilization, then targeted testing."
           },
           "standard": {
             "intro": "Case Introduction Day 1 @ 16:00 Emergency Department A 65-year-old white man is brought in to the emergency department because of sharp chest pain and difficulty breathing. At bedside, he currently is in acute distress, and is moaning and holding his hands over the right side of his chest",
             "hpi": "Initial History Reason(s) for visit: Chest pain; respiratory distress History of present Illness: The patient, a 65-year-old accountant, is brought to the emergency department by ambulance from the trucking company, where he works. Ten minutes prior to the ambulance’s arrival, the patient developed excruciating, sharp pain on the right side of his chest accompanied by marked respiratory distress. He rates the pain as an 8 on a 10-point scale. The pain increases on respiration, and he is unable to answer questions. A coworker who accompanied the patient to the hospital says that this has never happened to the patient in the past. Coworker mentions patient has a past medical history of emphysema and asthma. Oxygen was administered during transport.",
             "vitalsText": "Initial Vital Signs\n\nDay 1 @ 16:00\n\nTemperature:\n\n37.0 C (98.6 degrees F)\n\nPulse:\n\n120 beats/min, Weak\n\nRespiratory rate:\n\n34 /minute\n\nBlood pressure, systolic:\n\n100 mm Hg\n\nBlood pressure, diastolic:\n\n60 mm Hg\n\nHeight:\n\n183cm (72.0 in)\n\nWeight:\n\n97.5 kg (215 lb)\n\nBody Mass Index:\n\n29.1 kg/m2",
-            "clinicalTip": "Until proven otherwise, treat unstable chest pain as ACS.",
-            "objective": "Rule out life threats. ECG within 10 minutes."
+            "clinicalTip": "Pleuritic pain days–weeks post-MI; pain better leaning forward. Avoid anticoag if large effusion.",
+            "objective": "Confirm pericarditis; treat with aspirin/NSAID + colchicine."
           },
           "hard": {
             "intro": "Case Introduction Day 1 @ 16:00 Emergency Department A 65-year-old white man is brought in to the emergency department because of sharp chest pain and difficulty breathing. At bedside, he currently is in acute distress, and is moaning and holding his hands over the right side of his chest",
             "hpi": "Initial History Reason(s) for visit: Chest pain; respiratory distress History of present Illness: The patient, a 65-year-old accountant, is brought to the emergency department by ambulance from the trucking company, where he works. Ten minutes prior to the ambulance’s arrival, the patient developed excruciating, sharp pain on the right side of his chest accompanied by marked respiratory distress. He rates the pain as an 8 on a 10-point scale. The pain increases on respiration, and he is unable to answer questions. A coworker who accompanied the patient to the hospital says that this has never happened to the patient in the past. Coworker mentions patient has a past medical history of emphysema and asthma. Oxygen was administered during transport.",
             "vitalsText": "Initial Vital Signs\n\nDay 1 @ 16:00\n\nTemperature:\n\n37.0 C (98.6 degrees F)\n\nPulse:\n\n120 beats/min, Weak\n\nRespiratory rate:\n\n34 /minute\n\nBlood pressure, systolic:\n\n100 mm Hg\n\nBlood pressure, diastolic:\n\n60 mm Hg\n\nHeight:\n\n183cm (72.0 in)\n\nWeight:\n\n97.5 kg (215 lb)\n\nBody Mass Index:\n\n29.1 kg/m2",
             "clinicalTip": "Minimal coaching — prioritize life threats without hand-holding.",
-            "objective": "High-acuity workup: Rule out life threats. ECG within 10 minutes."
+            "objective": "High-acuity workup: Confirm pericarditis; treat with aspirin/NSAID + colchicine."
           }
         },
         "patient": {
@@ -5456,6 +5516,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Chronic Diarrhea",
       "playbookKey": "Chronic Diarrhea",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 105,
@@ -5566,7 +5627,8 @@
       "title": "Back Pain and Fatigue",
       "category": "MSK & General",
       "presentationKey": "Back Pain and Fatigue",
-      "playbookKey": "Back Pain and Fatigue",
+      "playbookKey": "case-150",
+      "diagnosis": "Multiple Myeloma",
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 132,
@@ -5614,14 +5676,17 @@
       ],
       "patientSex": "unknown",
       "difficulty": "standard",
-      "clinical_tip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-      "objective": "Identify and treat life threats within the time limit.",
+      "clinical_tip": "Order UPEP — UA dipstick misses Bence-Jones protein. Skeletal survey, NOT bone scan.",
+      "objective": "CRAB features workup and hematology referral.",
       "interventionIds": [
-        "monitor",
-        "iv",
-        "labs",
-        "imaging",
-        "admit"
+        "setting",
+        "cbc",
+        "calcium",
+        "spep",
+        "upep",
+        "survey",
+        "bis",
+        "heme"
       ],
       "narrative": {
         "doctor": {
@@ -5629,22 +5694,22 @@
             "intro": "Back Pain and Fatigue — emergency presentation.",
             "hpi": "Back Pain and Fatigue — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Teaching hint: Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit. Start with stabilization, then targeted testing."
+            "clinicalTip": "Teaching hint: Order UPEP — UA dipstick misses Bence-Jones protein. Skeletal survey, NOT bone scan.",
+            "objective": "CRAB features workup and hematology referral. Start with stabilization, then targeted testing."
           },
           "standard": {
             "intro": "Back Pain and Fatigue — emergency presentation.",
             "hpi": "Back Pain and Fatigue — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit."
+            "clinicalTip": "Order UPEP — UA dipstick misses Bence-Jones protein. Skeletal survey, NOT bone scan.",
+            "objective": "CRAB features workup and hematology referral."
           },
           "hard": {
             "intro": "Back Pain and Fatigue — emergency presentation.",
             "hpi": "Back Pain and Fatigue — emergency presentation.",
             "vitalsText": "",
             "clinicalTip": "Minimal coaching — prioritize life threats without hand-holding.",
-            "objective": "High-acuity workup: Identify and treat life threats within the time limit."
+            "objective": "High-acuity workup: CRAB features workup and hematology referral."
           }
         },
         "patient": {
@@ -5677,7 +5742,8 @@
       "title": "Found Unconscious",
       "category": "Neurology",
       "presentationKey": "Found Unconscious",
-      "playbookKey": "Found Unconscious",
+      "playbookKey": "case-151",
+      "diagnosis": "Carbon Monoxide Poisoning",
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 151,
@@ -5725,14 +5791,15 @@
       ],
       "patientSex": "unknown",
       "difficulty": "standard",
-      "clinical_tip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-      "objective": "Identify and treat life threats within the time limit.",
+      "clinical_tip": "Pulse ox lies — order 100% O₂ before carboxyhemoglobin returns.",
+      "objective": "ED oxygenation and CO level confirmation.",
       "interventionIds": [
-        "monitor",
+        "ed",
+        "o2",
+        "cohb",
         "iv",
-        "labs",
-        "imaging",
-        "admit"
+        "monitor",
+        "neuro"
       ],
       "narrative": {
         "doctor": {
@@ -5740,22 +5807,22 @@
             "intro": "Found Unconscious — emergency presentation.",
             "hpi": "Found Unconscious — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Teaching hint: Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit. Start with stabilization, then targeted testing."
+            "clinicalTip": "Teaching hint: Pulse ox lies — order 100% O₂ before carboxyhemoglobin returns.",
+            "objective": "ED oxygenation and CO level confirmation. Start with stabilization, then targeted testing."
           },
           "standard": {
             "intro": "Found Unconscious — emergency presentation.",
             "hpi": "Found Unconscious — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit."
+            "clinicalTip": "Pulse ox lies — order 100% O₂ before carboxyhemoglobin returns.",
+            "objective": "ED oxygenation and CO level confirmation."
           },
           "hard": {
             "intro": "Found Unconscious — emergency presentation.",
             "hpi": "Found Unconscious — emergency presentation.",
             "vitalsText": "",
             "clinicalTip": "Minimal coaching — prioritize life threats without hand-holding.",
-            "objective": "High-acuity workup: Identify and treat life threats within the time limit."
+            "objective": "High-acuity workup: ED oxygenation and CO level confirmation."
           }
         },
         "patient": {
@@ -5788,7 +5855,8 @@
       "title": "Headache",
       "category": "Neurology",
       "presentationKey": "Headache",
-      "playbookKey": "Headache",
+      "playbookKey": "case-152",
+      "diagnosis": "Carbon Monoxide Poisoning",
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 118,
@@ -5836,14 +5904,15 @@
       ],
       "patientSex": "female",
       "difficulty": "standard",
-      "clinical_tip": "Thunderclap headache = SAH workup. Do not send home without considering red flags.",
-      "objective": "Rule out SAH, meningitis, mass, and hypertensive emergency.",
+      "clinical_tip": "Family with flu-like headaches in winter — think CO; 100% O₂ first.",
+      "objective": "Same as Case 151 — high-flow O₂ and CO level.",
       "interventionIds": [
-        "ct",
-        "lp",
-        "bp",
-        "mri",
-        "admit"
+        "ed",
+        "o2",
+        "cohb",
+        "iv",
+        "monitor",
+        "neuro"
       ],
       "narrative": {
         "doctor": {
@@ -5851,22 +5920,22 @@
             "intro": "Case Introduction Day 1 @ 9:00 Office A 55-year-old female with a past medical history of hypertension presents to your office with a 6-day history of occipital headache, mild vertigo, and a tendency to fall when walking.",
             "hpi": "Initial History Reason(s) for visit: Headache History of present Illness: A 55-year-old female with a past medical history of hypertension presents to your office with a an occipital headache, mild vertigo, and a tendency to fall when walking for 6 days. She states that she never had any problems walking or being off-balance. Eight days ago, she stated that she had a pink rash on her arms and torso and felt feverish. The rash improved after a couple days, but the headache and tendency to fall persisted. She had nausea, but she denied any vomiting. She feels weak and \"under the weather.\" She denies travel, but went hiking 2 weeks ago nearby her house which she routinely does every summer. She denies any history of migraines. She will occasionally get a tension headache which she will treat with Ibuprofen. She has never had a headache that has lasted this long. She denies any trauma to her head. She denies any sick contacts. She denies any recent antibiotic use. She is very concerned about her symptoms. PMH: Past Medical History: Hypertension. The patient recently had a colonoscopy screening which was normal. Current medications: HCTZ 25mg PO daily Allergies: None Vaccinations: Received Childhood vaccinations. Women's health: The patient cannot remember when her last pap smear was done. Family History: Her father has a history of Hypertension and died of a stroke. Her mother has no health problems and is still living. Social History: Marital/Family: She is married with one child. She lives in Gaithersburg, Maryland. Personal habits: The patient denies smoking. She lives an active lifestyle. She drinks alcohol socially. She denies use of illegal drugs or misuse of medications. Occupation/educational: She works as a public relations specialist. She is a college graduate with a BS in communication. Recreational: The patient enjoys to bike and hike. She loves the outdoors and spends as much time as she is able. Review of systems: General: See HPI Skin: See HPI HEENT: Negative Cardiorespiratory: Negative Gastrointestinal: See HPI Genitourinary: Negative Neuropsychiatric: See HPI --- Chart tabs --- * Chart: Progress Notes → presentation_5_Headache_chart_Progress_Notes.png * Chart: Vital Signs → presentation_5_Headache_chart_Vital_Signs.png",
             "vitalsText": "Initial Vital Signs\n\nDay 1 @ 9:00\n\nTemperature:\n\n38.3 C (101.0 degrees F)\n\nPulse:\n\n88 beats/min. Regular rhythm\n\nRespiratory rate:\n\n18 /minute\n\nBlood pressure, systolic:\n\n118 mm Hg\n\nBlood pressure, diastolic:\n\n70 mm Hg\n\nHeight:\n\n175.3 cm (69.0 in)\n\nWeight:\n\n65.8 kg (145 lb)\n\nBody Mass Index:\n\n21.4 kg/m2",
-            "clinicalTip": "Teaching hint: Thunderclap headache = SAH workup. Do not send home without considering red flags.",
-            "objective": "Rule out SAH, meningitis, mass, and hypertensive emergency. Start with stabilization, then targeted testing."
+            "clinicalTip": "Teaching hint: Family with flu-like headaches in winter — think CO; 100% O₂ first.",
+            "objective": "Same as Case 151 — high-flow O₂ and CO level. Start with stabilization, then targeted testing."
           },
           "standard": {
             "intro": "Case Introduction Day 1 @ 9:00 Office A 55-year-old female with a past medical history of hypertension presents to your office with a 6-day history of occipital headache, mild vertigo, and a tendency to fall when walking.",
             "hpi": "Initial History Reason(s) for visit: Headache History of present Illness: A 55-year-old female with a past medical history of hypertension presents to your office with a an occipital headache, mild vertigo, and a tendency to fall when walking for 6 days. She states that she never had any problems walking or being off-balance. Eight days ago, she stated that she had a pink rash on her arms and torso and felt feverish. The rash improved after a couple days, but the headache and tendency to fall persisted. She had nausea, but she denied any vomiting. She feels weak and \"under the weather.\" She denies travel, but went hiking 2 weeks ago nearby her house which she routinely does every summer. She denies any history of migraines. She will occasionally get a tension headache which she will treat with Ibuprofen. She has never had a headache that has lasted this long. She denies any trauma to her head. She denies any sick contacts. She denies any recent antibiotic use. She is very concerned about her symptoms. PMH: Past Medical History: Hypertension. The patient recently had a colonoscopy screening which was normal. Current medications: HCTZ 25mg PO daily Allergies: None Vaccinations: Received Childhood vaccinations. Women's health: The patient cannot remember when her last pap smear was done. Family History: Her father has a history of Hypertension and died of a stroke. Her mother has no health problems and is still living. Social History: Marital/Family: She is married with one child. She lives in Gaithersburg, Maryland. Personal habits: The patient denies smoking. She lives an active lifestyle. She drinks alcohol socially. She denies use of illegal drugs or misuse of medications. Occupation/educational: She works as a public relations specialist. She is a college graduate with a BS in communication. Recreational: The patient enjoys to bike and hike. She loves the outdoors and spends as much time as she is able. Review of systems: General: See HPI Skin: See HPI HEENT: Negative Cardiorespiratory: Negative Gastrointestinal: See HPI Genitourinary: Negative Neuropsychiatric: See HPI --- Chart tabs --- * Chart: Progress Notes → presentation_5_Headache_chart_Progress_Notes.png * Chart: Vital Signs → presentation_5_Headache_chart_Vital_Signs.png",
             "vitalsText": "Initial Vital Signs\n\nDay 1 @ 9:00\n\nTemperature:\n\n38.3 C (101.0 degrees F)\n\nPulse:\n\n88 beats/min. Regular rhythm\n\nRespiratory rate:\n\n18 /minute\n\nBlood pressure, systolic:\n\n118 mm Hg\n\nBlood pressure, diastolic:\n\n70 mm Hg\n\nHeight:\n\n175.3 cm (69.0 in)\n\nWeight:\n\n65.8 kg (145 lb)\n\nBody Mass Index:\n\n21.4 kg/m2",
-            "clinicalTip": "Thunderclap headache = SAH workup. Do not send home without considering red flags.",
-            "objective": "Rule out SAH, meningitis, mass, and hypertensive emergency."
+            "clinicalTip": "Family with flu-like headaches in winter — think CO; 100% O₂ first.",
+            "objective": "Same as Case 151 — high-flow O₂ and CO level."
           },
           "hard": {
             "intro": "Case Introduction Day 1 @ 9:00 Office A 55-year-old female with a past medical history of hypertension presents to your office with a 6-day history of occipital headache, mild vertigo, and a tendency to fall when walking.",
             "hpi": "Initial History Reason(s) for visit: Headache History of present Illness: A 55-year-old female with a past medical history of hypertension presents to your office with a an occipital headache, mild vertigo, and a tendency to fall when walking for 6 days. She states that she never had any problems walking or being off-balance. Eight days ago, she stated that she had a pink rash on her arms and torso and felt feverish. The rash improved after a couple days, but the headache and tendency to fall persisted. She had nausea, but she denied any vomiting. She feels weak and \"under the weather.\" She denies travel, but went hiking 2 weeks ago nearby her house which she routinely does every summer. She denies any history of migraines. She will occasionally get a tension headache which she will treat with Ibuprofen. She has never had a headache that has lasted this long. She denies any trauma to her head. She denies any sick contacts. She denies any recent antibiotic use. She is very concerned about her symptoms. PMH: Past Medical History: Hypertension. The patient recently had a colonoscopy screening which was normal. Current medications: HCTZ 25mg PO daily Allergies: None Vaccinations: Received Childhood vaccinations. Women's health: The patient cannot remember when her last pap smear was done. Family History: Her father has a history of Hypertension and died of a stroke. Her mother has no health problems and is still living. Social History: Marital/Family: She is married with one child. She lives in Gaithersburg, Maryland. Personal habits: The patient denies smoking. She lives an active lifestyle. She drinks alcohol socially. She denies use of illegal drugs or misuse of medications. Occupation/educational: She works as a public relations specialist. She is a college graduate with a BS in communication. Recreational: The patient enjoys to bike and hike. She loves the outdoors and spends as much time as she is able. Review of systems: General: See HPI Skin: See HPI HEENT: Negative Cardiorespiratory: Negative Gastrointestinal: See HPI Genitourinary: Negative Neuropsychiatric: See HPI --- Chart tabs --- * Chart: Progress Notes → presentation_5_Headache_chart_Progress_Notes.png * Chart: Vital Signs → presentation_5_Headache_chart_Vital_Signs.png",
             "vitalsText": "Initial Vital Signs\n\nDay 1 @ 9:00\n\nTemperature:\n\n38.3 C (101.0 degrees F)\n\nPulse:\n\n88 beats/min. Regular rhythm\n\nRespiratory rate:\n\n18 /minute\n\nBlood pressure, systolic:\n\n118 mm Hg\n\nBlood pressure, diastolic:\n\n70 mm Hg\n\nHeight:\n\n175.3 cm (69.0 in)\n\nWeight:\n\n65.8 kg (145 lb)\n\nBody Mass Index:\n\n21.4 kg/m2",
             "clinicalTip": "Minimal coaching — prioritize life threats without hand-holding.",
-            "objective": "High-acuity workup: Rule out SAH, meningitis, mass, and hypertensive emergency."
+            "objective": "High-acuity workup: Same as Case 151 — high-flow O₂ and CO level."
           }
         },
         "patient": {
@@ -5899,7 +5968,8 @@
       "title": "Skin Lesions",
       "category": "Emergency Medicine",
       "presentationKey": "Skin Lesions",
-      "playbookKey": "Skin Lesions",
+      "playbookKey": "case-153",
+      "diagnosis": "Porphyria Cutanea Tarda",
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 119,
@@ -5947,14 +6017,16 @@
       ],
       "patientSex": "unknown",
       "difficulty": "standard",
-      "clinical_tip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-      "objective": "Identify and treat life threats within the time limit.",
+      "clinical_tip": "Sun-exposed blistering hands — screen Hep C and check urine porphyrins.",
+      "objective": "Reduce iron load; sun and alcohol counseling.",
       "interventionIds": [
-        "monitor",
-        "iv",
-        "labs",
-        "imaging",
-        "admit"
+        "office",
+        "porph",
+        "iron",
+        "hcv",
+        "phleb",
+        "sun",
+        "etoh"
       ],
       "narrative": {
         "doctor": {
@@ -5962,22 +6034,22 @@
             "intro": "Skin Lesions — emergency presentation.",
             "hpi": "Skin Lesions — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Teaching hint: Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit. Start with stabilization, then targeted testing."
+            "clinicalTip": "Teaching hint: Sun-exposed blistering hands — screen Hep C and check urine porphyrins.",
+            "objective": "Reduce iron load; sun and alcohol counseling. Start with stabilization, then targeted testing."
           },
           "standard": {
             "intro": "Skin Lesions — emergency presentation.",
             "hpi": "Skin Lesions — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit."
+            "clinicalTip": "Sun-exposed blistering hands — screen Hep C and check urine porphyrins.",
+            "objective": "Reduce iron load; sun and alcohol counseling."
           },
           "hard": {
             "intro": "Skin Lesions — emergency presentation.",
             "hpi": "Skin Lesions — emergency presentation.",
             "vitalsText": "",
             "clinicalTip": "Minimal coaching — prioritize life threats without hand-holding.",
-            "objective": "High-acuity workup: Identify and treat life threats within the time limit."
+            "objective": "High-acuity workup: Reduce iron load; sun and alcohol counseling."
           }
         },
         "patient": {
@@ -6010,7 +6082,8 @@
       "title": "Vaginal Discharge",
       "category": "OB/GYN",
       "presentationKey": "Vaginal Discharge",
-      "playbookKey": "Vaginal Discharge",
+      "playbookKey": "case-154",
+      "diagnosis": "Trichomoniasis",
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 109,
@@ -6058,14 +6131,15 @@
       ],
       "patientSex": "unknown",
       "difficulty": "standard",
-      "clinical_tip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-      "objective": "Identify and treat life threats within the time limit.",
+      "clinical_tip": "One STD diagnosed — screen all others and treat the partner.",
+      "objective": "Metronidazole plus full STI panel.",
       "interventionIds": [
-        "monitor",
-        "iv",
-        "labs",
-        "imaging",
-        "admit"
+        "clinic",
+        "wet",
+        "ph",
+        "sti",
+        "metro",
+        "partner"
       ],
       "narrative": {
         "doctor": {
@@ -6073,22 +6147,22 @@
             "intro": "Vaginal Discharge — emergency presentation.",
             "hpi": "Vaginal Discharge — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Teaching hint: Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit. Start with stabilization, then targeted testing."
+            "clinicalTip": "Teaching hint: One STD diagnosed — screen all others and treat the partner.",
+            "objective": "Metronidazole plus full STI panel. Start with stabilization, then targeted testing."
           },
           "standard": {
             "intro": "Vaginal Discharge — emergency presentation.",
             "hpi": "Vaginal Discharge — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit."
+            "clinicalTip": "One STD diagnosed — screen all others and treat the partner.",
+            "objective": "Metronidazole plus full STI panel."
           },
           "hard": {
             "intro": "Vaginal Discharge — emergency presentation.",
             "hpi": "Vaginal Discharge — emergency presentation.",
             "vitalsText": "",
             "clinicalTip": "Minimal coaching — prioritize life threats without hand-holding.",
-            "objective": "High-acuity workup: Identify and treat life threats within the time limit."
+            "objective": "High-acuity workup: Metronidazole plus full STI panel."
           }
         },
         "patient": {
@@ -6122,6 +6196,7 @@
       "category": "Cardiopulmonary",
       "presentationKey": "Shortness of breath",
       "playbookKey": "Shortness of breath",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 92,
@@ -6233,6 +6308,7 @@
       "category": "Emergency Medicine",
       "presentationKey": "Generalized Swelling",
       "playbookKey": "Generalized Swelling",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 107,
@@ -6343,7 +6419,8 @@
       "title": "Frequency of Urination",
       "category": "Genitourinary",
       "presentationKey": "Frequency of Urination",
-      "playbookKey": "Frequency of Urination",
+      "playbookKey": "case-157",
+      "diagnosis": "Diabetes Mellitus Type II",
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 122,
@@ -6391,14 +6468,18 @@
       ],
       "patientSex": "unknown",
       "difficulty": "standard",
-      "clinical_tip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-      "objective": "Identify and treat life threats within the time limit.",
+      "clinical_tip": "At diagnosis order eye referral and foot exam — automatic CCS points.",
+      "objective": "Confirm hyperglycemia and start metformin with screening bundle.",
       "interventionIds": [
-        "monitor",
-        "iv",
-        "labs",
-        "imaging",
-        "admit"
+        "office",
+        "glucose",
+        "a1c",
+        "ua",
+        "lipids",
+        "micro",
+        "metformin",
+        "eye",
+        "foot"
       ],
       "narrative": {
         "doctor": {
@@ -6406,22 +6487,22 @@
             "intro": "Frequency of Urination — emergency presentation.",
             "hpi": "Frequency of Urination — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Teaching hint: Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit. Start with stabilization, then targeted testing."
+            "clinicalTip": "Teaching hint: At diagnosis order eye referral and foot exam — automatic CCS points.",
+            "objective": "Confirm hyperglycemia and start metformin with screening bundle. Start with stabilization, then targeted testing."
           },
           "standard": {
             "intro": "Frequency of Urination — emergency presentation.",
             "hpi": "Frequency of Urination — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit."
+            "clinicalTip": "At diagnosis order eye referral and foot exam — automatic CCS points.",
+            "objective": "Confirm hyperglycemia and start metformin with screening bundle."
           },
           "hard": {
             "intro": "Frequency of Urination — emergency presentation.",
             "hpi": "Frequency of Urination — emergency presentation.",
             "vitalsText": "",
             "clinicalTip": "Minimal coaching — prioritize life threats without hand-holding.",
-            "objective": "High-acuity workup: Identify and treat life threats within the time limit."
+            "objective": "High-acuity workup: Confirm hyperglycemia and start metformin with screening bundle."
           }
         },
         "patient": {
@@ -6455,6 +6536,7 @@
       "category": "MSK & General",
       "presentationKey": "Knee Pain",
       "playbookKey": "Knee Pain",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 135,
@@ -6566,6 +6648,7 @@
       "category": "Emergency Medicine",
       "presentationKey": "Abnormal Behavior",
       "playbookKey": "Abnormal Behavior",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 116,
@@ -6677,6 +6760,7 @@
       "category": "Psychiatry & Social",
       "presentationKey": "Anxiety",
       "playbookKey": "Anxiety",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 137,
@@ -6788,6 +6872,7 @@
       "category": "Neurology",
       "presentationKey": "Headache",
       "playbookKey": "Headache",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 118,
@@ -6899,6 +6984,7 @@
       "category": "Genitourinary",
       "presentationKey": "Pain During Urination",
       "playbookKey": "Pain During Urination",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 116,
@@ -7009,7 +7095,8 @@
       "title": "Ear Pain",
       "category": "Emergency Medicine",
       "presentationKey": "Ear Pain",
-      "playbookKey": "Ear Pain",
+      "playbookKey": "case-163",
+      "diagnosis": "Acute Otitis Media",
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 107,
@@ -7057,14 +7144,12 @@
       ],
       "patientSex": "unknown",
       "difficulty": "standard",
-      "clinical_tip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-      "objective": "Identify and treat life threats within the time limit.",
+      "clinical_tip": "Office or home — placing simple AOM in the ED loses points.",
+      "objective": "Pneumatic otoscopy diagnosis and amoxicillin.",
       "interventionIds": [
-        "monitor",
-        "iv",
-        "labs",
-        "imaging",
-        "admit"
+        "office",
+        "otoscopy",
+        "amox"
       ],
       "narrative": {
         "doctor": {
@@ -7072,22 +7157,22 @@
             "intro": "Ear Pain — emergency presentation.",
             "hpi": "Ear Pain — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Teaching hint: Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit. Start with stabilization, then targeted testing."
+            "clinicalTip": "Teaching hint: Office or home — placing simple AOM in the ED loses points.",
+            "objective": "Pneumatic otoscopy diagnosis and amoxicillin. Start with stabilization, then targeted testing."
           },
           "standard": {
             "intro": "Ear Pain — emergency presentation.",
             "hpi": "Ear Pain — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit."
+            "clinicalTip": "Office or home — placing simple AOM in the ED loses points.",
+            "objective": "Pneumatic otoscopy diagnosis and amoxicillin."
           },
           "hard": {
             "intro": "Ear Pain — emergency presentation.",
             "hpi": "Ear Pain — emergency presentation.",
             "vitalsText": "",
             "clinicalTip": "Minimal coaching — prioritize life threats without hand-holding.",
-            "objective": "High-acuity workup: Identify and treat life threats within the time limit."
+            "objective": "High-acuity workup: Pneumatic otoscopy diagnosis and amoxicillin."
           }
         },
         "patient": {
@@ -7121,6 +7206,7 @@
       "category": "OB/GYN",
       "presentationKey": "Pelvic Pain",
       "playbookKey": "Pelvic Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 140,
@@ -7235,6 +7321,7 @@
       "category": "OB/GYN",
       "presentationKey": "Postcoital Bleeding",
       "playbookKey": "Postcoital Bleeding",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 121,
@@ -7345,7 +7432,8 @@
       "title": "Oral Bleeding",
       "category": "Emergency Medicine",
       "presentationKey": "Oral Bleeding",
-      "playbookKey": "Oral Bleeding",
+      "playbookKey": "case-166",
+      "diagnosis": "Hemophilia A",
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 116,
@@ -7393,14 +7481,15 @@
       ],
       "patientSex": "unknown",
       "difficulty": "standard",
-      "clinical_tip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-      "objective": "Identify and treat life threats within the time limit.",
+      "clinical_tip": "Avoid NSAIDs and IM injections — replace factor VIII.",
+      "objective": "Stop bleeding with factor replacement after confirming deficiency.",
       "interventionIds": [
-        "monitor",
-        "iv",
-        "labs",
-        "imaging",
-        "admit"
+        "ed",
+        "cbc",
+        "ptt",
+        "factor",
+        "replace",
+        "avoid"
       ],
       "narrative": {
         "doctor": {
@@ -7408,22 +7497,22 @@
             "intro": "Oral Bleeding — emergency presentation.",
             "hpi": "Oral Bleeding — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Teaching hint: Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit. Start with stabilization, then targeted testing."
+            "clinicalTip": "Teaching hint: Avoid NSAIDs and IM injections — replace factor VIII.",
+            "objective": "Stop bleeding with factor replacement after confirming deficiency. Start with stabilization, then targeted testing."
           },
           "standard": {
             "intro": "Oral Bleeding — emergency presentation.",
             "hpi": "Oral Bleeding — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit."
+            "clinicalTip": "Avoid NSAIDs and IM injections — replace factor VIII.",
+            "objective": "Stop bleeding with factor replacement after confirming deficiency."
           },
           "hard": {
             "intro": "Oral Bleeding — emergency presentation.",
             "hpi": "Oral Bleeding — emergency presentation.",
             "vitalsText": "",
             "clinicalTip": "Minimal coaching — prioritize life threats without hand-holding.",
-            "objective": "High-acuity workup: Identify and treat life threats within the time limit."
+            "objective": "High-acuity workup: Stop bleeding with factor replacement after confirming deficiency."
           }
         },
         "patient": {
@@ -7456,7 +7545,8 @@
       "title": "Nausea and Vomiting",
       "category": "GI & Abdomen",
       "presentationKey": "Nausea and Vomiting",
-      "playbookKey": "Nausea and Vomiting",
+      "playbookKey": "case-167",
+      "diagnosis": "Diabetic Gastroparesis",
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 117,
@@ -7504,14 +7594,14 @@
       ],
       "patientSex": "unknown",
       "difficulty": "standard",
-      "clinical_tip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-      "objective": "Identify and treat life threats within the time limit.",
+      "clinical_tip": "Gastric emptying study is gold standard; EGD if acute obstruction concern.",
+      "objective": "Prokinetic therapy after confirming delayed emptying.",
       "interventionIds": [
-        "monitor",
-        "iv",
-        "labs",
-        "imaging",
-        "admit"
+        "ward",
+        "bmp",
+        "ges",
+        "prok",
+        "egd"
       ],
       "narrative": {
         "doctor": {
@@ -7519,22 +7609,22 @@
             "intro": "Nausea and Vomiting — emergency presentation.",
             "hpi": "Nausea and Vomiting — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Teaching hint: Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit. Start with stabilization, then targeted testing."
+            "clinicalTip": "Teaching hint: Gastric emptying study is gold standard; EGD if acute obstruction concern.",
+            "objective": "Prokinetic therapy after confirming delayed emptying. Start with stabilization, then targeted testing."
           },
           "standard": {
             "intro": "Nausea and Vomiting — emergency presentation.",
             "hpi": "Nausea and Vomiting — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit."
+            "clinicalTip": "Gastric emptying study is gold standard; EGD if acute obstruction concern.",
+            "objective": "Prokinetic therapy after confirming delayed emptying."
           },
           "hard": {
             "intro": "Nausea and Vomiting — emergency presentation.",
             "hpi": "Nausea and Vomiting — emergency presentation.",
             "vitalsText": "",
             "clinicalTip": "Minimal coaching — prioritize life threats without hand-holding.",
-            "objective": "High-acuity workup: Identify and treat life threats within the time limit."
+            "objective": "High-acuity workup: Prokinetic therapy after confirming delayed emptying."
           }
         },
         "patient": {
@@ -7568,6 +7658,7 @@
       "category": "Emergency Medicine",
       "presentationKey": "Fatigue",
       "playbookKey": "Fatigue",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 101,
@@ -7678,7 +7769,8 @@
       "title": "Somnolence",
       "category": "Neurology",
       "presentationKey": "Somnolence",
-      "playbookKey": "Somnolence",
+      "playbookKey": "case-169",
+      "diagnosis": "Hypercalcemia Secondary to Malignancy",
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 142,
@@ -7726,14 +7818,16 @@
       ],
       "patientSex": "unknown",
       "difficulty": "standard",
-      "clinical_tip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-      "objective": "Identify and treat life threats within the time limit.",
+      "clinical_tip": "Aggressive NS hydration before bisphosphonate; no loop diuretics until replete.",
+      "objective": "Volume resuscitation then zoledronic acid in ED.",
       "interventionIds": [
-        "monitor",
+        "ed",
         "iv",
-        "labs",
-        "imaging",
-        "admit"
+        "calcium",
+        "bmp",
+        "cxr",
+        "ns",
+        "bis"
       ],
       "narrative": {
         "doctor": {
@@ -7741,22 +7835,22 @@
             "intro": "Somnolence — emergency presentation.",
             "hpi": "Somnolence — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Teaching hint: Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit. Start with stabilization, then targeted testing."
+            "clinicalTip": "Teaching hint: Aggressive NS hydration before bisphosphonate; no loop diuretics until replete.",
+            "objective": "Volume resuscitation then zoledronic acid in ED. Start with stabilization, then targeted testing."
           },
           "standard": {
             "intro": "Somnolence — emergency presentation.",
             "hpi": "Somnolence — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit."
+            "clinicalTip": "Aggressive NS hydration before bisphosphonate; no loop diuretics until replete.",
+            "objective": "Volume resuscitation then zoledronic acid in ED."
           },
           "hard": {
             "intro": "Somnolence — emergency presentation.",
             "hpi": "Somnolence — emergency presentation.",
             "vitalsText": "",
             "clinicalTip": "Minimal coaching — prioritize life threats without hand-holding.",
-            "objective": "High-acuity workup: Identify and treat life threats within the time limit."
+            "objective": "High-acuity workup: Volume resuscitation then zoledronic acid in ED."
           }
         },
         "patient": {
@@ -7789,7 +7883,8 @@
       "title": "Fall",
       "category": "Trauma & Toxicology",
       "presentationKey": "Fall",
-      "playbookKey": "Fall",
+      "playbookKey": "case-170",
+      "diagnosis": "Orthostatic Hypotension",
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 85,
@@ -7837,14 +7932,15 @@
       ],
       "patientSex": "unknown",
       "difficulty": "standard",
-      "clinical_tip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-      "objective": "Identify and treat life threats within the time limit.",
+      "clinical_tip": "Start in office/home — unnecessary ED transfer loses points unless unstable.",
+      "objective": "Orthostatic vitals and review offending antihypertensives/diuretics.",
       "interventionIds": [
-        "monitor",
-        "iv",
+        "office",
+        "ortho",
+        "ekg",
         "labs",
-        "imaging",
-        "admit"
+        "fluids",
+        "meds"
       ],
       "narrative": {
         "doctor": {
@@ -7852,22 +7948,22 @@
             "intro": "Fall — emergency presentation.",
             "hpi": "Fall — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Teaching hint: Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit. Start with stabilization, then targeted testing."
+            "clinicalTip": "Teaching hint: Start in office/home — unnecessary ED transfer loses points unless unstable.",
+            "objective": "Orthostatic vitals and review offending antihypertensives/diuretics. Start with stabilization, then targeted testing."
           },
           "standard": {
             "intro": "Fall — emergency presentation.",
             "hpi": "Fall — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit."
+            "clinicalTip": "Start in office/home — unnecessary ED transfer loses points unless unstable.",
+            "objective": "Orthostatic vitals and review offending antihypertensives/diuretics."
           },
           "hard": {
             "intro": "Fall — emergency presentation.",
             "hpi": "Fall — emergency presentation.",
             "vitalsText": "",
             "clinicalTip": "Minimal coaching — prioritize life threats without hand-holding.",
-            "objective": "High-acuity workup: Identify and treat life threats within the time limit."
+            "objective": "High-acuity workup: Orthostatic vitals and review offending antihypertensives/diuretics."
           }
         },
         "patient": {
@@ -7901,6 +7997,7 @@
       "category": "Psychiatry & Social",
       "presentationKey": "Agitation",
       "playbookKey": "Agitation",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 128,
@@ -8012,6 +8109,7 @@
       "category": "Psychiatry & Social",
       "presentationKey": "Hanging",
       "playbookKey": "Hanging",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 131,
@@ -8123,6 +8221,7 @@
       "category": "Psychiatry & Social",
       "presentationKey": "Sexual Assault",
       "playbookKey": "Sexual Assault",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 134,
@@ -8234,6 +8333,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Hematemesis",
       "playbookKey": "Hematemesis",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 117,
@@ -8345,6 +8445,7 @@
       "category": "OB/GYN",
       "presentationKey": "Heavy Menstrual Bleeding",
       "playbookKey": "Heavy Menstrual Bleeding",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 109,
@@ -8456,6 +8557,7 @@
       "category": "Trauma & Toxicology",
       "presentationKey": "Animal Bite",
       "playbookKey": "Animal Bite",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 82,
@@ -8567,6 +8669,7 @@
       "category": "OB/GYN",
       "presentationKey": "Vaginal Bleeding",
       "playbookKey": "Vaginal Bleeding",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 115,
@@ -8678,6 +8781,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Epigastric Pain",
       "playbookKey": "Epigastric Pain",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 108,
@@ -8789,6 +8893,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Abdominal Pain",
       "playbookKey": "Abdominal Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 114,
@@ -8900,6 +9005,7 @@
       "category": "Neurology",
       "presentationKey": "Headache",
       "playbookKey": "Headache",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 118,
@@ -9011,6 +9117,7 @@
       "category": "Pediatrics",
       "presentationKey": "Nocturnal Enuresis",
       "playbookKey": "Nocturnal Enuresis",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 105,
@@ -9121,7 +9228,8 @@
       "title": "Chest Pain",
       "category": "Cardiopulmonary",
       "presentationKey": "Chest Pain",
-      "playbookKey": "Chest Pain",
+      "playbookKey": "case-001",
+      "diagnosis": "Tension Pneumothorax",
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 100,
@@ -9169,16 +9277,16 @@
       ],
       "patientSex": "male",
       "difficulty": "standard",
-      "clinical_tip": "Until proven otherwise, treat unstable chest pain as ACS.",
-      "objective": "Rule out life threats. ECG within 10 minutes.",
+      "clinical_tip": "Needle decompression before CXR in the unstable patient — do not delay treatment for imaging.",
+      "objective": "Immediate decompression and chest tube; 100% oxygen.",
       "interventionIds": [
-        "ecg",
-        "aspirin",
-        "troponin",
-        "heparin",
-        "cxr",
-        "nitro",
-        "cath"
+        "ed",
+        "o2",
+        "monitor",
+        "iv",
+        "needle",
+        "chest-tube",
+        "cxr"
       ],
       "narrative": {
         "doctor": {
@@ -9186,22 +9294,22 @@
             "intro": "Case Introduction Day 1 @ 16:00 Emergency Department A 65-year-old white man is brought in to the emergency department because of sharp chest pain and difficulty breathing. At bedside, he currently is in acute distress, and is moaning and holding his hands over the right side of his chest",
             "hpi": "Initial History Reason(s) for visit: Chest pain; respiratory distress History of present Illness: The patient, a 65-year-old accountant, is brought to the emergency department by ambulance from the trucking company, where he works. Ten minutes prior to the ambulance’s arrival, the patient developed excruciating, sharp pain on the right side of his chest accompanied by marked respiratory distress. He rates the pain as an 8 on a 10-point scale. The pain increases on respiration, and he is unable to answer questions. A coworker who accompanied the patient to the hospital says that this has never happened to the patient in the past. Coworker mentions patient has a past medical history of emphysema and asthma. Oxygen was administered during transport.",
             "vitalsText": "Initial Vital Signs\n\nDay 1 @ 16:00\n\nTemperature:\n\n37.0 C (98.6 degrees F)\n\nPulse:\n\n120 beats/min, Weak\n\nRespiratory rate:\n\n34 /minute\n\nBlood pressure, systolic:\n\n100 mm Hg\n\nBlood pressure, diastolic:\n\n60 mm Hg\n\nHeight:\n\n183cm (72.0 in)\n\nWeight:\n\n97.5 kg (215 lb)\n\nBody Mass Index:\n\n29.1 kg/m2",
-            "clinicalTip": "Teaching hint: Until proven otherwise, treat unstable chest pain as ACS.",
-            "objective": "Rule out life threats. ECG within 10 minutes. Start with stabilization, then targeted testing."
+            "clinicalTip": "Teaching hint: Needle decompression before CXR in the unstable patient — do not delay treatment for imaging.",
+            "objective": "Immediate decompression and chest tube; 100% oxygen. Start with stabilization, then targeted testing."
           },
           "standard": {
             "intro": "Case Introduction Day 1 @ 16:00 Emergency Department A 65-year-old white man is brought in to the emergency department because of sharp chest pain and difficulty breathing. At bedside, he currently is in acute distress, and is moaning and holding his hands over the right side of his chest",
             "hpi": "Initial History Reason(s) for visit: Chest pain; respiratory distress History of present Illness: The patient, a 65-year-old accountant, is brought to the emergency department by ambulance from the trucking company, where he works. Ten minutes prior to the ambulance’s arrival, the patient developed excruciating, sharp pain on the right side of his chest accompanied by marked respiratory distress. He rates the pain as an 8 on a 10-point scale. The pain increases on respiration, and he is unable to answer questions. A coworker who accompanied the patient to the hospital says that this has never happened to the patient in the past. Coworker mentions patient has a past medical history of emphysema and asthma. Oxygen was administered during transport.",
             "vitalsText": "Initial Vital Signs\n\nDay 1 @ 16:00\n\nTemperature:\n\n37.0 C (98.6 degrees F)\n\nPulse:\n\n120 beats/min, Weak\n\nRespiratory rate:\n\n34 /minute\n\nBlood pressure, systolic:\n\n100 mm Hg\n\nBlood pressure, diastolic:\n\n60 mm Hg\n\nHeight:\n\n183cm (72.0 in)\n\nWeight:\n\n97.5 kg (215 lb)\n\nBody Mass Index:\n\n29.1 kg/m2",
-            "clinicalTip": "Until proven otherwise, treat unstable chest pain as ACS.",
-            "objective": "Rule out life threats. ECG within 10 minutes."
+            "clinicalTip": "Needle decompression before CXR in the unstable patient — do not delay treatment for imaging.",
+            "objective": "Immediate decompression and chest tube; 100% oxygen."
           },
           "hard": {
             "intro": "Case Introduction Day 1 @ 16:00 Emergency Department A 65-year-old white man is brought in to the emergency department because of sharp chest pain and difficulty breathing. At bedside, he currently is in acute distress, and is moaning and holding his hands over the right side of his chest",
             "hpi": "Initial History Reason(s) for visit: Chest pain; respiratory distress History of present Illness: The patient, a 65-year-old accountant, is brought to the emergency department by ambulance from the trucking company, where he works. Ten minutes prior to the ambulance’s arrival, the patient developed excruciating, sharp pain on the right side of his chest accompanied by marked respiratory distress. He rates the pain as an 8 on a 10-point scale. The pain increases on respiration, and he is unable to answer questions. A coworker who accompanied the patient to the hospital says that this has never happened to the patient in the past. Coworker mentions patient has a past medical history of emphysema and asthma. Oxygen was administered during transport.",
             "vitalsText": "Initial Vital Signs\n\nDay 1 @ 16:00\n\nTemperature:\n\n37.0 C (98.6 degrees F)\n\nPulse:\n\n120 beats/min, Weak\n\nRespiratory rate:\n\n34 /minute\n\nBlood pressure, systolic:\n\n100 mm Hg\n\nBlood pressure, diastolic:\n\n60 mm Hg\n\nHeight:\n\n183cm (72.0 in)\n\nWeight:\n\n97.5 kg (215 lb)\n\nBody Mass Index:\n\n29.1 kg/m2",
             "clinicalTip": "Minimal coaching — prioritize life threats without hand-holding.",
-            "objective": "High-acuity workup: Rule out life threats. ECG within 10 minutes."
+            "objective": "High-acuity workup: Immediate decompression and chest tube; 100% oxygen."
           }
         },
         "patient": {
@@ -9234,7 +9342,8 @@
       "title": "Altered Mental Status",
       "category": "Neurology",
       "presentationKey": "Altered Mental Status",
-      "playbookKey": "Altered Mental Status",
+      "playbookKey": "case-002",
+      "diagnosis": "Subdural Hematoma",
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 115,
@@ -9282,17 +9391,16 @@
       ],
       "patientSex": "male",
       "difficulty": "standard",
-      "clinical_tip": "Fingerstick glucose before CT — hypoglycemia mimics stroke.",
-      "objective": "Stabilize ABCs. Identify reversible causes.",
+      "clinical_tip": "Elderly or alcoholic with AMS after minor trauma — non-contrast CT head first.",
+      "objective": "Identify bleed, reverse coagulopathy, neurosurgical evacuation if indicated.",
       "interventionIds": [
-        "glucose",
-        "thiamine",
+        "ed",
+        "seizure",
         "ct",
-        "physical-exam",
-        "cxr-ams",
-        "toxicology",
-        "labs",
-        "admit"
+        "coag",
+        "cbc",
+        "neuro",
+        "monitor"
       ],
       "narrative": {
         "doctor": {
@@ -9300,22 +9408,22 @@
             "intro": "Case Introduction Day 1 @ 11:00 Emergency Department A 70 year old Caucasian man comes in by EMS to the emergency room due to altered mental status.",
             "hpi": "Initial History Reason(s) for visit: Altered mental status History of present Illness: A 70-year-old Caucasian man comes to the Emergency room because his family members are concerned that something is wrong. The patient has been having behavioral changes over a period of three or four weeks. He used to be very active and managed all of his financial affairs. He now barely talks, stares at the wall for hours at a time, and sleeps most of the day. Four weeks ago, the patient got up to urinate and fell before reaching the bathroom. He was found on the floor the next morning by family members. He was taken to his family doctor and was discharged with a prescription to buy a cane. Since that time, he has been having problems walking. There have been no fevers or night sweats. The patient is currently in no pain. Past Medical History: Chronic alcohol abuse; cataracts. Hospitalization Procedures: Hemorrhoidectomy 1 year ago. Last colonoscopy was 4 years ago which demonstrated no abnormalities. Current medications: Aspirin 81mg PO daily Allergies: None Vaccinations: Up to date Family History: Father: Deceased due to a 'heart attack'. Mother: Diagnosed with type 2 diabetes mellitus and died of natural causes. The patient has no siblings. Social History: Marital/Family: Widowed; he has three children. Personal habits: the patient smokes 1 Pack/day. He currently does not drink alcohol but was a chronic alcoholic for 30 years. Denies use of illegal drugs or misuse of medications. Occupation/educational: He is a retired Army human resources manager. He is a high school graduate. Recreational: The patient likes to spend time with his children and enjoys collecting stamps. Review of systems: General: See HPI Skin: Negative HEENT: Negative Cardiorespiratory: Negative Gastrointestinal: Negative Genitourinary: Negative Neuropsychiatric: See HPI --- Chart tabs --- * Chart: Progress Notes → presentation_2_Altered_Mental_Status_chart_Progress_Notes.png * Chart: Vital Signs → presentation_2_Altered_Mental_Status_chart_Vital_Signs.png",
             "vitalsText": "Initial Vital Signs\n\nDay 1 @ 11:00\n\nTemperature:\n\n36.8 C (98.2 degrees F)\n\nPulse:\n\n88 beats/min. Regular rhythm\n\nRespiratory rate:\n\n18 /minute\n\nBlood pressure, systolic:\n\n115 mm Hg\n\nBlood pressure, diastolic:\n\n85 mm Hg\n\nHeight:\n\n180cm (70.9 in)\n\nWeight:\n\n91.0 kg (200.6 lb)\n\nBody Mass Index:\n\n27.9 kg/m2",
-            "clinicalTip": "Teaching hint: Fingerstick glucose before CT — hypoglycemia mimics stroke.",
-            "objective": "Stabilize ABCs. Identify reversible causes. Start with stabilization, then targeted testing."
+            "clinicalTip": "Teaching hint: Elderly or alcoholic with AMS after minor trauma — non-contrast CT head first.",
+            "objective": "Identify bleed, reverse coagulopathy, neurosurgical evacuation if indicated. Start with stabilization, then targeted testing."
           },
           "standard": {
             "intro": "Case Introduction Day 1 @ 11:00 Emergency Department A 70 year old Caucasian man comes in by EMS to the emergency room due to altered mental status.",
             "hpi": "Initial History Reason(s) for visit: Altered mental status History of present Illness: A 70-year-old Caucasian man comes to the Emergency room because his family members are concerned that something is wrong. The patient has been having behavioral changes over a period of three or four weeks. He used to be very active and managed all of his financial affairs. He now barely talks, stares at the wall for hours at a time, and sleeps most of the day. Four weeks ago, the patient got up to urinate and fell before reaching the bathroom. He was found on the floor the next morning by family members. He was taken to his family doctor and was discharged with a prescription to buy a cane. Since that time, he has been having problems walking. There have been no fevers or night sweats. The patient is currently in no pain. Past Medical History: Chronic alcohol abuse; cataracts. Hospitalization Procedures: Hemorrhoidectomy 1 year ago. Last colonoscopy was 4 years ago which demonstrated no abnormalities. Current medications: Aspirin 81mg PO daily Allergies: None Vaccinations: Up to date Family History: Father: Deceased due to a 'heart attack'. Mother: Diagnosed with type 2 diabetes mellitus and died of natural causes. The patient has no siblings. Social History: Marital/Family: Widowed; he has three children. Personal habits: the patient smokes 1 Pack/day. He currently does not drink alcohol but was a chronic alcoholic for 30 years. Denies use of illegal drugs or misuse of medications. Occupation/educational: He is a retired Army human resources manager. He is a high school graduate. Recreational: The patient likes to spend time with his children and enjoys collecting stamps. Review of systems: General: See HPI Skin: Negative HEENT: Negative Cardiorespiratory: Negative Gastrointestinal: Negative Genitourinary: Negative Neuropsychiatric: See HPI --- Chart tabs --- * Chart: Progress Notes → presentation_2_Altered_Mental_Status_chart_Progress_Notes.png * Chart: Vital Signs → presentation_2_Altered_Mental_Status_chart_Vital_Signs.png",
             "vitalsText": "Initial Vital Signs\n\nDay 1 @ 11:00\n\nTemperature:\n\n36.8 C (98.2 degrees F)\n\nPulse:\n\n88 beats/min. Regular rhythm\n\nRespiratory rate:\n\n18 /minute\n\nBlood pressure, systolic:\n\n115 mm Hg\n\nBlood pressure, diastolic:\n\n85 mm Hg\n\nHeight:\n\n180cm (70.9 in)\n\nWeight:\n\n91.0 kg (200.6 lb)\n\nBody Mass Index:\n\n27.9 kg/m2",
-            "clinicalTip": "Fingerstick glucose before CT — hypoglycemia mimics stroke.",
-            "objective": "Stabilize ABCs. Identify reversible causes."
+            "clinicalTip": "Elderly or alcoholic with AMS after minor trauma — non-contrast CT head first.",
+            "objective": "Identify bleed, reverse coagulopathy, neurosurgical evacuation if indicated."
           },
           "hard": {
             "intro": "Case Introduction Day 1 @ 11:00 Emergency Department A 70 year old Caucasian man comes in by EMS to the emergency room due to altered mental status.",
             "hpi": "Initial History Reason(s) for visit: Altered mental status History of present Illness: A 70-year-old Caucasian man comes to the Emergency room because his family members are concerned that something is wrong. The patient has been having behavioral changes over a period of three or four weeks. He used to be very active and managed all of his financial affairs. He now barely talks, stares at the wall for hours at a time, and sleeps most of the day. Four weeks ago, the patient got up to urinate and fell before reaching the bathroom. He was found on the floor the next morning by family members. He was taken to his family doctor and was discharged with a prescription to buy a cane. Since that time, he has been having problems walking. There have been no fevers or night sweats. The patient is currently in no pain. Past Medical History: Chronic alcohol abuse; cataracts. Hospitalization Procedures: Hemorrhoidectomy 1 year ago. Last colonoscopy was 4 years ago which demonstrated no abnormalities. Current medications: Aspirin 81mg PO daily Allergies: None Vaccinations: Up to date Family History: Father: Deceased due to a 'heart attack'. Mother: Diagnosed with type 2 diabetes mellitus and died of natural causes. The patient has no siblings. Social History: Marital/Family: Widowed; he has three children. Personal habits: the patient smokes 1 Pack/day. He currently does not drink alcohol but was a chronic alcoholic for 30 years. Denies use of illegal drugs or misuse of medications. Occupation/educational: He is a retired Army human resources manager. He is a high school graduate. Recreational: The patient likes to spend time with his children and enjoys collecting stamps. Review of systems: General: See HPI Skin: Negative HEENT: Negative Cardiorespiratory: Negative Gastrointestinal: Negative Genitourinary: Negative Neuropsychiatric: See HPI --- Chart tabs --- * Chart: Progress Notes → presentation_2_Altered_Mental_Status_chart_Progress_Notes.png * Chart: Vital Signs → presentation_2_Altered_Mental_Status_chart_Vital_Signs.png",
             "vitalsText": "Initial Vital Signs\n\nDay 1 @ 11:00\n\nTemperature:\n\n36.8 C (98.2 degrees F)\n\nPulse:\n\n88 beats/min. Regular rhythm\n\nRespiratory rate:\n\n18 /minute\n\nBlood pressure, systolic:\n\n115 mm Hg\n\nBlood pressure, diastolic:\n\n85 mm Hg\n\nHeight:\n\n180cm (70.9 in)\n\nWeight:\n\n91.0 kg (200.6 lb)\n\nBody Mass Index:\n\n27.9 kg/m2",
             "clinicalTip": "Minimal coaching — prioritize life threats without hand-holding.",
-            "objective": "High-acuity workup: Stabilize ABCs. Identify reversible causes."
+            "objective": "High-acuity workup: Identify bleed, reverse coagulopathy, neurosurgical evacuation if indicated."
           }
         },
         "patient": {
@@ -9349,6 +9457,7 @@
       "category": "OB/GYN",
       "presentationKey": "Pelvic Pain",
       "playbookKey": "Pelvic Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 140,
@@ -9463,6 +9572,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Abdominal Pain",
       "playbookKey": "Abdominal Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 114,
@@ -9574,6 +9684,7 @@
       "category": "Neurology",
       "presentationKey": "Headache",
       "playbookKey": "Headache",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 118,
@@ -9685,6 +9796,7 @@
       "category": "ID & Dermatology",
       "presentationKey": "Rash and Lethargy",
       "playbookKey": "Rash and Lethargy",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 111,
@@ -9796,6 +9908,7 @@
       "category": "MSK & General",
       "presentationKey": "Generalized Weakness",
       "playbookKey": "Generalized Weakness",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 122,
@@ -9907,6 +10020,7 @@
       "category": "Genitourinary",
       "presentationKey": "Burning During Urination",
       "playbookKey": "Burning During Urination",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 122,
@@ -10018,6 +10132,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Abdominal Pain",
       "playbookKey": "Abdominal Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 114,
@@ -10129,6 +10244,7 @@
       "category": "Emergency Medicine",
       "presentationKey": "Pain in Legs",
       "playbookKey": "Pain in Legs",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 110,
@@ -10240,6 +10356,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Abdominal Pain",
       "playbookKey": "Abdominal Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 114,
@@ -10351,6 +10468,7 @@
       "category": "Genitourinary",
       "presentationKey": "Burning During Urination",
       "playbookKey": "Burning During Urination",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 122,
@@ -10462,6 +10580,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Abdominal Pain",
       "playbookKey": "Abdominal Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 114,
@@ -10573,6 +10692,7 @@
       "category": "Emergency Medicine",
       "presentationKey": "Facial and Upper Extremity Edema",
       "playbookKey": "Facial and Upper Extremity Edema",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 101,
@@ -10684,6 +10804,7 @@
       "category": "Cardiopulmonary",
       "presentationKey": "Chest Pain",
       "playbookKey": "Chest Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 100,
@@ -10797,6 +10918,7 @@
       "category": "Cardiopulmonary",
       "presentationKey": "Cough",
       "playbookKey": "Cough",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 95,
@@ -10908,6 +11030,7 @@
       "category": "Emergency Medicine",
       "presentationKey": "Weight Loss and Night Sweats",
       "playbookKey": "Weight Loss and Night Sweats",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 110,
@@ -11019,6 +11142,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Constipation and Malaise",
       "playbookKey": "Constipation and Malaise",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 111,
@@ -11130,6 +11254,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Abdominal Pain",
       "playbookKey": "Abdominal Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 114,
@@ -11241,6 +11366,7 @@
       "category": "Cardiopulmonary",
       "presentationKey": "Palpitations",
       "playbookKey": "Palpitations",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 107,
@@ -11352,6 +11478,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Abdominal Pain",
       "playbookKey": "Abdominal Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 114,
@@ -11463,6 +11590,7 @@
       "category": "Neurology",
       "presentationKey": "Found Unconscious",
       "playbookKey": "Found Unconscious",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 142,
@@ -11574,6 +11702,7 @@
       "category": "Cardiopulmonary",
       "presentationKey": "Shortness of Breath",
       "playbookKey": "Shortness of Breath",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 95,
@@ -11685,6 +11814,7 @@
       "category": "Genitourinary",
       "presentationKey": "Burning During Urination",
       "playbookKey": "Burning During Urination",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 122,
@@ -11796,6 +11926,7 @@
       "category": "Emergency Medicine",
       "presentationKey": "Generalized Pain",
       "playbookKey": "Generalized Pain",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 113,
@@ -11907,6 +12038,7 @@
       "category": "Cardiopulmonary",
       "presentationKey": "Shortness of Breath",
       "playbookKey": "Shortness of Breath",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 104,
@@ -12018,6 +12150,7 @@
       "category": "Emergency Medicine",
       "presentationKey": "Fatigue",
       "playbookKey": "Fatigue",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 119,
@@ -12129,6 +12262,7 @@
       "category": "OB/GYN",
       "presentationKey": "Pelvic Pain",
       "playbookKey": "Pelvic Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 140,
@@ -12243,6 +12377,7 @@
       "category": "OB/GYN",
       "presentationKey": "Vaginal Bleeding",
       "playbookKey": "Vaginal Bleeding",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 112,
@@ -12354,6 +12489,7 @@
       "category": "Emergency Medicine",
       "presentationKey": "Pain in Right Arm",
       "playbookKey": "Pain in Right Arm",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 107,
@@ -12465,6 +12601,7 @@
       "category": "Neurology",
       "presentationKey": "Dizziness and Fatigue",
       "playbookKey": "Dizziness and Fatigue",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 148,
@@ -12576,6 +12713,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Abdominal Pain",
       "playbookKey": "Abdominal Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 114,
@@ -12687,6 +12825,7 @@
       "category": "Neurology",
       "presentationKey": "Altered Mental Status",
       "playbookKey": "Altered Mental Status",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 115,
@@ -12801,6 +12940,7 @@
       "category": "Neurology",
       "presentationKey": "Headache",
       "playbookKey": "Headache",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 118,
@@ -12912,6 +13052,7 @@
       "category": "Neurology",
       "presentationKey": "Seizure",
       "playbookKey": "Seizure",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 139,
@@ -13023,6 +13164,7 @@
       "category": "Neurology",
       "presentationKey": "Headache",
       "playbookKey": "Headache",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 118,
@@ -13134,6 +13276,7 @@
       "category": "Emergency Medicine",
       "presentationKey": "Fatigue",
       "playbookKey": "Fatigue",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 107,
@@ -13245,6 +13388,7 @@
       "category": "ID & Dermatology",
       "presentationKey": "Yellowing of Eyes",
       "playbookKey": "Yellowing of Eyes",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 102,
@@ -13356,6 +13500,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Epigastric pain",
       "playbookKey": "Epigastric pain",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 111,
@@ -13467,6 +13612,7 @@
       "category": "Cardiopulmonary",
       "presentationKey": "Chest Pain",
       "playbookKey": "Chest Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 100,
@@ -13580,6 +13726,7 @@
       "category": "MSK & General",
       "presentationKey": "Weakness",
       "playbookKey": "Weakness",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 141,
@@ -13691,6 +13838,7 @@
       "category": "MSK & General",
       "presentationKey": "Knee Pain",
       "playbookKey": "Knee Pain",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 123,
@@ -13802,6 +13950,7 @@
       "category": "MSK & General",
       "presentationKey": "Knee Pain",
       "playbookKey": "Knee Pain",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 126,
@@ -13913,6 +14062,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Diarrhea",
       "playbookKey": "Diarrhea",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 105,
@@ -14024,6 +14174,7 @@
       "category": "Neurology",
       "presentationKey": "Unresponsive",
       "playbookKey": "Unresponsive",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 148,
@@ -14135,6 +14286,7 @@
       "category": "MSK & General",
       "presentationKey": "Weakness in Extremities",
       "playbookKey": "Weakness in Extremities",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 135,
@@ -14246,6 +14398,7 @@
       "category": "Cardiopulmonary",
       "presentationKey": "Chest Pain",
       "playbookKey": "Chest Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 100,
@@ -14359,6 +14512,7 @@
       "category": "Cardiopulmonary",
       "presentationKey": "Cough",
       "playbookKey": "Cough",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 107,
@@ -14470,6 +14624,7 @@
       "category": "Neurology",
       "presentationKey": "Headache",
       "playbookKey": "Headache",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 118,
@@ -14581,6 +14736,7 @@
       "category": "Neurology",
       "presentationKey": "Headache",
       "playbookKey": "Headache",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 118,
@@ -14692,6 +14848,7 @@
       "category": "Neurology",
       "presentationKey": "Altered Mental Status",
       "playbookKey": "Altered Mental Status",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 115,
@@ -14806,6 +14963,7 @@
       "category": "Cardiopulmonary",
       "presentationKey": "Chest Pain",
       "playbookKey": "Chest Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 100,
@@ -14919,6 +15077,7 @@
       "category": "Cardiopulmonary",
       "presentationKey": "Shortness of Breath",
       "playbookKey": "Shortness of Breath",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 101,
@@ -15030,6 +15189,7 @@
       "category": "ID & Dermatology",
       "presentationKey": "Yellow Baby",
       "playbookKey": "Yellow Baby",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 108,
@@ -15141,6 +15301,7 @@
       "category": "Cardiopulmonary",
       "presentationKey": "Shortness of Breath",
       "playbookKey": "Shortness of Breath",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 107,
@@ -15252,6 +15413,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Abdominal Pain",
       "playbookKey": "Abdominal Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 114,
@@ -15363,6 +15525,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Abdominal Pain",
       "playbookKey": "Abdominal Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 114,
@@ -15474,6 +15637,7 @@
       "category": "Cardiopulmonary",
       "presentationKey": "Shortness of Breath",
       "playbookKey": "Shortness of Breath",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 95,
@@ -15585,6 +15749,7 @@
       "category": "Cardiopulmonary",
       "presentationKey": "Shortness of Breath",
       "playbookKey": "Shortness of Breath",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 98,
@@ -15696,6 +15861,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Abdominal Pain",
       "playbookKey": "Abdominal Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 114,
@@ -15807,6 +15973,7 @@
       "category": "Neurology",
       "presentationKey": "Headache",
       "playbookKey": "Headache",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 118,
@@ -15918,6 +16085,7 @@
       "category": "Neurology",
       "presentationKey": "Altered Mental Status",
       "playbookKey": "Altered Mental Status",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 115,
@@ -16032,6 +16200,7 @@
       "category": "Emergency Medicine",
       "presentationKey": "Malaise",
       "playbookKey": "Malaise",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 101,
@@ -16143,6 +16312,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Abdominal Pain",
       "playbookKey": "Abdominal Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 114,
@@ -16254,6 +16424,7 @@
       "category": "Psychiatry & Social",
       "presentationKey": "Anxiety",
       "playbookKey": "Anxiety",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 125,
@@ -16365,6 +16536,7 @@
       "category": "Cardiopulmonary",
       "presentationKey": "Cough",
       "playbookKey": "Cough",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 98,
@@ -16476,6 +16648,7 @@
       "category": "Genitourinary",
       "presentationKey": "Frequency of Urination",
       "playbookKey": "Frequency of Urination",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 125,
@@ -16587,6 +16760,7 @@
       "category": "MSK & General",
       "presentationKey": "Muscle Weakness",
       "playbookKey": "Muscle Weakness",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 138,
@@ -16698,6 +16872,7 @@
       "category": "MSK & General",
       "presentationKey": "Leg Pain",
       "playbookKey": "Leg Pain",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 141,
@@ -16809,6 +16984,7 @@
       "category": "ID & Dermatology",
       "presentationKey": "Fever",
       "playbookKey": "Fever",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 93,
@@ -16920,6 +17096,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Diarrhea",
       "playbookKey": "Diarrhea",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 102,
@@ -17031,6 +17208,7 @@
       "category": "Emergency Medicine",
       "presentationKey": "Routine Check-Up",
       "playbookKey": "Routine Check-Up",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 107,
@@ -17142,6 +17320,7 @@
       "category": "Neurology",
       "presentationKey": "Memory Loss",
       "playbookKey": "Memory Loss",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 148,
@@ -17253,6 +17432,7 @@
       "category": "Cardiopulmonary",
       "presentationKey": "Persistent Cough",
       "playbookKey": "Persistent Cough",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 101,
@@ -17364,6 +17544,7 @@
       "category": "Cardiopulmonary",
       "presentationKey": "Chest Pain",
       "playbookKey": "Chest Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 100,
@@ -17477,6 +17658,7 @@
       "category": "ID & Dermatology",
       "presentationKey": "Fever and Rash",
       "playbookKey": "Fever and Rash",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 111,
@@ -17588,6 +17770,7 @@
       "category": "Cardiopulmonary",
       "presentationKey": "Chest Pain",
       "playbookKey": "Chest Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 100,
@@ -17701,6 +17884,7 @@
       "category": "MSK & General",
       "presentationKey": "Generalized Weakness",
       "playbookKey": "Generalized Weakness",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 122,
@@ -17812,6 +17996,7 @@
       "category": "MSK & General",
       "presentationKey": "Back Pain",
       "playbookKey": "Back Pain",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 129,
@@ -17923,6 +18108,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Vomiting",
       "playbookKey": "Vomiting",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 108,
@@ -18034,6 +18220,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Diarrhea",
       "playbookKey": "Diarrhea",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 111,
@@ -18145,6 +18332,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Abdominal Pain",
       "playbookKey": "Abdominal Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 114,
@@ -18256,6 +18444,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Abdominal Pain",
       "playbookKey": "Abdominal Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 114,
@@ -18367,6 +18556,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Abdominal Pain",
       "playbookKey": "Abdominal Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 114,
@@ -18478,6 +18668,7 @@
       "category": "OB/GYN",
       "presentationKey": "Amenorrhea",
       "playbookKey": "Amenorrhea",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 112,
@@ -18589,6 +18780,7 @@
       "category": "Emergency Medicine",
       "presentationKey": "Blood in Urine",
       "playbookKey": "Blood in Urine",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 107,
@@ -18700,6 +18892,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Abdominal Pain",
       "playbookKey": "Abdominal Pain",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 114,
@@ -18811,6 +19004,7 @@
       "category": "Genitourinary",
       "presentationKey": "Frequency of Urination",
       "playbookKey": "Frequency of Urination",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 125,
@@ -18922,6 +19116,7 @@
       "category": "Trauma & Toxicology",
       "presentationKey": "Burns to Face and Buttocks",
       "playbookKey": "Burns to Face and Buttocks",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 94,
@@ -19033,6 +19228,7 @@
       "category": "OB/GYN",
       "presentationKey": "Prenatal Followup",
       "playbookKey": "Prenatal Followup",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 127,
@@ -19143,7 +19339,8 @@
       "title": "Lump in Breast",
       "category": "OB/GYN",
       "presentationKey": "Lump in Breast",
-      "playbookKey": "Lump in Breast",
+      "playbookKey": "case-091",
+      "diagnosis": "Breast Cancer",
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 109,
@@ -19191,14 +19388,15 @@
       ],
       "patientSex": "unknown",
       "difficulty": "standard",
-      "clinical_tip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-      "objective": "Identify and treat life threats within the time limit.",
+      "clinical_tip": "Order the biopsy yourself — do not defer workup to the consultant.",
+      "objective": "Diagnostic mammography, ultrasound, and tissue diagnosis.",
       "interventionIds": [
-        "monitor",
-        "iv",
-        "labs",
-        "imaging",
-        "admit"
+        "clinic",
+        "exam",
+        "mammo",
+        "us",
+        "biopsy",
+        "onc"
       ],
       "narrative": {
         "doctor": {
@@ -19206,22 +19404,22 @@
             "intro": "Lump in Breast — emergency presentation.",
             "hpi": "Lump in Breast — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Teaching hint: Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit. Start with stabilization, then targeted testing."
+            "clinicalTip": "Teaching hint: Order the biopsy yourself — do not defer workup to the consultant.",
+            "objective": "Diagnostic mammography, ultrasound, and tissue diagnosis. Start with stabilization, then targeted testing."
           },
           "standard": {
             "intro": "Lump in Breast — emergency presentation.",
             "hpi": "Lump in Breast — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit."
+            "clinicalTip": "Order the biopsy yourself — do not defer workup to the consultant.",
+            "objective": "Diagnostic mammography, ultrasound, and tissue diagnosis."
           },
           "hard": {
             "intro": "Lump in Breast — emergency presentation.",
             "hpi": "Lump in Breast — emergency presentation.",
             "vitalsText": "",
             "clinicalTip": "Minimal coaching — prioritize life threats without hand-holding.",
-            "objective": "High-acuity workup: Identify and treat life threats within the time limit."
+            "objective": "High-acuity workup: Diagnostic mammography, ultrasound, and tissue diagnosis."
           }
         },
         "patient": {
@@ -19255,6 +19453,7 @@
       "category": "OB/GYN",
       "presentationKey": "Vaginal Bleeding",
       "playbookKey": "Vaginal Bleeding",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 112,
@@ -19366,6 +19565,7 @@
       "category": "Neurology",
       "presentationKey": "Altered Mental Status",
       "playbookKey": "Altered Mental Status",
+      "diagnosis": null,
       "hasSourceIntro": true,
       "vitals": {
         "sbp": 115,
@@ -19480,6 +19680,7 @@
       "category": "ID & Dermatology",
       "presentationKey": "Rash with Joint Pain",
       "playbookKey": "Rash with Joint Pain",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 102,
@@ -19591,6 +19792,7 @@
       "category": "OB/GYN",
       "presentationKey": "Vaginal Bleeding",
       "playbookKey": "Vaginal Bleeding",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 121,
@@ -19702,6 +19904,7 @@
       "category": "GI & Abdomen",
       "presentationKey": "Nausea and Vomiting",
       "playbookKey": "Nausea and Vomiting",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 114,
@@ -19813,6 +20016,7 @@
       "category": "OB/GYN",
       "presentationKey": "Dyspareunia",
       "playbookKey": "Dyspareunia",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 127,
@@ -19924,6 +20128,7 @@
       "category": "MSK & General",
       "presentationKey": "Back Pain",
       "playbookKey": "Back Pain",
+      "diagnosis": null,
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 123,
@@ -20034,7 +20239,8 @@
       "title": "Back Pain",
       "category": "MSK & General",
       "presentationKey": "Back Pain",
-      "playbookKey": "Back Pain",
+      "playbookKey": "case-099",
+      "diagnosis": "Cauda Equina Syndrome",
       "hasSourceIntro": false,
       "vitals": {
         "sbp": 126,
@@ -20082,14 +20288,15 @@
       ],
       "patientSex": "unknown",
       "difficulty": "standard",
-      "clinical_tip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-      "objective": "Identify and treat life threats within the time limit.",
+      "clinical_tip": "Saddle anesthesia + bowel/bladder dysfunction = surgical emergency.",
+      "objective": "Urgent MRI and emergent decompression consult.",
       "interventionIds": [
-        "monitor",
-        "iv",
-        "labs",
-        "imaging",
-        "admit"
+        "ed",
+        "mri",
+        "neuro",
+        "bladder",
+        "cbc",
+        "monitor"
       ],
       "narrative": {
         "doctor": {
@@ -20097,22 +20304,22 @@
             "intro": "Back Pain — emergency presentation.",
             "hpi": "Back Pain — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Teaching hint: Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit. Start with stabilization, then targeted testing."
+            "clinicalTip": "Teaching hint: Saddle anesthesia + bowel/bladder dysfunction = surgical emergency.",
+            "objective": "Urgent MRI and emergent decompression consult. Start with stabilization, then targeted testing."
           },
           "standard": {
             "intro": "Back Pain — emergency presentation.",
             "hpi": "Back Pain — emergency presentation.",
             "vitalsText": "",
-            "clinicalTip": "Stabilize first — ABCs, IV access, monitor, then targeted workup.",
-            "objective": "Identify and treat life threats within the time limit."
+            "clinicalTip": "Saddle anesthesia + bowel/bladder dysfunction = surgical emergency.",
+            "objective": "Urgent MRI and emergent decompression consult."
           },
           "hard": {
             "intro": "Back Pain — emergency presentation.",
             "hpi": "Back Pain — emergency presentation.",
             "vitalsText": "",
             "clinicalTip": "Minimal coaching — prioritize life threats without hand-holding.",
-            "objective": "High-acuity workup: Identify and treat life threats within the time limit."
+            "objective": "High-acuity workup: Urgent MRI and emergent decompression consult."
           }
         },
         "patient": {

@@ -1,4 +1,4 @@
-import catalog from './ccsCatalog.json';
+import catalog from './ccsCatalog.json' with { type: 'json' };
 import { toGameCase } from './gameData.js';
 import { applySessionToCase } from '../lib/caseNarrative.js';
 import { readAudienceProfile } from '../lib/audienceProfile.js';

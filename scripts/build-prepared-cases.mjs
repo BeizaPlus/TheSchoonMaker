@@ -5,6 +5,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { resolvePlaybook } from '../src/data/resolvePlaybook.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
@@ -232,15 +233,8 @@ function buildNarrative({ intro, history, vitalsText, clinicalTip, objective, ti
   };
 }
 
-function resolvePlaybook(ccsCase, playbooks) {
-  const override =
-    playbooks.casePlaybooks?.[ccsCase.id] || playbooks.casePlaybooks?.[ccsCase.caseNumber];
-  const key = override && !String(override).startsWith('_') ? override : ccsCase.title;
-  return (
-    playbooks.presentations[key] ||
-    playbooks.presentations[ccsCase.title] ||
-    playbooks.default
-  );
+function resolvePlaybookForBuild(ccsCase, playbooks) {
+  return resolvePlaybook(ccsCase);
 }
 
 const catalog = JSON.parse(fs.readFileSync(CATALOG_PATH, 'utf8'));
@@ -250,7 +244,7 @@ const cases = {};
 for (const ccsCase of catalog.cases) {
   const id = ccsCase.id;
   const pres = catalog.presentations?.[ccsCase.title];
-  const pb = resolvePlaybook(ccsCase, playbooks);
+  const pb = resolvePlaybookForBuild(ccsCase, playbooks);
   const intro = pres?.intro || '';
   const vitalsText = pres?.vitals || '';
   const history = pres?.history || '';
@@ -264,7 +258,8 @@ for (const ccsCase of catalog.cases) {
     title: ccsCase.title,
     category: ccsCase.category,
     presentationKey: ccsCase.title,
-    playbookKey: pb.presentation || ccsCase.title,
+    playbookKey: pb.playbookKey || pb.presentation || ccsCase.title,
+    diagnosis: pb.diagnosis || null,
     hasSourceIntro: Boolean(pres?.intro),
     vitals,
     vitalsSource,
