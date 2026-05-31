@@ -1732,32 +1732,72 @@ button {
 
 .dock-resize-handle {
   position: absolute;
-  z-index: 3;
+  z-index: 40;
   touch-action: none;
+  background: transparent;
+}
+
+.dock-resize-handle::after {
+  content: '';
+  position: absolute;
+  background: rgba(232, 184, 75, 0.35);
+  border-radius: 2px;
+  opacity: 0.55;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.dock-resize-handle:hover::after,
+.game-sidebar.floating.dragging .dock-resize-handle::after {
+  opacity: 1;
+  background: rgba(232, 184, 75, 0.65);
 }
 
 .dock-resize-e {
   top: 24px;
   right: 0;
   bottom: 12px;
-  width: 12px;
+  width: 14px;
   cursor: ew-resize;
+}
+
+.dock-resize-e::after {
+  top: 20%;
+  bottom: 20%;
+  right: 4px;
+  width: 3px;
 }
 
 .dock-resize-s {
   left: 8px;
   right: 8px;
   bottom: 0;
-  height: 12px;
+  height: 14px;
   cursor: ns-resize;
+}
+
+.dock-resize-s::after {
+  left: 20%;
+  right: 20%;
+  bottom: 4px;
+  height: 3px;
 }
 
 .dock-resize-se {
   right: 0;
   bottom: 0;
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   cursor: nwse-resize;
+}
+
+.dock-resize-se::after {
+  right: 4px;
+  bottom: 4px;
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid rgba(232, 184, 75, 0.75);
+  border-bottom: 2px solid rgba(232, 184, 75, 0.75);
+  background: transparent;
 }
 
 .dock-reset-btn {
@@ -1789,24 +1829,32 @@ button {
   padding: 10px 14px 6px;
 }
 
-.pill-list-panel {
+.pill-list-panel,
+.pill-list-vertical {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 4px 12px 12px;
   display: flex;
-  flex-wrap: wrap;
-  flex-direction: row;
+  flex-direction: column;
+  flex-wrap: nowrap;
   gap: 8px;
-  align-content: flex-start;
+  align-content: stretch;
   -webkit-overflow-scrolling: touch;
 }
 
-.pill-list-panel .drag-pill-wrap.pack-item {
-  flex: 1 1 min(100%, 240px);
+.pill-list-panel .drag-pill-wrap.pack-item,
+.pill-list-vertical .drag-pill-wrap.pack-item {
+  flex: 0 0 auto;
+  width: 100%;
   max-width: 100%;
-  min-width: min(100%, 180px);
+  min-width: 0;
+}
+
+.pack-item-decoy {
+  opacity: 0.88;
+  border-style: dashed;
 }
 
 .game-sidebar.floating.dragging {
@@ -2484,21 +2532,25 @@ button {
 .pill-flow-inline {
   margin: 8px 0 2px;
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  flex-wrap: nowrap;
   gap: 6px;
+  align-items: stretch;
 }
 
 .pill-flow-chip {
   font-size: 0.62rem;
   line-height: 1.35;
   border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 999px;
-  padding: 4px 8px;
+  border-radius: 8px;
+  padding: 6px 8px;
   color: rgba(240, 238, 232, 0.82);
   background: rgba(255, 255, 255, 0.04);
   white-space: normal;
   overflow-wrap: anywhere;
   max-width: 100%;
+  width: 100%;
+  text-align: left;
 }
 
 .pill-flow-chip.ok {
@@ -5887,11 +5939,6 @@ button {
   .game-sidebar.floating {
     max-width: calc(100vw - 16px);
     max-height: calc(100vh - 56px);
-  }
-
-  .pill-list-panel .drag-pill-wrap.pack-item {
-    flex: 1 1 100%;
-    min-width: 100%;
   }
 
   .briefing-layout {

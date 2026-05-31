@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   clampDockLayout,
   defaultPlayDockLayout,
@@ -8,7 +8,7 @@ import {
 
 export function usePlayDockLayout() {
   const [layout, setLayout] = useState(() => readPlayDockLayout());
-  const dragRef = useRef({ mode: null, startX: 0, startY: 0, startLayout: null });
+  const [activeDrag, setActiveDrag] = useState(null);
 
   const persist = useCallback((next) => {
     const clamped = clampDockLayout(next);
@@ -26,11 +26,10 @@ export function usePlayDockLayout() {
   }, []);
 
   useEffect(() => {
-    if (!dragRef.current.mode) return undefined;
+    if (!activeDrag) return undefined;
 
     const onMove = (event) => {
-      const { mode, startX, startY, startLayout } = dragRef.current;
-      if (!mode || !startLayout) return;
+      const { mode, startX, startY, startLayout } = activeDrag;
       const dx = event.clientX - startX;
       const dy = event.clientY - startY;
 
@@ -42,7 +41,6 @@ export function usePlayDockLayout() {
         });
         return;
       }
-
       if (mode === 'resize-e') {
         persist({ ...startLayout, width: startLayout.width + dx });
         return;
@@ -67,29 +65,30 @@ export function usePlayDockLayout() {
       }
     };
 
-    const onUp = () => {
-      dragRef.current.mode = null;
-    };
+    const onUp = () => setActiveDrag(null);
 
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onUp);
     return () => {
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
     };
-  }, [persist]);
+  }, [activeDrag, persist]);
 
   const startDrag = useCallback(
     (mode, event) => {
       if (event.button !== 0) return;
       event.preventDefault();
+      event.stopPropagation();
       event.currentTarget.setPointerCapture?.(event.pointerId);
-      dragRef.current = {
+      setActiveDrag({
         mode,
         startX: event.clientX,
         startY: event.clientY,
         startLayout: { ...layout },
-      };
+      });
     },
     [layout],
   );
@@ -98,5 +97,5 @@ export function usePlayDockLayout() {
     persist(defaultPlayDockLayout());
   }, [persist]);
 
-  return { layout, persist, startDrag, resetLayout };
+  return { layout, persist, startDrag, resetLayout, isDragging: Boolean(activeDrag) };
 }

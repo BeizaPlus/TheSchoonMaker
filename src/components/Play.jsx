@@ -112,7 +112,7 @@ export default function Play({
   const [playSessionId, setPlaySessionId] = useState(null);
   const playSessionIdRef = useRef(null);
   const [dockCollapsed, setDockCollapsed] = useState(false);
-  const { layout: dockLayout, startDrag: startDockDrag, resetLayout: resetDockLayout } =
+  const { layout: dockLayout, startDrag: startDockDrag, resetLayout: resetDockLayout, isDragging: dockDragging } =
     usePlayDockLayout();
   const [theme, setTheme] = useState(() => readTheme());
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -1830,7 +1830,7 @@ export default function Play({
 
       <aside
         ref={dockRef}
-        className={`game-sidebar floating dock-return-zone ${dockCollapsed ? 'collapsed' : ''} ${finalMode ? 'final-mode-minimized' : ''}`}
+        className={`game-sidebar floating dock-return-zone ${dockCollapsed ? 'collapsed' : ''} ${dockDragging ? 'dragging' : ''} ${finalMode ? 'final-mode-minimized' : ''}`}
         style={{
           left: `${dockLayout.x}px`,
           top: `${dockLayout.y}px`,
@@ -1970,11 +1970,15 @@ export default function Play({
               </div>
             </div>
           )}
-          <div className="pill-list pill-list-panel" id="pill-list">
-            {stackItems.map((iv, i) => (
+          <div className="pill-list pill-list-panel pill-list-vertical" id="pill-list">
+            {stackItems.map((iv, i) => {
+              const seqNum = interventions.findIndex((x) => x.id === iv.id);
+              const displayNum = seqNum >= 0 ? seqNum + 1 : null;
+              const isDecoy = !interventions.some((x) => x.id === iv.id);
+              return (
               <div
                 key={iv.id}
-                className={`drag-pill-wrap pack-item ${placed[iv.id] ? 'is-placed is-expandable' : ''} ${expandedStackId === iv.id ? 'expanded' : ''}`}
+                className={`drag-pill-wrap pack-item ${isDecoy ? 'pack-item-decoy' : ''} ${placed[iv.id] ? 'is-placed is-expandable' : ''} ${expandedStackId === iv.id ? 'expanded' : ''}`}
                 data-x="0"
                 data-y="0"
                 onClick={() => {
@@ -1995,16 +1999,20 @@ export default function Play({
                   </span>
                   <span className="pill-meta">
                     <span className="pill-stack">x1</span>
-                    <span className="pill-num">{String(i + 1).padStart(2, '0')}</span>
+                    {displayNum != null ? (
+                      <span className="pill-num">{String(displayNum).padStart(2, '0')}</span>
+                    ) : (
+                      <span className="pill-num pill-num-decoy">—</span>
+                    )}
                   </span>
                 </div>
                 {expandedStackId === iv.id && (
                   <div className="pill-why-inline">
                     <p className="pill-why-inline-status">
                       {!placed[iv.id]
-                        ? 'Preview - rationale'
+                        ? 'Preview — rationale for this order only'
                         : !reviewed
-                          ? 'Placed - review pending'
+                          ? 'Placed — review pending'
                           : reviewResults[iv.id]
                           ? orderReview[iv.id] === false
                             ? 'Correct but not emergent'
@@ -2013,35 +2021,16 @@ export default function Play({
                     </p>
                     {placementOrder.includes(iv.id) && (
                       <p className="pill-why-inline-guideline">
-                        Placed order #{placementOrder.indexOf(iv.id) + 1}
+                        Your placement order #{placementOrder.indexOf(iv.id) + 1}
                       </p>
-                    )}
-                    {interventions.some((item) => item.id === iv.id) && (
-                      <div className="pill-flow-inline" aria-label="Emergent sequence flow">
-                        {expectedOrderIds.map((id, idx) => {
-                          const current = id === iv.id;
-                          const label = interventions.find((x) => x.id === id)?.label || `Step ${idx + 1}`;
-                          const placedIdx = placementOrder.indexOf(id);
-                          const expectedIdx = idx;
-                          const orderOk = placedIdx >= 0 && placedIdx === expectedIdx;
-                          return (
-                            <span
-                              key={id}
-                              className={`pill-flow-chip ${current ? 'current' : ''} ${orderOk ? 'ok' : ''}`}
-                              title={`${idx + 1}. ${label}`}
-                            >
-                              {idx + 1}. {label}
-                            </span>
-                          );
-                        })}
-                      </div>
                     )}
                     <p className="pill-why-inline-text">{iv.why || 'No explanation available yet.'}</p>
                     {iv.guideline && <p className="pill-why-inline-guideline">Guideline: {iv.guideline}</p>}
                   </div>
                 )}
               </div>
-            ))}
+            );
+            })}
           </div>
         </section>
         <div className="sidebar-foot">
