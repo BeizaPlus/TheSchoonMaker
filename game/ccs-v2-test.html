@@ -595,10 +595,81 @@
       animation: tipLife 4s ease forwards;
     }
 
+    .patient-bubble {
+      position: absolute;
+      z-index: 40;
+      top: 15%;
+      left: 30%;
+      max-width: 260px;
+      padding: 10px 16px;
+      border: 1px solid #3a3d45;
+      border-radius: 8px;
+      background: rgba(10, 12, 16, 0.9);
+      color: #d4d6db;
+      font-size: 13px;
+      font-style: italic;
+      line-height: 1.35;
+      box-shadow: var(--shadow);
+      animation: fadeInUp 0.3s ease, fadeOut 0.5s ease 5.5s forwards;
+    }
+
+    .nurse-note {
+      position: absolute;
+      z-index: 40;
+      bottom: 120px;
+      left: 20px;
+      max-width: 390px;
+      padding: 8px 14px;
+      border-left: 2px solid #c8a84b;
+      border-radius: 4px;
+      background: rgba(14, 16, 22, 0.92);
+      color: #9a9da8;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+      line-height: 1.35;
+      box-shadow: var(--shadow);
+      animation: fadeInUp 0.3s ease, fadeOut 0.5s ease 5.5s forwards;
+    }
+
+    .exam-bubble {
+      position: absolute;
+      z-index: 40;
+      top: 42%;
+      left: 57%;
+      max-width: 310px;
+      padding: 10px 14px;
+      border: 1px solid rgba(66, 217, 133, 0.3);
+      border-radius: 8px;
+      background: rgba(10, 12, 16, 0.92);
+      color: #cfd5dc;
+      font-size: 12px;
+      line-height: 1.4;
+      box-shadow: var(--shadow);
+      animation: fadeInUp 0.3s ease, fadeOut 0.5s ease 5.5s forwards;
+    }
+
     @keyframes tipLife {
       0% { opacity: 0; transform: translateY(4px); }
       10%, 82% { opacity: 1; transform: translateY(0); }
       100% { opacity: 0; transform: translateY(-4px); }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        transform: translateY(-6px);
+      }
     }
 
     .stacks-panel {
@@ -853,6 +924,29 @@
       treatment: "ACS protocol. Aspirin, anticoagulation, nitrates. Cath lab activation if STEMI confirmed.",
       notes: "Terminal feed hidden by default. Use NTE to show order log and timed events.",
       vitals: { hr: 118, spo2: 95, bp: "100/61", rr: 18, temp: 37.1, life: 81 },
+      patientResponses: [
+        { pattern: /breathing|breath|short of breath/i, text: "It's tight... hard to get a full breath in" },
+        { pattern: /pain|hurt|chest/i, text: "It's like a vice. Right here. Started about an hour ago" },
+        { pattern: /radiate|arm|jaw|neck|shoulder/i, text: "Yeah, up into my jaw. Left side mostly" },
+        { pattern: /nausea|sick|vomit/i, text: "Yeah I feel sick. Haven't thrown up yet" },
+        { pattern: /history|before|prior|past/i, text: "Nothing like this. I got high blood pressure, take something for it" },
+        { pattern: /medication|meds|taking/i, text: "Lisinopril. That's it. Oh and a statin, I think" },
+        { pattern: /allergies/i, text: "Penicillin. That's the only one I know of" },
+        { pattern: /family|parents|father|mother/i, text: "Dad had a heart attack at 60. Why, is that... is that what this is?" },
+        { pattern: /scared|worried|okay|fine/i, text: "I'm trying not to think about it. Just... tell me what's going on" },
+        { pattern: /name/i, text: "Michael. Michael Tran." }
+      ],
+      nurseResponses: [
+        { pattern: /arrive|arrival|when did/i, text: "Nurse: Arrived 22 minutes ago. Triage at 14:32." },
+        { pattern: /last vitals|vitals|blood pressure|spo2|oxygen/i, text: "Nurse: HR 118, BP 100/61, SpO2 95%. Five minutes ago." },
+        { pattern: /what time|how long ago|time/i, text: "Nurse: Symptoms began before arrival. Roomed 9 minutes ago." }
+      ],
+      examFindings: [
+        { pattern: /chest|heart|cardiac|cardiovascular|lung|respiratory/i, text: "Exam: Pale and diaphoretic. Tachycardic regular rhythm. Lungs clear bilaterally, no wheeze or crackles." },
+        { pattern: /general|appearance|look/i, text: "Exam: Moderate distress, clutching chest, anxious but coherent. Skin cool and clammy." },
+        { pattern: /legs|calf|edema|extrem/i, text: "Exam: No unilateral leg swelling. Distal pulses present. No calf tenderness." },
+        { pattern: /abdomen|belly/i, text: "Exam: Abdomen soft, non-tender, no guarding." }
+      ],
       categories: [
         { id: "exam", label: "Physical Exam", orders: ["Physical exam: general appearance", "Physical exam: heart/cardiovascular", "Physical exam: lungs"] },
         { id: "cardiac", label: "Cardiac", orders: ["ECG", "Troponin", "Cardiac enzymes", "Aspirin", "Nitroglycerin"] },
@@ -1015,6 +1109,41 @@
       log(msg);
     }
 
+    function transientBubble(className, text) {
+      const el = document.createElement("div");
+      el.className = className;
+      el.textContent = text;
+      sim.appendChild(el);
+      window.setTimeout(() => el.remove(), 6200);
+      log(text);
+      return el;
+    }
+
+    function patientResponse(txt) {
+      const found = CASE_DATA.patientResponses.find(item => item.pattern.test(txt));
+      return found?.text || "I... I don't know, doc. Just make it stop.";
+    }
+
+    function nurseResponse(txt) {
+      const found = CASE_DATA.nurseResponses.find(item => item.pattern.test(txt));
+      return found?.text || "Nurse: No new updates yet. Monitor is cycling vitals.";
+    }
+
+    function examResponse(txt) {
+      const found = CASE_DATA.examFindings.find(item => item.pattern.test(txt));
+      return found?.text || "Exam: Focused survey completed. No additional abnormal findings in this prototype.";
+    }
+
+    function inputIntent(txt) {
+      const t = norm(txt);
+      if (/\bnurse\b|last vitals|when did|how long ago|what time/.test(t)) return "nurse";
+      if (/\bexamine\b|\bexam\b|listen to|auscultate|palpate|inspect|check (his |the )?(chest|heart|lungs|legs|abdomen)/.test(t)) return "exam";
+      if (/^(order|give|start|place|obtain|check|draw|administer)\b/.test(t)) return "order";
+      if (matchOrder(txt) && !/\?$/.test(txt) && t.split(" ").length <= 5) return "order";
+      if (/^(are you|do you|did you|have you|can you|what does|where is|how long|describe|is it|does it|any )\b/.test(t) || /\?$/.test(txt)) return "patient";
+      return matchOrder(txt) ? "order" : "patient";
+    }
+
     function placeOrder(item, opts = {}) {
       if (!item?.order) return;
       if (state.placed.some(p => norm(p.order) === norm(item.order))) {
@@ -1049,17 +1178,37 @@
       window.setTimeout(() => tip.remove(), 4200);
     }
 
-    function submitOrder() {
-      const found = matchOrder(input.value);
-      if (!found) {
-        orderBar.classList.remove("shake");
-        void orderBar.offsetWidth;
-        orderBar.classList.add("shake");
-        input.value = "";
-        input.placeholder = "No match - try ECG, troponin, aspirin...";
+    function shakeInput(placeholder = "No match - try ECG, troponin, aspirin...") {
+      orderBar.classList.remove("shake");
+      void orderBar.offsetWidth;
+      orderBar.classList.add("shake");
+      input.value = "";
+      input.placeholder = placeholder;
+    }
+
+    function submitInteraction() {
+      const raw = input.value.trim();
+      if (!raw) {
+        shakeInput("Ask patient, examine, or type an order...");
         return;
       }
-      placeOrder(found);
+      const intent = inputIntent(raw);
+      if (intent === "patient") {
+        transientBubble("patient-bubble", patientResponse(raw));
+      } else if (intent === "nurse") {
+        transientBubble("nurse-note", nurseResponse(raw));
+      } else if (intent === "exam") {
+        const text = examResponse(raw);
+        transientBubble("exam-bubble", text);
+        placeOrder({ order: raw.match(/chest|heart|cardiac|lung/i) ? "Physical exam: heart/cardiovascular" : "Physical exam: general appearance" });
+      } else {
+        const found = matchOrder(raw.replace(/^order\s+/i, ""));
+        if (!found) {
+          shakeInput("Order not recognized - try ECG, troponin, aspirin...");
+          return;
+        }
+        placeOrder(found);
+      }
       input.value = "";
       input.placeholder = "type order...";
     }
@@ -1122,7 +1271,7 @@
 
     $("#orderBar").addEventListener("submit", (ev) => {
       ev.preventDefault();
-      submitOrder();
+      submitInteraction();
     });
 
     document.querySelectorAll("[data-reveal]").forEach(btn => btn.addEventListener("click", () => {
