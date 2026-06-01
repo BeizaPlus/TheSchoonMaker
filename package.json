@@ -18,7 +18,8 @@
     "dev": "concurrently -n api,web -c blue,green \"node server/index.js\" \"vite\"",
     "dev:studio": "concurrently -n api,web -c blue,green \"node server/index.js\" \"vite --open /studio.html\"",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "eval": "python scripts/self_eval.py --fix-distractors"
   },
   "dependencies": {
     "@interactjs/interact": "^1.10.27",
