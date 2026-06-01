@@ -74,6 +74,15 @@ export function showPlacementFeedback(scene, label, clientX, clientY) {
   }, 40);
 }
 
+export function resetWrapDockPosition(wrap) {
+  if (!wrap) return;
+  wrap.style.transform = '';
+  wrap.style.transition = '';
+  wrap.setAttribute('data-x', '0');
+  wrap.setAttribute('data-y', '0');
+  wrap.classList.remove('stack-drag-source', 'stack-dismiss-up');
+}
+
 export function snapWrapHome(wrap, snapBackMs = 380) {
   if (!wrap) return;
   wrap.style.transition = `transform ${snapBackMs}ms cubic-bezier(0.34, 1.56, 0.64, 1)`;
@@ -87,5 +96,10 @@ export function snapWrapHome(wrap, snapBackMs = 380) {
 
 export function dismissWrapFromDock(wrap) {
   if (!wrap) return;
+  resetWrapDockPosition(wrap);
   wrap.classList.add('stack-dismiss-up');
+  window.setTimeout(() => {
+    wrap.classList.remove('stack-dismiss-up');
+    resetWrapDockPosition(wrap);
+  }, 420);
 }

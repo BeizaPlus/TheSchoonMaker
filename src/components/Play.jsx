@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import PatientScene from './PatientScene.jsx';
 import ClinicalAlgorithm from './ClinicalAlgorithm.jsx';
 import WhyPanel from './WhyPanel.jsx';
-import { getDragConfig } from '../data/gameData.js';
+import { resetWrapDockPosition, snapWrapHome } from '../lib/stackDragHelpers.js';
 import { useDragGame } from '../hooks/useDragGame.js';
 import { useGridDragGame } from '../hooks/useGridDragGame.js';
 import { usePlayDockLayout } from '../hooks/usePlayDockLayout.js';
@@ -121,8 +121,15 @@ export default function Play({
   const [playSessionId, setPlaySessionId] = useState(null);
   const playSessionIdRef = useRef(null);
   const [dockCollapsed, setDockCollapsed] = useState(false);
-  const { layout: dockLayout, startDrag: startDockDrag, resetLayout: resetDockLayout, isDragging: dockDragging } =
-    usePlayDockLayout();
+  const gameRef = useRef(null);
+  const {
+    layout: dockLayout,
+    startDrag: startDockDrag,
+    resetLayout: resetDockLayout,
+    dockToSide,
+    isDragging: dockDragging,
+  } =
+    usePlayDockLayout({ boundsRef: gameRef });
   const [theme, setTheme] = useState(() => readTheme());
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [dropMode, setDropMode] = useState(() => {
@@ -242,6 +249,7 @@ export default function Play({
       setExpandedStackId(id);
       window.requestAnimationFrame(() => {
         const wrap = document.querySelector(`.drag-pill-wrap [data-iv-id="${id}"]`)?.closest('.drag-pill-wrap');
+        resetWrapDockPosition(wrap);
         wrap?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
       });
     },
@@ -773,16 +781,13 @@ export default function Play({
     setTimeout(() => setFlash(''), 280);
   };
 
-  const snapWrapHome = (wrap) => {
-    if (!wrap) return;
-    wrap.style.transition = `transform ${dragCfg.snapBackMs}ms cubic-bezier(0.34, 1.56, 0.64, 1)`;
-    wrap.style.transform = 'translate(0, 0)';
-    wrap.setAttribute('data-x', '0');
-    wrap.setAttribute('data-y', '0');
-    setTimeout(() => {
-      wrap.style.transition = '';
-    }, dragCfg.snapBackMs + 20);
+  const snapWrapHomeLocal = (wrap) => {
+    snapWrapHome(wrap, dragCfg.snapBackMs);
   };
+
+  useEffect(() => {
+    document.querySelectorAll('#pill-list .drag-pill-wrap').forEach(resetWrapDockPosition);
+  }, [placed]);
 
   const handleDrop = useCallback(
     (ivId, target, { wrap, zone, pill }) => {
@@ -803,13 +808,13 @@ export default function Play({
             : 'Killed the patient — harmful or irrelevant action.',
           'bad',
         );
-        snapWrapHome(wrap);
+        snapWrapHomeLocal(wrap);
         return;
       }
 
       if (teachMeMode) {
         if (iv.id !== nextExpectedId) {
-          snapWrapHome(wrap);
+          snapWrapHomeLocal(wrap);
           const nextIv = nextExpectedId ? interventionById[nextExpectedId] : null;
           const nextSeq = nextExpectedId ? expectedOrderIds.indexOf(nextExpectedId) + 1 : null;
           showToast(
@@ -821,7 +826,7 @@ export default function Play({
           return;
         }
         if (!ok) {
-          snapWrapHome(wrap);
+          snapWrapHomeLocal(wrap);
           showToast('Teach Me: wrong body zone for this step', 'bad');
           return;
         }
@@ -830,7 +835,7 @@ export default function Play({
           zone.classList.add('zone-hover');
           setTimeout(() => zone.classList.remove('zone-hover'), 280);
         }
-        snapWrapHome(wrap);
+        snapWrapHomeLocal(wrap);
         showToast('Strict mode: wrong cell blocked', 'bad');
         return;
       }
@@ -1207,7 +1212,7 @@ export default function Play({
       /* ignore */
     }
 
-    sceneRef.current?.querySelectorAll('.drag-pill-wrap').forEach(snapWrapHome);
+    sceneRef.current?.querySelectorAll('.drag-pill-wrap').forEach(snapWrapHomeLocal);
     showToast('Case restarted from scratch', 'ok');
   }, [timerTotal, caseFlow.dispositionUnits, soapDraftKey, showToast, caseData?.id, endCurrentPlaySession, beginPlaySession, doneCount, total]);
 
@@ -1481,6 +1486,7 @@ export default function Play({
 
   return (
     <div
+      ref={gameRef}
       className={`game ${finalMode ? 'final-mode' : ''} ${activeDrawer ? 'drawer-open' : ''}`}
       style={{
         gridTemplateColumns: '1fr',
@@ -1492,7 +1498,7 @@ export default function Play({
         className={`game-scene ${vitals.spo2 < 92 || vitals.sbp < 95 || vitals.hr > 120 ? 'icu-alarm' : ''} ${teachMeMode ? 'teach-me-active' : ''}`}
         ref={sceneRef}
       >
-        <div className="game-scene-capture" ref={studioCapture ? captureRef : null}>
+        <div className="game-scene-capture" ref={captureRef}>
         <div className="play-hud">
           <span className="play-hud-case">
             ◈ Case {caseData.ccsNumber} — {caseData.title}
@@ -1975,6 +1981,17 @@ export default function Play({
           >
             ↺
           </button>
+          <button
+            type="button"
+            className="dock-reset-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              dockToSide('right');
+            }}
+            title="Dock to right side"
+          >
+            ⇥
+          </button>
         </div>
         <div className="dock-panel-clinical">
           <CaseContextPanel
@@ -2095,7 +2112,8 @@ export default function Play({
                         className={`drag-pill-wrap pack-item ${isDecoy ? 'pack-item-decoy' : ''} ${placed[iv.id] ? 'is-placed is-expandable' : ''} ${expandedStackId === iv.id ? 'expanded' : ''} ${isTeachFocused ? 'teach-pill-focused' : ''} ${isTeachNext ? 'teach-pill-next' : ''} ${isTeachLocked ? 'teach-pill-locked' : ''}`}
                         data-x="0"
                         data-y="0"
-                        onClick={() => {
+                        onClick={(e) => {
+                          resetWrapDockPosition(e.currentTarget);
                           setExpandedStackId((prev) => (prev === iv.id ? null : iv.id));
                         }}
                       >
@@ -2365,38 +2383,40 @@ export default function Play({
             </svg>
           )}
         </button>
-        {studioCapture && (
-          <>
-            <button
-              type="button"
-              className={showGrid ? 'bottom-chip active' : 'bottom-chip'}
-              onClick={() => setShowGrid((v) => !v)}
-              title="Toggle placement grid"
-              aria-label="Toggle grid"
-            >
-              #
-            </button>
-            <button
-              type="button"
-              className={placeMode ? 'bottom-chip active' : 'bottom-chip'}
-              onClick={() => setPlaceMode((v) => !v)}
-              title="Place mode"
-              aria-label="Place mode"
-            >
-              ⊕
-            </button>
-            <button
-              type="button"
-              className="bottom-chip"
-              onClick={capturePlayScreenshot}
-              disabled={captureBusy}
-              title={`Save screenshot (attempt ${nextCaptureAttempt})`}
-              aria-label="Save screenshot"
-            >
-              <FiCamera className="chip-icon" />
-            </button>
-          </>
-        )}
+        <>
+          {studioCapture && (
+            <>
+              <button
+                type="button"
+                className={showGrid ? 'bottom-chip active' : 'bottom-chip'}
+                onClick={() => setShowGrid((v) => !v)}
+                title="Toggle placement grid"
+                aria-label="Toggle grid"
+              >
+                #
+              </button>
+              <button
+                type="button"
+                className={placeMode ? 'bottom-chip active' : 'bottom-chip'}
+                onClick={() => setPlaceMode((v) => !v)}
+                title="Place mode"
+                aria-label="Place mode"
+              >
+                ⊕
+              </button>
+            </>
+          )}
+          <button
+            type="button"
+            className="bottom-chip"
+            onClick={capturePlayScreenshot}
+            disabled={captureBusy}
+            title={`Save screenshot (attempt ${nextCaptureAttempt})`}
+            aria-label="Save screenshot"
+          >
+            <FiCamera className="chip-icon" />
+          </button>
+        </>
         <span className="bottom-status">
           Unit: {careUnit} · {dropMode}
           {studioCapture && selectedGridId ? ' · selected: move or dbl-click remove' : ''}

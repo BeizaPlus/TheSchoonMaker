@@ -1,56 +1,93 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { STORAGE } from '../lib/storageKeys.js';
 import {
   clampDockLayout,
   defaultBriefingDockLayout,
   defaultPlayDockLayout,
+  getPlayDockBounds,
   readPlayDockLayout,
   writePlayDockLayout,
 } from '../lib/playDockLayout.js';
 
 export function usePlayDockLayout(options = {}) {
   const storageKey = options.storageKey || STORAGE.playDockLayout;
+  const boundsRef = options.boundsRef;
   const getDefault =
     options.getDefault ||
     (storageKey === STORAGE.briefingDockLayout
-      ? defaultBriefingDockLayout
-      : defaultPlayDockLayout);
+      ? () => defaultBriefingDockLayout(boundsRef?.current)
+      : () => defaultPlayDockLayout(boundsRef?.current));
 
-  const [layout, setLayout] = useState(() => readPlayDockLayout(storageKey));
+  const [layout, setLayout] = useState(() => readPlayDockLayout(storageKey, boundsRef?.current));
   const [activeDrag, setActiveDrag] = useState(null);
+
+  const getBounds = useCallback(
+    () => getPlayDockBounds(boundsRef?.current),
+    [boundsRef],
+  );
+
+  const reclamp = useCallback(
+    (prev) => clampDockLayout(prev, getBounds()),
+    [getBounds],
+  );
 
   const persist = useCallback(
     (next) => {
-      const clamped = clampDockLayout(next);
+      const clamped = clampDockLayout(next, getBounds());
       setLayout(clamped);
       writePlayDockLayout(clamped, storageKey);
       return clamped;
     },
-    [storageKey],
+    [storageKey, getBounds],
   );
+
+  useLayoutEffect(() => {
+    setLayout((prev) => reclamp(prev));
+  }, [reclamp]);
+
+  useEffect(() => {
+    const el = boundsRef?.current;
+    if (!el || typeof ResizeObserver === 'undefined') return undefined;
+
+    const observer = new ResizeObserver(() => {
+      setLayout((prev) => reclamp(prev));
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [boundsRef, reclamp]);
 
   useEffect(() => {
     const onResize = () => {
-      setLayout((prev) => clampDockLayout(prev));
+      setLayout((prev) => reclamp(prev));
     };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
-  }, []);
+  }, [reclamp]);
 
   useEffect(() => {
     if (!activeDrag) return undefined;
 
     const onMove = (event) => {
-      const { mode, startX, startY, startLayout } = activeDrag;
+      const { mode, startX, startY, startLayout, pointerOffsetX, pointerOffsetY } = activeDrag;
       const dx = event.clientX - startX;
       const dy = event.clientY - startY;
+      const boundsEl = boundsRef?.current;
+      const rect = boundsEl?.getBoundingClientRect?.();
 
       if (mode === 'move') {
-        persist({
-          ...startLayout,
-          x: startLayout.x + dx,
-          y: startLayout.y + dy,
-        });
+        if (rect) {
+          persist({
+            ...startLayout,
+            x: event.clientX - rect.left - pointerOffsetX,
+            y: event.clientY - rect.top - pointerOffsetY,
+          });
+        } else {
+          persist({
+            ...startLayout,
+            x: startLayout.x + dx,
+            y: startLayout.y + dy,
+          });
+        }
         return;
       }
       if (mode === 'resize-e') {
@@ -95,19 +132,36 @@ export function usePlayDockLayout(options = {}) {
       event.preventDefault();
       event.stopPropagation();
       event.currentTarget.setPointerCapture?.(event.pointerId);
+      const boundsEl = boundsRef?.current;
+      const rect = boundsEl?.getBoundingClientRect?.();
       setActiveDrag({
         mode,
         startX: event.clientX,
         startY: event.clientY,
         startLayout: { ...layout },
+        pointerOffsetX: rect ? event.clientX - rect.left - layout.x : 0,
+        pointerOffsetY: rect ? event.clientY - rect.top - layout.y : 0,
       });
     },
-    [layout],
+    [layout, boundsRef],
   );
 
   const resetLayout = useCallback(() => {
     persist(getDefault());
   }, [getDefault, persist]);
 
-  return { layout, persist, startDrag, resetLayout, isDragging: Boolean(activeDrag) };
+  const dockToSide = useCallback(
+    (side = 'right') => {
+      const b = getBounds();
+      const x = side === 'left' ? b.minX : Math.max(b.minX, b.maxX - layout.width);
+      persist({
+        ...layout,
+        x,
+        y: b.minY,
+      });
+    },
+    [getBounds, layout, persist],
+  );
+
+  return { layout, persist, startDrag, resetLayout, dockToSide, isDragging: Boolean(activeDrag) };
 }

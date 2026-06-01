@@ -51,7 +51,7 @@ export async function checkCaseChatAvailable() {
     const r = await fetch(`${API}/api/health`);
     if (!r.ok) return false;
     const data = await r.json();
-    return Boolean(data.openai);
+    return Boolean(data.chatAvailable ?? data.openai ?? data.ollamaReachable);
   } catch {
     return false;
   }

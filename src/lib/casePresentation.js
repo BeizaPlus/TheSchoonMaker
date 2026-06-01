@@ -4,6 +4,7 @@ import {
 } from './clinicalTextFormat.js';
 import { getActiveRefinedNarrative } from './narrativeRefine.js';
 import { readAudienceProfile } from './audienceProfile.js';
+import { getPreparedCase } from './caseNarrative.js';
 
 /** Whether this case has imported CCS narrative vs a placeholder stub. */
 export function hasRichPresentation(caseData) {
@@ -26,9 +27,16 @@ export function getPresentationHistory(caseData) {
   const difficulty = caseData?.sessionDifficulty || readAudienceProfile()?.difficulty || 'standard';
   const refined = getActiveRefinedNarrative(caseData?.id, playRole, difficulty);
   if (refined?.hpi) return formatClinicalText(refined.hpi);
+  const prepared = getPreparedCase(caseData?.id);
+  const preparedNarrative =
+    prepared?.narrative?.[playRole]?.[difficulty]?.hpi ||
+    prepared?.narrative?.[playRole]?.standard?.hpi ||
+    prepared?.narrative?.doctor?.standard?.hpi ||
+    prepared?.narrative?.doctor?.easy?.hpi ||
+    '';
 
   const intro = caseData?.chief_complaint?.trim() || '';
-  const history = caseData?.historyText?.trim() || '';
+  const history = caseData?.historyText?.trim() || preparedNarrative.trim();
   const text = pickBestHistory({
     history,
     intro,

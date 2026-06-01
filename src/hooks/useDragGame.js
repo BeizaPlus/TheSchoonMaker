@@ -175,16 +175,8 @@ export function useDragGame({
 
           const zoneId = zone.dataset.zoneId;
           const ivId = pill.dataset.ivId;
-          const zr = zone.getBoundingClientRect();
-          const wr = wrap.getBoundingClientRect();
-          const tx = zr.left + zr.width / 2 - wr.left - wr.width / 2;
-          const ty = zr.top + zr.height / 2 - wr.top - wr.height / 2;
 
           dismissWrapFromDock(wrap);
-          wrap.style.transition = 'transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.28s ease';
-          wrap.style.transform = `translate(${tx}px, ${ty}px)`;
-          wrap.setAttribute('data-x', tx);
-          wrap.setAttribute('data-y', ty);
 
           showPlacementFeedback(scene, session.label, clientX, clientY);
           onDropRef.current(ivId, zoneId, { wrap, zone, pill, clientX, clientY });

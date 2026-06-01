@@ -77,8 +77,15 @@ export default function Briefing({ caseData, onBegin, onBack, onSelectCase, stud
   const [selectedUiId, setSelectedUiId] = useState('back');
   const [uiDrag, setUiDrag] = useState(null);
   const [copyMsg, setCopyMsg] = useState('');
-  const { layout: dockLayout, startDrag: startDockDrag, resetLayout: resetDockLayout, isDragging: dockDragging } =
-    usePlayDockLayout({ storageKey: STORAGE.briefingDockLayout });
+  const briefingRootRef = useRef(null);
+  const {
+    layout: dockLayout,
+    startDrag: startDockDrag,
+    resetLayout: resetDockLayout,
+    dockToSide,
+    isDragging: dockDragging,
+  } =
+    usePlayDockLayout({ storageKey: STORAGE.briefingDockLayout, boundsRef: briefingRootRef });
 
   const persistUi = useCallback((next) => {
     setUiLayout(next);
@@ -250,7 +257,10 @@ export default function Briefing({ caseData, onBegin, onBack, onSelectCase, stud
   const selectedEntry = uiLayout[selectedUiId] || {};
 
   return (
-    <main className={`briefing briefing-with-scene briefing-dock-style ${layoutStudio ? 'briefing-layout-studio' : ''}`}>
+    <main
+      ref={briefingRootRef}
+      className={`briefing briefing-with-scene briefing-dock-style ${layoutStudio ? 'briefing-layout-studio' : ''}`}
+    >
       {studioCapture && (
         <div className="briefing-studio-bar">
           <button
@@ -413,6 +423,17 @@ export default function Briefing({ caseData, onBegin, onBack, onSelectCase, stud
             title="Reset panel size"
           >
             ↺
+          </button>
+          <button
+            type="button"
+            className="dock-reset-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              dockToSide('right');
+            }}
+            title="Dock to right side"
+          >
+            ⇥
           </button>
         </div>
         <div className="dock-panel-clinical briefing-command-body">

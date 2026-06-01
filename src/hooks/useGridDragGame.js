@@ -204,22 +204,8 @@ export function useGridDragGame({
           const cellTop = sr.top + (cell.row / (Number(surface.dataset.rows) || 32)) * sr.height;
           const cellW = sr.width / (Number(surface.dataset.cols) || 48);
           const cellH = sr.height / (Number(surface.dataset.rows) || 32);
-          const zr = {
-            left: cellLeft,
-            top: cellTop,
-            width: cellW,
-            height: cellH,
-          };
-          const wr = wrap.getBoundingClientRect();
-          const tx = zr.left + zr.width / 2 - wr.left - wr.width / 2;
-          const ty = zr.top + zr.height / 2 - wr.top - wr.height / 2;
-
           wrap.setAttribute('data-dropped', 'true');
           dismissWrapFromDock(wrap);
-          wrap.style.transition = 'transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.28s ease';
-          wrap.style.transform = `translate(${tx}px, ${ty}px)`;
-          wrap.setAttribute('data-x', tx);
-          wrap.setAttribute('data-y', ty);
 
           const ivId = pill.dataset.ivId;
           showPlacementFeedback(scene, session.label, clientX, clientY);

@@ -194,11 +194,13 @@
 }
 
 .briefing-sidebar.floating {
-  position: fixed;
+  position: absolute;
   right: auto;
   top: auto;
   bottom: auto;
-  max-height: none;
+  max-width: calc(100% - 16px);
+  max-height: calc(100% - 56px);
+  box-sizing: border-box;
 }
 
 .briefing-command-layer {
@@ -783,11 +785,20 @@
 .game-sidebar.floating .case-context-panel--play {
   flex: 1 1 auto;
   min-height: 0;
+  min-width: 0;
+  width: 100%;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   border-bottom: none;
   max-height: none;
+  box-sizing: border-box;
+}
+
+.game-sidebar.floating .dock-panel-clinical {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .case-context-panel--play .case-context-body {
@@ -799,8 +810,27 @@
 .case-treatment-stacks {
   flex: 1 1 auto;
   min-height: 0;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
   margin-top: 8px;
   border-top: 1px solid var(--border);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.case-treatment-stacks .teach-panel {
+  flex-shrink: 0;
+  max-height: min(42vh, 280px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.case-treatment-stacks .pill-list-panel {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .sidebar-stacks {
@@ -831,7 +861,7 @@
 }
 
 .dock-return-zone {
-  position: fixed;
+  position: absolute;
 }
 
 .game-sidebar.collapsed {

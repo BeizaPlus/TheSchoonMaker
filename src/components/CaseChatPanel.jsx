@@ -133,8 +133,8 @@ export default function CaseChatPanel({ caseData, open, onClose, playSessionId }
 
         {available === false && (
           <p className="case-chat-banner bad">
-            Add <code>OPENAI_API_KEY</code> to <code>.env</code> in the project folder, then restart the API
-            server.
+            Case chat needs an LLM. Add <code>OPENAI_API_KEY</code> to <code>.env</code>, or run{' '}
+            <code>ollama serve</code> (Llama already installed), then restart the API server.
           </p>
         )}
         {error && <p className="case-chat-banner bad">{error}</p>}
@@ -159,7 +159,9 @@ export default function CaseChatPanel({ caseData, open, onClose, playSessionId }
             type="text"
             className="case-chat-input"
             placeholder={
-              available === false ? 'Configure OPENAI_API_KEY first…' : 'Ask about this case…'
+              available === false
+                ? 'Configure OpenAI or Ollama first…'
+                : 'Ask about this case…'
             }
             value={input}
             onChange={(e) => setInput(e.target.value)}

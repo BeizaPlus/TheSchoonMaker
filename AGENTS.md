@@ -121,3 +121,12 @@ Key files: `src/components/Play.jsx`, `src/hooks/usePlayDockLayout.js`, `src/ind
 - Require `C:\Users\steve\Step 3` external path — use in-repo `step3/`
 - Commit `step3/ccs_credentials.json`, `.env`, or browser profiles
 - Force-push `main` without explicit user request
+
+---
+
+## LLM / case chat
+
+- **Case chat** and **narrative refine** use OpenAI when `OPENAI_API_KEY` is set; on quota/billing errors they **fall back to local Ollama** (`server/llmProvider.js`).
+- Default Ollama model: `llama3.2` — set `OLLAMA_MODEL` in `.env` (e.g. `mistral`).
+- Llama is already installed on dev machines — run `ollama serve` only (no pull). Force local-only: `LLM_PROVIDER=ollama`.
+- Scene generation / zone detection still need OpenAI or FAL (no Ollama fallback).

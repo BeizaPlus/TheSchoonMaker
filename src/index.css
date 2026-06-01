@@ -1322,6 +1322,7 @@ button {
   min-height: 0;
   height: 100vh;
   overflow: hidden;
+  position: relative;
 }
 
 .game-scene {
@@ -1674,7 +1675,7 @@ button {
 }
 
 .game-sidebar.floating {
-  position: fixed;
+  position: absolute;
   z-index: 30;
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -1682,11 +1683,13 @@ button {
   flex-direction: column;
   min-height: 280px;
   min-width: 260px;
-  max-width: calc(100vw - 8px);
-  max-height: calc(100vh - 48px);
+  max-width: calc(100% - 16px);
+  max-height: calc(100% - 56px);
   resize: none;
   overflow: hidden;
   box-shadow: 0 24px 52px rgba(0, 0, 0, 0.45);
+  box-sizing: border-box;
+  contain: layout paint;
 }
 
 .dock-panel-clinical {
@@ -1836,6 +1839,7 @@ button {
   overflow-y: auto;
   overflow-x: hidden;
   padding: 4px 12px 12px;
+  scrollbar-gutter: stable;
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
@@ -1850,6 +1854,7 @@ button {
   width: 100%;
   max-width: 100%;
   min-width: 0;
+  overflow: hidden;
 }
 
 .pack-item-decoy {
@@ -1863,7 +1868,7 @@ button {
 }
 
 .dock-return-zone {
-  position: fixed;
+  position: absolute;
 }
 
 .game-sidebar.collapsed {
@@ -2487,6 +2492,10 @@ button {
 .drag-pill-wrap {
   touch-action: none;
   user-select: none;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .pack-item {
@@ -2498,6 +2507,11 @@ button {
 
 .drag-pill-wrap.is-placed {
   opacity: 0.92;
+  transform: none !important;
+}
+
+.drag-pill-wrap.expanded {
+  transform: none !important;
 }
 
 .drag-pill-wrap.is-expandable {
@@ -2514,6 +2528,11 @@ button {
   border-radius: 8px;
   background: rgba(8, 8, 12, 0.65);
   padding: 8px 10px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .pill-why-inline-status {
@@ -2573,11 +2592,15 @@ button {
 }
 
 .teach-panel {
-  margin: 0 12px 10px;
+  margin: 0 0 10px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 10px;
   background: rgba(8, 8, 12, 0.62);
   padding: 8px 10px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .teach-title {
@@ -2636,7 +2659,7 @@ button {
 .teach-groups {
   margin-top: 8px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 8px;
 }
 
@@ -2660,6 +2683,8 @@ button {
   font-size: 0.72rem;
   line-height: 1.35;
   color: rgba(240, 238, 232, 0.9);
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .teach-group-row.done {
@@ -6050,8 +6075,8 @@ button {
   }
 
   .game-sidebar.floating {
-    max-width: calc(100vw - 8px);
-    max-height: calc(100vh - 52px);
+    max-width: calc(100% - 16px);
+    max-height: calc(100% - 56px);
   }
 
   .play-hud {
@@ -6091,8 +6116,8 @@ button {
   }
 
   .game-sidebar.floating {
-    max-width: calc(100vw - 16px);
-    max-height: calc(100vh - 56px);
+    max-width: calc(100% - 16px);
+    max-height: calc(100% - 56px);
   }
 
   .briefing-layout {
@@ -6211,10 +6236,19 @@ button {
   pointer-events: none;
 }
 
+.drag-pill-wrap.is-placed.stack-dismiss-up {
+  animation: none;
+  opacity: 0.92;
+}
+
 @keyframes stack-dismiss-up {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
   to {
-    opacity: 0;
-    transform: translateY(-28px);
+    opacity: 0.35;
+    transform: translateY(-12px);
   }
 }
 

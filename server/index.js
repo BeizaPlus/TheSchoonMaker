@@ -24,6 +24,7 @@ import {
   saveRecording,
   startCaseSession,
 } from './userCaseStore.js';
+import { chatCompletion, chatAvailableSync, llmHealthSnapshot, pingOllama } from './llmProvider.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const GAME_ROOT = path.join(__dirname, '..');
@@ -103,18 +104,39 @@ function pad3(n) {
 const VISION_PROMPT = `Medical training game: return ONLY JSON with keys zone-monitor, zone-iv-bag, zone-blood, zone-arm, zone-icu.
 Each value: { "cx": 0-1, "cy": 0-1, "w": 0.05-0.2, "h": 0.05-0.15 } (center + size as fraction of image).`;
 
-const CHAT_MODEL = process.env.OPENAI_CHAT_MODEL || 'gpt-4o-mini';
 const caseChatSessions = new Map();
 
-function openAiKeyOrError(res) {
-  const key = process.env.OPENAI_API_KEY;
-  if (!key) {
+function chatProviderOrError(res) {
+  if (!chatAvailableSync()) {
     res.status(400).json({
-      error: 'Add OPENAI_API_KEY to .env in the project root (see .env.example)',
+      error:
+        'No chat LLM configured. Add OPENAI_API_KEY to .env or run Ollama locally (ollama serve — Llama already installed).',
     });
-    return null;
+    return false;
   }
-  return key;
+  return true;
+}
+
+function extractJsonObject(text) {
+  const raw = String(text || '').trim();
+  try {
+    return JSON.parse(raw);
+  } catch {
+    const fenced = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (fenced) {
+      try {
+        return JSON.parse(fenced[1].trim());
+      } catch {
+        /* continue */
+      }
+    }
+    const start = raw.indexOf('{');
+    const end = raw.lastIndexOf('}');
+    if (start >= 0 && end > start) {
+      return JSON.parse(raw.slice(start, end + 1));
+    }
+    throw new Error('LLM did not return valid JSON');
+  }
 }
 
 function pruneCaseChatSessions() {
@@ -140,28 +162,6 @@ Rules:
 
 CASE JSON:
 ${JSON.stringify(caseContext, null, 2)}`;
-}
-
-async function callCaseChatCompletion(key, messages) {
-  const r = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${key}`,
-    },
-    body: JSON.stringify({
-      model: CHAT_MODEL,
-      max_tokens: 700,
-      temperature: 0.35,
-      messages,
-    }),
-  });
-  if (!r.ok) {
-    const err = await r.text();
-    throw new Error(err || `OpenAI error ${r.status}`);
-  }
-  const data = await r.json();
-  return data.choices?.[0]?.message?.content?.trim() || 'No response.';
 }
 
 const FAL_SCENE_MODEL = process.env.FAL_SCENE_MODEL || 'fal-ai/joyai-image-edit';
@@ -260,12 +260,19 @@ async function generateSceneImage({ imageBase64, mimeType, prompt }) {
   };
 }
 
-app.get('/api/health', (_req, res) => {
+app.get('/api/health', async (_req, res) => {
   const scriptReady = fs.existsSync(READ_CASE_SCRIPT);
   const pythonReady = fs.existsSync(CHATTERBOX_PYTHON);
+  const llm = llmHealthSnapshot();
+  const ollamaReachable = llm.ollama ? await pingOllama() : false;
   res.json({
     ok: true,
-    openai: Boolean(process.env.OPENAI_API_KEY),
+    openai: llm.openai,
+    ollama: llm.ollama,
+    ollamaReachable,
+    ollamaModel: llm.ollamaModel,
+    llmProvider: llm.llmProvider,
+    chatAvailable: llm.chatAvailable && (llm.openai || ollamaReachable),
     fal: Boolean(process.env.FAL_KEY),
     sceneProvider: sceneImageProvider(),
     falSceneModel: FAL_SCENE_MODEL,
@@ -369,8 +376,7 @@ app.post('/api/user/case/:caseId/session/:sessionId/recording', async (req, res)
 });
 
 app.post('/api/case-chat/start', async (req, res) => {
-  const key = openAiKeyOrError(res);
-  if (!key) return;
+  if (!chatProviderOrError(res)) return;
 
   const { caseContext } = req.body || {};
   if (!caseContext?.id) {
@@ -393,8 +399,7 @@ app.post('/api/case-chat/start', async (req, res) => {
 });
 
 app.post('/api/case-chat/message', async (req, res) => {
-  const key = openAiKeyOrError(res);
-  if (!key) return;
+  if (!chatProviderOrError(res)) return;
 
   const { sessionId, message } = req.body || {};
   const text = String(message || '').trim();
@@ -409,10 +414,10 @@ app.post('/api/case-chat/message', async (req, res) => {
   try {
     session.messages.push({ role: 'user', content: text });
     const window = session.messages.slice(0, 1).concat(session.messages.slice(-24));
-    const reply = await callCaseChatCompletion(key, window);
-    session.messages.push({ role: 'assistant', content: reply });
+    const { reply, provider } = await chatCompletion(window, { maxTokens: 700 });
+    session.messages.push({ role: 'assistant', content: reply || 'No response.' });
     session.lastUsed = Date.now();
-    return res.json({ ok: true, reply });
+    return res.json({ ok: true, reply, provider });
   } catch (e) {
     return res.status(500).json({ error: String(e.message || e) });
   }
@@ -530,10 +535,7 @@ app.get('/api/read-case/status', async (req, res) => {
 });
 
 app.post('/api/refine-narrative', async (req, res) => {
-  const key = process.env.OPENAI_API_KEY;
-  if (!key) {
-    return res.status(400).json({ error: 'Add OPENAI_API_KEY to ER doc/.env' });
-  }
+  if (!chatProviderOrError(res)) return;
 
   const {
     rawText = '',
@@ -554,28 +556,19 @@ app.post('/api/refine-narrative', async (req, res) => {
       : 'third-person clinical charting (the patient...), consistent grammar';
 
   try {
-    const r = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${key}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        max_tokens: 2200,
-        response_format: { type: 'json_object' },
-        messages: [
-          {
-            role: 'system',
-            content: `You clean CCS case presentation text for a medical training game. Return JSON only.
+    const { reply, provider } = await chatCompletion(
+      [
+        {
+          role: 'system',
+          content: `You clean CCS case presentation text for a medical training game. Return JSON only.
 - Fix grammar, pronouns, and flow. Remove chart tab junk and screenshot references.
 - Use clear section breaks in hpi (HPI, PMH, meds, allergies, social, ROS).
 - ${voice}
 - Do not invent new clinical facts.`,
-          },
-          {
-            role: 'user',
-            content: `Case: ${title} (${category})
+        },
+        {
+          role: 'user',
+          content: `Case: ${title} (${category})
 Clinical tip: ${clinicalTip}
 Objective: ${objective}
 
@@ -590,20 +583,12 @@ Return JSON:
   "clinicalTip": "optional cleaned tip",
   "objective": "optional cleaned objective"
 }`,
-          },
-        ],
-      }),
-    });
-
-    if (!r.ok) {
-      const err = await r.text();
-      return res.status(r.status).json({ error: err.slice(0, 400) });
-    }
-
-    const data = await r.json();
-    const text = data.choices?.[0]?.message?.content || '{}';
-    const parsed = JSON.parse(text);
-    res.json(parsed);
+        },
+      ],
+      { maxTokens: 2200, jsonMode: true },
+    );
+    const parsed = extractJsonObject(reply);
+    res.json({ ...parsed, provider });
   } catch (e) {
     res.status(500).json({ error: String(e.message || e) });
   }
