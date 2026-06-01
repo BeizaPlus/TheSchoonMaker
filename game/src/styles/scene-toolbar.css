@@ -1,0 +1,114 @@
+/* clinical-scene v1 toolbar — floating bottom bar */
+
+.toolbar {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  z-index: 100;
+}
+
+.toolbar-sep {
+  width: 1px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 0 2px;
+  flex-shrink: 0;
+}
+
+.toolbar-btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0;
+  line-height: 0;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.toolbar-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.toolbar-btn:active {
+  transform: scale(0.95);
+}
+
+.toolbar-btn .toolbar-icon {
+  width: 24px;
+  height: 24px;
+  display: block;
+  flex-shrink: 0;
+  color: #ffffff;
+  opacity: 0.6;
+  transition: opacity 0.15s ease;
+}
+
+.toolbar-btn:hover .toolbar-icon {
+  opacity: 1;
+}
+
+.toolbar-btn.active .toolbar-icon,
+.toolbar-btn.is-amber .toolbar-icon {
+  opacity: 1;
+  color: #e8b84b;
+}
+
+.game.final-mode .toolbar {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.game.drawer-open .toolbar {
+  bottom: max(20px, env(safe-area-inset-bottom));
+}
+
+.scene-monitor-wrap.vitals-toolbar-pulse {
+  outline: 2px solid rgba(232, 184, 75, 0.55);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+.play-studio-bar {
+  position: fixed;
+  right: 16px;
+  bottom: 88px;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  background: rgba(0, 0, 0, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.play-studio-bar .toolbar-btn {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+@media (max-width: 720px) {
+  .toolbar {
+    bottom: max(12px, env(safe-area-inset-bottom));
+    max-width: calc(100vw - 16px);
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
