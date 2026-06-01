@@ -17,6 +17,7 @@ import {
   FiMaximize2,
   FiMinimize2,
   FiEye,
+  FiSettings,
   FiSun,
   FiUnlock,
 } from 'react-icons/fi';
@@ -57,8 +58,7 @@ import CaseContextPanel from './CaseContextPanel.jsx';
 import IcuMonitorStrip from './IcuMonitorStrip.jsx';
 import ClinicalTextControls from './ClinicalTextControls.jsx';
 import { readCaseAloud, stopCaseReader } from '../lib/caseReader.js';
-import { clinicalTextStyle, readClinicalTextPrefs } from '../lib/clinicalTextPrefs.js';
-import ClinicalFontControls from './ClinicalFontControls.jsx';
+import { clinicalTextStyle, readClinicalTextPrefs, writeClinicalTextPrefs } from '../lib/clinicalTextPrefs.js';
 import { getBriefingExam, getBriefingHpi } from '../lib/caseBriefing.js';
 import { buildShuffledStackEntries } from '../lib/shuffleStacks.js';
 import CcsScreenshotLink from './CcsScreenshotLink.jsx';
@@ -146,6 +146,7 @@ export default function Play({
   const [teachMeMode, setTeachMeMode] = useState(false);
   const [placementOrder, setPlacementOrder] = useState([]);
   const [orderCommand, setOrderCommand] = useState('');
+  const [stackSettingsOpen, setStackSettingsOpen] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [timedOut, setTimedOut] = useState(false);
   const [activeDrawer, setActiveDrawer] = useState(null);
@@ -153,6 +154,7 @@ export default function Play({
   const [showCaseChat, setShowCaseChat] = useState(false);
   const [playSessionId, setPlaySessionId] = useState(null);
   const playSessionIdRef = useRef(null);
+  const stackCommandRef = useRef(null);
   const [dockCollapsed, setDockCollapsed] = useState(false);
   const { layout: dockLayout, startDrag: startDockDrag, resetLayout: resetDockLayout, isDragging: dockDragging } =
     usePlayDockLayout();
@@ -441,6 +443,13 @@ export default function Play({
   const [readState, setReadState] = useState('idle');
   const [textPrefs, setTextPrefs] = useState(() => readClinicalTextPrefs());
   const clinicalStyle = useMemo(() => clinicalTextStyle(textPrefs), [textPrefs]);
+  const updateClinicalTextPrefs = useCallback((patch) => {
+    setTextPrefs((prev) => {
+      const next = { ...prev, ...patch };
+      writeClinicalTextPrefs(next);
+      return next;
+    });
+  }, []);
   const reviewPanelRef = useRef(null);
   const reviewPanelDragRef = useRef({ dx: 0, dy: 0 });
   const captureRef = useRef(null);
@@ -1184,6 +1193,15 @@ export default function Play({
       /* ignore */
     }
   }, [dropMode]);
+
+  useEffect(() => {
+    if (!stackSettingsOpen) return undefined;
+    const closeOnOutside = (e) => {
+      if (!stackCommandRef.current?.contains(e.target)) setStackSettingsOpen(false);
+    };
+    document.addEventListener('pointerdown', closeOnOutside);
+    return () => document.removeEventListener('pointerdown', closeOnOutside);
+  }, [stackSettingsOpen]);
 
   useEffect(() => {
     const onFs = () => {
@@ -2218,11 +2236,58 @@ export default function Play({
                 )}
                 <form
                   className="stack-command-ui"
+                  ref={stackCommandRef}
                   onSubmit={(e) => {
                     e.preventDefault();
                     submitOrderCommand();
                   }}
                 >
+                  {stackSettingsOpen && (
+                    <div className="settings-popover stack-command-settings" role="dialog" aria-label="Input settings">
+                      <div className="settings-popover-row">
+                        <span className="settings-popover-label">Text</span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            updateClinicalTextPrefs({
+                              fontScale: Math.max(0.9, Number((textPrefs.fontScale - 0.08).toFixed(2))),
+                            })
+                          }
+                          aria-label="Decrease text size"
+                        >
+                          A−
+                        </button>
+                        <span className="font-size-display">{Math.round(textPrefs.fontScale * 100)}%</span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            updateClinicalTextPrefs({
+                              fontScale: Math.min(1.5, Number((textPrefs.fontScale + 0.08).toFixed(2))),
+                            })
+                          }
+                          aria-label="Increase text size"
+                        >
+                          A+
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => updateClinicalTextPrefs({ weight: textPrefs.weight === 700 ? 600 : 700 })}
+                          className={textPrefs.weight === 700 ? 'active' : ''}
+                          aria-label="Toggle bold text"
+                        >
+                          B
+                        </button>
+                      </div>
+                      <div className="settings-popover-row settings-popover-row-2">
+                        <button type="button" onClick={toggleTimedMode}>
+                          {timedModeEnabled ? 'Timed: ON' : 'Untimed'}
+                        </button>
+                        <button type="button" onClick={resetPlacements}>
+                          Reset
+                        </button>
+                      </div>
+                    </div>
+                  )}
                   <div className="stack-command-input-wrap">
                     <IconFileMedical />
                     <input
@@ -2232,6 +2297,15 @@ export default function Play({
                       aria-label="Type order to match a treatment stack"
                     />
                   </div>
+                  <button
+                    type="button"
+                    className="settings-trigger"
+                    onClick={() => setStackSettingsOpen((v) => !v)}
+                    aria-label="Input settings"
+                    aria-expanded={stackSettingsOpen}
+                  >
+                    <FiSettings aria-hidden="true" />
+                  </button>
                   <button type="submit" className="btn-ghost stack-command-btn">
                     Order
                   </button>
@@ -2272,15 +2346,7 @@ export default function Play({
             {timedModeEnabled ? 'Timed' : 'Untimed'} ·{' '}
             {teachMeMode ? 'Teach Me: on' : 'Teach Me: off'}
           </span>
-          <ClinicalFontControls
-            prefs={textPrefs}
-            onChange={setTextPrefs}
-            compact
-          />
           <div className="sidebar-foot-buttons">
-            <button type="button" className="btn-ghost" onClick={toggleTimedMode}>
-              {timedModeEnabled ? 'Timed: ON' : 'Untimed'}
-            </button>
             <button
               type="button"
               className="btn-ghost"
@@ -2293,9 +2359,6 @@ export default function Play({
             </button>
             <button type="button" className="btn-ghost" onClick={reviewPlacements} disabled={doneCount === 0}>
               Review
-            </button>
-            <button type="button" className="btn-ghost" onClick={resetPlacements}>
-              Reset
             </button>
           </div>
         </div>
