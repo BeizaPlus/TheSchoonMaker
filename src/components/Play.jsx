@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import PatientScene from './PatientScene.jsx';
 import ClinicalAlgorithm from './ClinicalAlgorithm.jsx';
 import WhyPanel from './WhyPanel.jsx';
+import { getDragConfig } from '../data/gameData.js';
 import { resetWrapDockPosition, snapWrapHome } from '../lib/stackDragHelpers.js';
 import { useDragGame } from '../hooks/useDragGame.js';
 import { useGridDragGame } from '../hooks/useGridDragGame.js';

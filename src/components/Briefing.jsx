@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import PatientScene from './PatientScene.jsx';
 import BriefingCasePicker from './BriefingCasePicker.jsx';
 import CaseReviewFlagButton from './CaseReviewFlagButton.jsx';
