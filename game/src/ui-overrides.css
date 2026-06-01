@@ -948,6 +948,13 @@
   border-color: rgba(255, 255, 255, 0.1);
 }
 
+.case-location-context {
+  margin: -4px 0 8px;
+  font-size: 0.66rem;
+  line-height: 1.35;
+  color: rgba(240, 238, 232, 0.52);
+}
+
 .settings-popover-row-2 {
   grid-template-columns: repeat(3, 1fr);
 }

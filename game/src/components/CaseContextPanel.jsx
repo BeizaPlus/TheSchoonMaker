@@ -20,6 +20,7 @@ export default function CaseContextPanel({
   readState = 'idle',
   readLabel = 'Read case',
   headerControls = null,
+  locationContext = '',
   defaultTab = 'hpi',
   /** briefing = HPI + physical exam only (no treatment until Begin case) */
   mode = 'play',
@@ -77,6 +78,7 @@ export default function CaseContextPanel({
           <h2 className="sidebar-title" title={caseData.title}>
             {caseData.title}
           </h2>
+          {locationContext && <p className="case-location-context">{locationContext}</p>}
         </>
       )}
       <div className="case-info-tabs" role="tablist" aria-label="Case context tabs">

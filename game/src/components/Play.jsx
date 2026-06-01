@@ -89,6 +89,21 @@ import {
   readCaseRegenImage,
 } from '../lib/patientRegen.js';
 
+const LOCATIONS = {
+  // LOCATION IMAGE SWAP: set image path here when each unit has a dedicated patient scene.
+  ER: { label: 'ER', image: null, context: 'Emergency Room — acute resuscitation bay' },
+  OBS: { label: 'OBS', image: null, context: 'Observation unit — monitored bed, step-down level care' },
+  ICU: { label: 'ICU', image: null, context: 'Intensive Care Unit — critical care monitoring' },
+  WARD: { label: 'WARD', image: null, context: 'General ward — stable, routine monitoring' },
+};
+
+const LOCATION_TRIGGERS = {
+  ER: ['move to er', 'transfer er', 'back to er', 'emergency', 'er'],
+  OBS: ['move to obs', 'transfer obs', 'observation', 'obs'],
+  ICU: ['move to icu', 'transfer icu', 'icu', 'intensive care'],
+  WARD: ['move to ward', 'transfer ward', 'ward', 'general ward', 'floor'],
+};
+
 function normCommandText(s) {
   return String(s || '')
     .toLowerCase()
@@ -109,6 +124,23 @@ function stackAliases(stack) {
     if (trimmed && trimmed.length > 2) aliases.add(trimmed);
   });
   return [...aliases].filter(Boolean);
+}
+
+function detectLocation(input) {
+  const t = normCommandText(input);
+  if (!t) return null;
+  for (const [loc, triggers] of Object.entries(LOCATION_TRIGGERS)) {
+    if (
+      triggers.some((trigger) => {
+        const n = normCommandText(trigger);
+        if (n.length <= 3) return new RegExp(`(^|\\s)${n}(\\s|$)`).test(t);
+        return t.includes(n);
+      })
+    ) {
+      return loc;
+    }
+  }
+  return null;
 }
 
 export default function Play({
@@ -750,12 +782,18 @@ export default function Play({
   };
 
   const submitOrderCommand = useCallback(() => {
-    const s = commandMatch;
     const t = normCommandText(orderCommand);
     if (!t) {
       showToast('Type an order first', 'bad');
       return;
     }
+    const loc = detectLocation(orderCommand);
+    if (loc) {
+      switchCareUnit(loc);
+      setOrderCommand('');
+      return;
+    }
+    const s = commandMatch;
     if (!s) {
       showToast('No unplaced stack matched that order', 'bad');
       return;
@@ -1430,44 +1468,22 @@ export default function Play({
     }
   };
 
-  const caseAccuracy = useMemo(() => {
-    if (!total) return 0;
-    if (reviewed) {
-      const correct = interventions.filter((iv) => reviewResults[iv.id]).length;
-      return Math.round((correct / total) * 100);
-    }
-    if (attempts > 0) return Math.round((correctAttempts / attempts) * 100);
-    return 0;
-  }, [reviewed, reviewResults, interventions, total, attempts, correctAttempts]);
-
-  const canLeaveER =
-    reviewed && doneCount >= total && caseAccuracy >= completionThreshold;
-
   const switchCareUnit = useCallback(
     (unit) => {
+      const target = LOCATIONS[unit] ? unit : 'ER';
       if (unit === careUnit) return;
-      if (unit !== 'ER' && !canLeaveER) {
-        showToast(
-          `Stay in ER until ${completionThreshold}% — review all stacks (now ${caseAccuracy}%)`,
-          'bad',
-        );
-        return;
-      }
-      setCareUnit(unit);
-      const labels = {
-        ER: 'Emergency Department',
-        OBS: 'Observation unit',
-        ICU: 'Intensive care',
-        WARD: 'Inpatient ward',
-      };
-      showToast(labels[unit] || `Moved to ${unit}`, 'ok');
+      setCareUnit(target);
+      const location = LOCATIONS[target];
+      showToast(`Patient transferred to ${location.label}`, 'ok');
+      logTimeline({
+        type: 'location',
+        location: target,
+        label: `Patient transferred to ${location.label}`,
+        context: location.context,
+      });
     },
-    [careUnit, canLeaveER, caseAccuracy, completionThreshold],
+    [careUnit, logTimeline, showToast],
   );
-
-  useEffect(() => {
-    if (careUnit !== 'ER' && !canLeaveER) setCareUnit('ER');
-  }, [careUnit, canLeaveER]);
 
   const toggleTheme = () => {
     const next = theme === 'dark' ? 'light' : 'dark';
@@ -1679,7 +1695,7 @@ export default function Play({
             caseData={caseData}
             imgRef={patientImgRef}
             onLoad={syncImageFrame}
-            forceSrc={sceneByUnit[careUnit] || sceneByUnit.ER || null}
+            forceSrc={LOCATIONS[careUnit]?.image || sceneByUnit[careUnit] || sceneByUnit.ER || null}
             showVideoBackground={false}
           />
         </div>
@@ -2100,19 +2116,18 @@ export default function Play({
             hpiText={sidebarHpi}
             examSummary={examSummary}
             textStyle={clinicalStyle}
+            locationContext={LOCATIONS[careUnit]?.context}
             headerControls={
               <div className="case-panel-care-switch care-switch" role="tablist" aria-label="Care unit">
                 {(caseFlow.dispositionUnits || ['ER', 'OBS', 'ICU', 'WARD']).map((u) => {
-                  const locked = u !== 'ER' && !canLeaveER;
                   return (
                     <button
                       key={u}
                       type="button"
-                      className={`care-chip ${careUnit === u ? 'active' : ''} ${locked ? 'locked' : ''}`}
+                      className={`care-chip ${careUnit === u ? 'active' : ''}`}
                       onClick={() => switchCareUnit(u)}
                       aria-selected={careUnit === u}
-                      disabled={locked}
-                      title={locked ? `Unlock at ${completionThreshold}% after reviewing all stacks` : undefined}
+                      title={LOCATIONS[u]?.context}
                     >
                       {u}
                     </button>
