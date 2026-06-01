@@ -145,6 +145,7 @@ export default function Play({
   const [teachFocusId, setTeachFocusId] = useState(null);
   const [teachMeMode, setTeachMeMode] = useState(false);
   const [placementOrder, setPlacementOrder] = useState([]);
+  const [orderCommand, setOrderCommand] = useState('');
   const [dragging, setDragging] = useState(false);
   const [timedOut, setTimedOut] = useState(false);
   const [activeDrawer, setActiveDrawer] = useState(null);
@@ -439,7 +440,6 @@ export default function Play({
   const [infoTab, setInfoTab] = useState('hpi');
   const [readState, setReadState] = useState('idle');
   const [textPrefs, setTextPrefs] = useState(() => readClinicalTextPrefs());
-  const [orderCommand, setOrderCommand] = useState('');
   const clinicalStyle = useMemo(() => clinicalTextStyle(textPrefs), [textPrefs]);
   const reviewPanelRef = useRef(null);
   const reviewPanelDragRef = useRef({ dx: 0, dy: 0 });
