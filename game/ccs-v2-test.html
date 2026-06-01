@@ -1,0 +1,1175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Me.dici CCS V2 HUD Test</title>
+  <style>
+    :root {
+      --bg: #0a0c10;
+      --panel: rgba(14, 16, 22, 0.88);
+      --panel-strong: rgba(10, 12, 16, 0.94);
+      --line: #2a2d35;
+      --line-hot: #3a3d45;
+      --text: #e8e9eb;
+      --muted: #8f939e;
+      --gold: #c8a84b;
+      --green: #42d985;
+      --red: #c94040;
+      --warn: #d5aa45;
+      --shadow: 0 18px 48px rgba(0, 0, 0, 0.55);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .sim {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #0a0c10;
+      isolation: isolate;
+    }
+
+    .patient-stage {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 52% 45%, rgba(75, 91, 116, 0.26), transparent 34%),
+        radial-gradient(circle at 50% 130%, rgba(0, 0, 0, 0.76), transparent 58%),
+        #111318;
+    }
+
+    /* IMAGE SWAP: replace this placeholder with an actual patient photo background. */
+    .patient-placeholder {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 50%, transparent 34%, rgba(0, 0, 0, 0.65) 74%),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.62), transparent 30%, transparent 68%, rgba(0, 0, 0, 0.68));
+    }
+
+    .bed {
+      position: absolute;
+      left: 50%;
+      top: 52%;
+      width: min(62vw, 820px);
+      height: min(78vh, 720px);
+      transform: translate(-50%, -50%) rotate(-2deg);
+      border-radius: 42% 42% 18% 18% / 16% 16% 12% 12%;
+      background:
+        radial-gradient(circle at 50% 30%, rgba(79, 88, 105, 0.46), transparent 42%),
+        linear-gradient(110deg, #1d2430, #273341 48%, #121821);
+      box-shadow:
+        inset 0 0 90px rgba(255, 255, 255, 0.04),
+        0 26px 120px rgba(0, 0, 0, 0.72);
+      opacity: 0.9;
+    }
+
+    .human {
+      position: absolute;
+      left: 50%;
+      top: 51%;
+      width: min(34vw, 430px);
+      height: min(74vh, 660px);
+      transform: translate(-50%, -50%);
+      opacity: 0.84;
+      filter: drop-shadow(0 22px 40px rgba(0, 0, 0, 0.75));
+    }
+
+    .head,
+    .torso,
+    .arm,
+    .leg {
+      position: absolute;
+      background: linear-gradient(145deg, #252a33, #181c23);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .head {
+      top: 2%;
+      left: 50%;
+      width: 92px;
+      height: 108px;
+      transform: translateX(-50%);
+      border-radius: 45% 45% 42% 42%;
+    }
+
+    .torso {
+      top: 18%;
+      left: 50%;
+      width: 190px;
+      height: 280px;
+      transform: translateX(-50%);
+      border-radius: 46% 46% 34% 34% / 24% 24% 42% 42%;
+      background: linear-gradient(150deg, #303947, #1f2732 52%, #151922);
+    }
+
+    .arm.left {
+      top: 22%;
+      left: 17%;
+      width: 64px;
+      height: 300px;
+      transform: rotate(11deg);
+      border-radius: 34px;
+    }
+
+    .arm.right {
+      top: 22%;
+      right: 17%;
+      width: 64px;
+      height: 300px;
+      transform: rotate(-11deg);
+      border-radius: 34px;
+    }
+
+    .leg.left {
+      top: 57%;
+      left: 34%;
+      width: 72px;
+      height: 300px;
+      transform: rotate(7deg);
+      border-radius: 38px;
+    }
+
+    .leg.right {
+      top: 57%;
+      right: 34%;
+      width: 72px;
+      height: 300px;
+      transform: rotate(-7deg);
+      border-radius: 38px;
+    }
+
+    .vignette {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 50% 42%, transparent 0 38%, rgba(0, 0, 0, 0.18) 56%, rgba(0, 0, 0, 0.72) 100%),
+        linear-gradient(180deg, rgba(0, 0, 0, 0.22), transparent 28%, rgba(0, 0, 0, 0.42));
+      z-index: 2;
+    }
+
+    .hud-card {
+      position: absolute;
+      z-index: 20;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .monitor {
+      top: 20px;
+      left: 20px;
+      min-width: 300px;
+      padding: 14px;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .micro {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 10px;
+      line-height: 1;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .badge {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    .badge.stable { color: var(--green); }
+    .badge.guarded { color: var(--warn); }
+    .badge.critical { color: var(--red); }
+
+    .life-track {
+      position: relative;
+      height: 8px;
+      margin: 10px 0 6px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #1a1d24;
+    }
+
+    .life-fill {
+      width: 81%;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--green);
+      box-shadow: 0 0 16px rgba(66, 217, 133, 0.35);
+      transition: width 0.35s ease, background 0.35s ease;
+    }
+
+    .divider {
+      height: 1px;
+      margin: 13px 0;
+      background: var(--line);
+    }
+
+    .monitor-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--green);
+      box-shadow: 0 0 12px rgba(66, 217, 133, 0.9);
+    }
+
+    .ecg {
+      display: block;
+      width: 100%;
+      height: 58px;
+      margin: 10px 0;
+      border-radius: 8px;
+      background:
+        linear-gradient(rgba(66, 217, 133, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(66, 217, 133, 0.08) 1px, transparent 1px),
+        rgba(3, 9, 7, 0.44);
+      background-size: 100% 14px, 24px 100%, auto;
+    }
+
+    .ecg polyline {
+      stroke: var(--green);
+      stroke-width: 3;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      animation: ecgSlide 2.8s linear infinite;
+    }
+
+    @keyframes ecgSlide {
+      from { transform: translateX(22px); }
+      to { transform: translateX(-22px); }
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .metric {
+      min-height: 54px;
+      padding: 9px 10px;
+      border-radius: 7px;
+      background: #141720;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .metric b {
+      display: block;
+      margin-top: 5px;
+      font-size: 18px;
+      line-height: 1;
+      color: var(--green);
+    }
+
+    .metric.warn b { color: var(--warn); }
+    .metric.crit b { color: var(--red); }
+
+    .case-panel {
+      top: 20px;
+      right: 20px;
+      width: min(370px, calc(100vw - 40px));
+      min-width: 340px;
+      padding: 14px;
+    }
+
+    .brand-pill {
+      background: var(--gold);
+      color: #17140a;
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+    }
+
+    .case-title {
+      margin: 8px 0 12px;
+      font-size: 20px;
+      line-height: 1;
+      letter-spacing: 0.03em;
+    }
+
+    .link {
+      color: #a3a6af;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .tab {
+      padding: 5px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.03);
+      color: #bfc3cc;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 10px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .tab.active {
+      border-color: rgba(200, 168, 75, 0.78);
+      color: var(--gold);
+    }
+
+    .tab-content {
+      min-height: 120px;
+      color: #b9bdc7;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .dots {
+      display: flex;
+      gap: 5px;
+      margin: 12px 0 9px;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #292d35;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .dot.filled {
+      background: var(--green);
+      box-shadow: 0 0 10px rgba(66, 217, 133, 0.5);
+    }
+
+    .panel-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 13px;
+    }
+
+    .ghost-btn {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      color: #d6d8dd;
+      font-size: 12px;
+    }
+
+    .ghost-btn:hover,
+    .toolbar-btn:hover {
+      color: var(--gold);
+      border-color: rgba(200, 168, 75, 0.55);
+    }
+
+    .reveal-toggle {
+      display: inline-flex;
+      gap: 4px;
+      padding: 3px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .reveal-toggle button {
+      border: 0;
+      border-radius: 999px;
+      padding: 4px 8px;
+      background: transparent;
+      color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 9px;
+      text-transform: uppercase;
+    }
+
+    .reveal-toggle button.active {
+      background: var(--gold);
+      color: #15120a;
+      font-weight: 900;
+    }
+
+    .order-bar {
+      position: absolute;
+      z-index: 30;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      min-width: min(460px, calc(100vw - 40px));
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(10, 12, 16, 0.92);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .order-bar.shake {
+      animation: shake 0.28s ease;
+      border-color: var(--red);
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(-50%); }
+      25% { transform: translateX(calc(-50% - 7px)); }
+      75% { transform: translateX(calc(-50% + 7px)); }
+    }
+
+    .file-icon {
+      color: var(--gold);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 18px;
+    }
+
+    .order-input {
+      flex: 1;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: #fff;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 14px;
+    }
+
+    .order-input::placeholder {
+      color: #717783;
+    }
+
+    .order-btn {
+      border: 0;
+      border-radius: 6px;
+      background: var(--gold);
+      color: #181409;
+      font-weight: 800;
+      padding: 7px 18px;
+    }
+
+    .teach-controls {
+      display: none;
+      width: 100%;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-family: "SFMono-Regular", Consolas, monospace;
+    }
+
+    .teach-mode .order-field {
+      display: none;
+    }
+
+    .teach-mode .teach-controls {
+      display: flex;
+    }
+
+    .toolbar {
+      position: absolute;
+      z-index: 30;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(10, 12, 16, 0.92);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .toolbar-btn {
+      width: 40px;
+      height: 40px;
+      border: 1px solid transparent;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.03);
+      color: #9398a3;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .order-pill {
+      position: absolute;
+      z-index: 18;
+      background: rgba(10, 12, 16, 0.85);
+      border: 1px solid #3a3d45;
+      color: #e8e9eb;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 4px;
+      white-space: nowrap;
+      transform: translateY(0);
+      animation: pillFadeIn 0.3s ease;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
+    }
+
+    .order-pill.critical {
+      border-left: 2px solid var(--red);
+    }
+
+    .order-pill.bad {
+      border-color: rgba(201, 64, 64, 0.8);
+      border-left: 2px solid var(--red);
+      color: #ff8a8a;
+    }
+
+    @keyframes pillFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .reason-tip {
+      position: absolute;
+      z-index: 19;
+      max-width: 260px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(200, 168, 75, 0.36);
+      background: rgba(10, 12, 16, 0.92);
+      color: #d7bd6d;
+      font-size: 12px;
+      font-style: italic;
+      line-height: 1.35;
+      box-shadow: var(--shadow);
+      animation: tipLife 4s ease forwards;
+    }
+
+    @keyframes tipLife {
+      0% { opacity: 0; transform: translateY(4px); }
+      10%, 82% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-4px); }
+    }
+
+    .stacks-panel {
+      position: absolute;
+      z-index: 25;
+      top: 132px;
+      right: 20px;
+      width: 320px;
+      max-height: calc(100vh - 245px);
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(14, 16, 22, 0.9);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      transform: translateX(calc(100% + 32px));
+      transition: transform 0.25s ease;
+      overflow: auto;
+    }
+
+    .stacks-panel.open {
+      transform: translateX(0);
+    }
+
+    .category-card {
+      margin-top: 8px;
+      padding: 10px;
+      border-radius: 9px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .category-card h4 {
+      margin: 0;
+      color: #e8e9eb;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .sub-order {
+      display: block;
+      width: 100%;
+      margin-top: 7px;
+      padding: 8px 9px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 7px;
+      background: rgba(0, 0, 0, 0.18);
+      color: #c9ccd3;
+      text-align: left;
+      font-size: 12px;
+    }
+
+    .hidden-mode .sub-order {
+      display: none;
+    }
+
+    .notification {
+      position: absolute;
+      z-index: 40;
+      left: 22px;
+      bottom: 118px;
+      max-width: 360px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(200, 168, 75, 0.35);
+      background: rgba(10, 12, 16, 0.92);
+      color: #d7d9de;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .notification.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .feed {
+      position: absolute;
+      z-index: 26;
+      left: 20px;
+      bottom: 170px;
+      width: 360px;
+      max-height: 210px;
+      display: none;
+      padding: 12px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(10, 12, 16, 0.9);
+      box-shadow: var(--shadow);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+      color: #afb4bf;
+    }
+
+    .feed.open {
+      display: block;
+    }
+
+    .feed p {
+      margin: 0 0 7px;
+    }
+
+    .critical-flash {
+      animation: criticalFlash 0.9s ease 3;
+    }
+
+    @keyframes criticalFlash {
+      50% {
+        border-color: rgba(201, 64, 64, 0.95);
+        box-shadow: 0 0 0 1px rgba(201, 64, 64, 0.55), 0 18px 48px rgba(201, 64, 64, 0.25);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .monitor {
+        min-width: 260px;
+      }
+
+      .case-panel {
+        top: auto;
+        bottom: 138px;
+        right: 14px;
+        width: min(360px, calc(100vw - 28px));
+        min-width: 0;
+      }
+
+      .stacks-panel {
+        top: 80px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="sim" id="sim">
+    <section class="patient-stage" aria-label="Patient image workspace">
+      <div class="patient-placeholder">
+        <div class="bed"></div>
+        <div class="human" aria-hidden="true">
+          <div class="head"></div>
+          <div class="torso"></div>
+          <div class="arm left"></div>
+          <div class="arm right"></div>
+          <div class="leg left"></div>
+          <div class="leg right"></div>
+        </div>
+      </div>
+      <div class="vignette"></div>
+      <div id="pillLayer"></div>
+      <div id="tipLayer"></div>
+    </section>
+
+    <aside class="hud-card monitor" id="monitor">
+      <div class="row">
+        <span class="micro">Patient Life</span>
+        <span class="badge stable" id="lifeStatus">Stable</span>
+      </div>
+      <div class="life-track"><div class="life-fill" id="lifeFill"></div></div>
+      <div class="micro" id="lifePct">81%</div>
+      <div class="divider"></div>
+      <div class="row">
+        <span class="row" style="justify-content:flex-start"><span class="monitor-dot"></span><span class="micro">Monitor</span></span>
+        <button class="tab" id="vitalsToggle" type="button">All vitals ^</button>
+      </div>
+      <svg class="ecg" viewBox="0 0 300 58" preserveAspectRatio="none" aria-hidden="true">
+        <polyline id="ecgLine" points="0,34 35,34 48,34 58,18 70,48 82,28 96,34 142,34 155,25 168,34 300,34"></polyline>
+      </svg>
+      <div class="metrics">
+        <div class="metric warn"><span class="micro">HR</span><b id="hr">118</b></div>
+        <div class="metric warn"><span class="micro">SPO2</span><b id="spo2">95%</b></div>
+        <div class="metric"><span class="micro">NIBP</span><b id="bp">100/61</b></div>
+      </div>
+    </aside>
+
+    <aside class="hud-card case-panel">
+      <div class="row">
+        <div>
+          <span class="micro" style="color:var(--gold)">Case <span id="caseId">148</span></span>
+          <a class="micro link" href="#" onclick="return false;">CCS screenshot ↗</a>
+        </div>
+        <span class="brand-pill">Me.dici</span>
+      </div>
+      <h1 class="case-title" id="caseTitle">Chest Pain</h1>
+      <div class="tabs" id="tabs"></div>
+      <div class="tab-content" id="tabContent"></div>
+      <div class="row">
+        <div class="dots" id="dots"></div>
+        <div class="reveal-toggle" aria-label="Reveal mode">
+          <button type="button" class="active" data-reveal="revealed">Revealed</button>
+          <button type="button" data-reveal="hidden">Hidden</button>
+        </div>
+      </div>
+      <div class="micro">Patient View · Standard · Practice · <span id="timedLabel">Untimed</span> · Teach Me: <span id="teachLabel">Off</span></div>
+      <div class="panel-buttons">
+        <button class="ghost-btn" type="button" id="timedBtn">Untimed</button>
+        <button class="ghost-btn" type="button" id="teachBtn">Teach Me</button>
+        <button class="ghost-btn" type="button" id="reviewBtn">Review</button>
+        <button class="ghost-btn" type="button" id="resetBtn">Reset</button>
+      </div>
+    </aside>
+
+    <aside class="stacks-panel open" id="stacksPanel">
+      <div class="row">
+        <strong class="micro" style="color:var(--gold)">Stacks</strong>
+        <button class="tab" type="button" id="closeStacks">Close</button>
+      </div>
+      <div id="categoryList"></div>
+    </aside>
+
+    <form class="order-bar" id="orderBar">
+      <div class="order-field" style="display:flex;align-items:center;gap:12px;width:100%">
+        <span class="file-icon">▣</span>
+        <input id="orderInput" class="order-input" autocomplete="off" placeholder="type order..." />
+        <button class="order-btn" type="submit">Order</button>
+      </div>
+      <div class="teach-controls" id="teachControls">
+        <button class="ghost-btn" type="button" id="teachPrev">&lt; Prev</button>
+        <strong id="teachStep">Step 1 of 12</strong>
+        <button class="ghost-btn" type="button" id="teachNext">Next &gt;</button>
+      </div>
+    </form>
+
+    <nav class="toolbar" aria-label="HUD actions">
+      <button class="toolbar-btn" type="button" data-cat="exam" title="Physical exam">ST</button>
+      <button class="toolbar-btn" type="button" data-cat="cardiac" title="ECG">ECG</button>
+      <button class="toolbar-btn" type="button" data-cat="imaging" title="Imaging">IMG</button>
+      <button class="toolbar-btn" type="button" data-cat="labs" title="Labs">LAB</button>
+      <button class="toolbar-btn" type="button" id="notesBtn" title="Notes feed">NTE</button>
+      <button class="toolbar-btn" type="button" data-cat="consult" title="Consults">KEY</button>
+      <button class="toolbar-btn" type="button" id="timeBtn" title="Advance time">T+10</button>
+      <button class="toolbar-btn" type="button" id="loopBtn" title="Loop">LOOP</button>
+      <button class="toolbar-btn" type="button" id="hideBtn" title="Hide stacks">HIDE</button>
+      <button class="toolbar-btn" type="button" id="nightBtn" title="Night mode">MOON</button>
+      <button class="toolbar-btn" type="button" id="lockBtn" title="Lock">LOCK</button>
+    </nav>
+
+    <div class="notification" id="notification"></div>
+    <div class="feed" id="feed"></div>
+  </main>
+
+  <script>
+    const CASE_DATA = {
+      id: 148,
+      title: "CHEST PAIN",
+      patient: "M 54 · ER",
+      hpi: "54M with acute substernal chest pain radiating to jaw, onset 45 min ago. Diaphoresis, nausea. No prior cardiac history. HTN, hyperlipidemia.",
+      physicalExam: "Diaphoretic, pale, moderate distress. HR 118, BP 100/61. Tachycardic regular rhythm. Clear lungs.",
+      treatment: "ACS protocol. Aspirin, anticoagulation, nitrates. Cath lab activation if STEMI confirmed.",
+      notes: "Terminal feed hidden by default. Use NTE to show order log and timed events.",
+      vitals: { hr: 118, spo2: 95, bp: "100/61", rr: 18, temp: 37.1, life: 81 },
+      categories: [
+        { id: "exam", label: "Physical Exam", orders: ["Physical exam: general appearance", "Physical exam: heart/cardiovascular", "Physical exam: lungs"] },
+        { id: "cardiac", label: "Cardiac", orders: ["ECG", "Troponin", "Cardiac enzymes", "Aspirin", "Nitroglycerin"] },
+        { id: "labs", label: "Labs", orders: ["BMP", "CBC", "D-dimer", "B-type natriuretic peptide (BNP)", "PT/PTT/INR"] },
+        { id: "imaging", label: "Imaging", orders: ["Chest X-ray", "CT angiography chest", "Echocardiogram"] },
+        { id: "meds", label: "Medications", orders: ["Heparin", "Morphine", "Oxygen", "Atorvastatin"] },
+        { id: "access", label: "Access / Monitor", orders: ["IV access", "Cardiac monitor", "Pulse oximetry"] },
+        { id: "consult", label: "Consults", orders: ["Cardiology consult", "Cath lab activation", "ICU admission"] },
+        { id: "avoid", label: "Avoid", orders: ["Contraindicated thrombolytic", "NSAID for chest pain"] }
+      ],
+      teachMeSequence: [
+        { order: "ECG", reason: "ECG within 10 minutes of arrival. STEMI diagnosis lives here." },
+        { order: "Aspirin", reason: "Early antiplatelet therapy reduces coronary thrombus propagation." },
+        { order: "Troponin", reason: "Serial troponins anchor myocardial injury assessment." },
+        { order: "Chest X-ray", reason: "Screens for alternate thoracic emergencies before escalation." },
+        { order: "Cardiac enzymes", reason: "Complements ACS biomarker workup in this simulator." },
+        { order: "B-type natriuretic peptide (BNP)", reason: "Helps separate ACS from heart failure physiology." },
+        { order: "IV access", reason: "Secure access before medications and deterioration." },
+        { order: "Cardiac monitor", reason: "Continuous rhythm monitoring catches lethal arrhythmias." },
+        { order: "Heparin", reason: "Anticoagulation is part of ACS protocol when not contraindicated." },
+        { order: "Nitroglycerin", reason: "Treats ischemic pain when blood pressure allows." },
+        { order: "Cardiology consult", reason: "Early specialist activation speeds definitive care." },
+        { order: "Cath lab activation", reason: "Definitive reperfusion if STEMI is confirmed." }
+      ],
+      pillPositions: {
+        "ecg": { top: "38%", left: "48%" },
+        "troponin": { top: "32%", left: "52%" },
+        "chest xray": { top: "42%", left: "44%" },
+        "cardiac enzymes": { top: "36%", left: "55%" },
+        "bnp": { top: "30%", left: "58%" },
+        "physical exam": { top: "22%", left: "44%" },
+        "d-dimer": { top: "72%", left: "48%" },
+        "iv access": { top: "55%", left: "35%" },
+        "aspirin": { top: "44%", left: "50%" },
+        "heparin": { top: "48%", left: "46%" },
+        "nitroglycerin": { top: "40%", left: "42%" },
+        "cardiology": { top: "26%", left: "62%" },
+        "cath lab": { top: "24%", left: "65%" },
+        "default": { top: "50%", left: "50%" }
+      }
+    };
+
+    const state = {
+      placed: [],
+      activeTab: "hpi",
+      revealed: true,
+      teachMode: false,
+      teachIndex: 0,
+      time: 0,
+      vitals: { ...CASE_DATA.vitals }
+    };
+
+    const $ = (sel) => document.querySelector(sel);
+    const sim = $("#sim");
+    const pillLayer = $("#pillLayer");
+    const tipLayer = $("#tipLayer");
+    const orderBar = $("#orderBar");
+    const input = $("#orderInput");
+    const feed = $("#feed");
+    const notification = $("#notification");
+
+    function norm(s) {
+      return String(s || "").toLowerCase().replace(/[^a-z0-9\s]/g, "").replace(/\s+/g, " ").trim();
+    }
+
+    function allOrders() {
+      return CASE_DATA.categories.flatMap(cat => cat.orders.map(order => ({ order, cat: cat.id, label: cat.label })));
+    }
+
+    function aliases(order) {
+      const n = norm(order);
+      const list = [order, n];
+      if (n.includes("b type natriuretic peptide")) list.push("bnp");
+      if (n.includes("chest x ray")) list.push("cxr", "chest xray", "chest x-ray");
+      if (n.includes("physical exam")) list.push("physical exam", "exam");
+      if (n.includes("cardiology")) list.push("cardiology");
+      if (n.includes("cath lab")) list.push("cath lab", "cath");
+      return list;
+    }
+
+    function matchOrder(txt) {
+      const t = norm(txt);
+      if (t.length <= 2) return null;
+      for (const item of allOrders()) {
+        if (state.placed.some(p => norm(p.order) === norm(item.order))) continue;
+        for (const a of aliases(item.order)) {
+          const n = norm(a);
+          if (t.includes(n) || n.includes(t)) return item;
+        }
+      }
+      return null;
+    }
+
+    function positionFor(order) {
+      const n = norm(order);
+      const keys = Object.keys(CASE_DATA.pillPositions);
+      const key = keys.find(k => n.includes(k) || k.includes(n));
+      return CASE_DATA.pillPositions[key] || CASE_DATA.pillPositions.default;
+    }
+
+    function renderTabs() {
+      const tabs = ["hpi", "physicalExam", "treatment", "notes"];
+      const labels = { hpi: "HPI", physicalExam: "Physical Exam", treatment: "Treatment", notes: "Notes" };
+      $("#tabs").innerHTML = tabs.map(tab => `<button class="tab ${state.activeTab === tab ? "active" : ""}" data-tab="${tab}" type="button">${labels[tab]}</button>`).join("");
+      $("#tabContent").textContent = CASE_DATA[state.activeTab] || "";
+      document.querySelectorAll("[data-tab]").forEach(btn => btn.addEventListener("click", () => {
+        state.activeTab = btn.dataset.tab;
+        renderTabs();
+      }));
+    }
+
+    function renderDots() {
+      $("#dots").innerHTML = Array.from({ length: 12 }, (_, i) => `<span class="dot ${i < state.placed.length ? "filled" : ""}"></span>`).join("");
+    }
+
+    function renderVitals() {
+      const life = state.vitals.life;
+      const status = life < 40 ? "critical" : life < 60 ? "guarded" : "stable";
+      const fill = $("#lifeFill");
+      fill.style.width = `${life}%`;
+      fill.style.background = status === "critical" ? "var(--red)" : status === "guarded" ? "var(--warn)" : "var(--green)";
+      $("#lifePct").textContent = `${life}%`;
+      $("#lifeStatus").textContent = status;
+      $("#lifeStatus").className = `badge ${status}`;
+      $("#hr").textContent = state.vitals.hr;
+      $("#spo2").textContent = `${state.vitals.spo2}%`;
+      $("#bp").textContent = state.vitals.bp;
+      $("#ecgLine").style.stroke = status === "critical" ? "var(--red)" : "var(--green)";
+    }
+
+    function renderCategories() {
+      $("#categoryList").innerHTML = CASE_DATA.categories.map(cat => `
+        <section class="category-card" draggable="true" data-category="${cat.id}">
+          <h4>${cat.label}</h4>
+          ${cat.orders.map(order => `<button class="sub-order" type="button" data-order="${order}">${order}</button>`).join("")}
+        </section>
+      `).join("");
+      document.querySelectorAll(".sub-order").forEach(btn => btn.addEventListener("click", () => placeOrder({ order: btn.dataset.order })));
+      document.querySelectorAll(".category-card").forEach(card => {
+        card.addEventListener("dragstart", ev => ev.dataTransfer.setData("text/plain", card.dataset.category));
+        card.addEventListener("click", () => {
+          const cat = CASE_DATA.categories.find(c => c.id === card.dataset.category);
+          input.placeholder = `[${cat.label.toUpperCase()}] - type specific order...`;
+          input.focus();
+        });
+      });
+    }
+
+    function log(msg) {
+      const p = document.createElement("p");
+      p.textContent = `[T+${state.time}] ${msg}`;
+      feed.prepend(p);
+    }
+
+    function notify(msg) {
+      notification.textContent = msg;
+      notification.classList.add("show");
+      window.clearTimeout(notify.timer);
+      notify.timer = window.setTimeout(() => notification.classList.remove("show"), 5000);
+      log(msg);
+    }
+
+    function placeOrder(item, opts = {}) {
+      if (!item?.order) return;
+      if (state.placed.some(p => norm(p.order) === norm(item.order))) {
+        notify(`${item.order} already placed.`);
+        return;
+      }
+      const pos = positionFor(item.order);
+      const pill = document.createElement("div");
+      pill.className = "order-pill";
+      if (/thrombolytic|nsaid/i.test(item.order)) pill.classList.add("bad");
+      if (/cath|heparin|troponin|ecg/i.test(item.order)) pill.classList.add("critical");
+      pill.textContent = item.order;
+      pill.style.top = pos.top;
+      pill.style.left = pos.left;
+      pillLayer.appendChild(pill);
+      state.placed.push(item);
+      if (/aspirin|heparin|nitro|cath lab/i.test(item.order)) state.vitals.life = Math.min(100, state.vitals.life + 2);
+      if (/thrombolytic|nsaid/i.test(item.order)) state.vitals.life = Math.max(0, state.vitals.life - 20);
+      renderDots();
+      renderVitals();
+      log(`Placed order: ${item.order}`);
+      if (opts.reason) showReason(pos, opts.reason);
+    }
+
+    function showReason(pos, text) {
+      const tip = document.createElement("div");
+      tip.className = "reason-tip";
+      tip.textContent = text;
+      tip.style.top = `calc(${pos.top} + 30px)`;
+      tip.style.left = pos.left;
+      tipLayer.appendChild(tip);
+      window.setTimeout(() => tip.remove(), 4200);
+    }
+
+    function submitOrder() {
+      const found = matchOrder(input.value);
+      if (!found) {
+        orderBar.classList.remove("shake");
+        void orderBar.offsetWidth;
+        orderBar.classList.add("shake");
+        input.value = "";
+        input.placeholder = "No match - try ECG, troponin, aspirin...";
+        return;
+      }
+      placeOrder(found);
+      input.value = "";
+      input.placeholder = "type order...";
+    }
+
+    function runTeachStep(delta) {
+      state.teachIndex = Math.max(0, Math.min(CASE_DATA.teachMeSequence.length - 1, state.teachIndex + delta));
+      const step = CASE_DATA.teachMeSequence[state.teachIndex];
+      $("#teachStep").textContent = `Step ${state.teachIndex + 1} of ${CASE_DATA.teachMeSequence.length}`;
+      input.value = "";
+      let i = 0;
+      const type = () => {
+        input.value = step.order.slice(0, i++);
+        if (i <= step.order.length) window.setTimeout(type, 28);
+        else placeOrder(matchOrder(step.order) || { order: step.order }, { reason: step.reason });
+      };
+      type();
+    }
+
+    function advanceTime() {
+      state.time += 10;
+      if (state.time === 10) notify("Nurse: patient reports worsening pressure and nausea.");
+      if (state.time === 20) {
+        state.vitals.hr = 126;
+        state.vitals.spo2 = 92;
+        state.vitals.bp = "91/55";
+        state.vitals.life = Math.min(state.vitals.life, 62);
+        $("#monitor").classList.add("critical-flash");
+        notify("Vitals deteriorating - reassess ACS pathway.");
+      }
+      if (state.time === 30 && !state.placed.some(p => /cath lab/i.test(p.order))) notify("Alert: cath lab not activated.");
+      if (state.time === 40 && !state.placed.some(p => /cath lab/i.test(p.order))) {
+        state.vitals.life = 55;
+        $("#monitor").classList.add("critical-flash");
+        notify("Critical drift: life dropped to 55% without cath lab.");
+      }
+      renderVitals();
+    }
+
+    function resetAll() {
+      state.placed = [];
+      state.time = 0;
+      state.vitals = { ...CASE_DATA.vitals };
+      pillLayer.innerHTML = "";
+      tipLayer.innerHTML = "";
+      feed.innerHTML = "";
+      input.value = "";
+      input.placeholder = "type order...";
+      renderDots();
+      renderVitals();
+      log("Simulation reset.");
+    }
+
+    $("#caseId").textContent = CASE_DATA.id;
+    $("#caseTitle").textContent = CASE_DATA.title;
+    renderTabs();
+    renderDots();
+    renderVitals();
+    renderCategories();
+    log("CCS V2 HUD loaded.");
+
+    $("#orderBar").addEventListener("submit", (ev) => {
+      ev.preventDefault();
+      submitOrder();
+    });
+
+    document.querySelectorAll("[data-reveal]").forEach(btn => btn.addEventListener("click", () => {
+      state.revealed = btn.dataset.reveal === "revealed";
+      document.querySelectorAll("[data-reveal]").forEach(b => b.classList.toggle("active", b === btn));
+      $("#stacksPanel").classList.toggle("hidden-mode", !state.revealed);
+    }));
+
+    document.querySelectorAll("[data-cat]").forEach(btn => btn.addEventListener("click", () => {
+      $("#stacksPanel").classList.add("open");
+      const cat = CASE_DATA.categories.find(c => c.id === btn.dataset.cat);
+      input.placeholder = cat ? `[${cat.label.toUpperCase()}] - type specific order...` : "type order...";
+      input.focus();
+    }));
+
+    $("#closeStacks").addEventListener("click", () => $("#stacksPanel").classList.remove("open"));
+    $("#hideBtn").addEventListener("click", () => $("#stacksPanel").classList.toggle("open"));
+    $("#notesBtn").addEventListener("click", () => feed.classList.toggle("open"));
+    $("#timeBtn").addEventListener("click", advanceTime);
+    $("#resetBtn").addEventListener("click", resetAll);
+    $("#reviewBtn").addEventListener("click", () => notify(`${state.placed.length}/12 orders placed. Review mode is mocked in this prototype.`));
+    $("#timedBtn").addEventListener("click", () => {
+      const timed = $("#timedLabel").textContent === "Untimed";
+      $("#timedLabel").textContent = timed ? "Timed" : "Untimed";
+      $("#timedBtn").textContent = timed ? "Timed" : "Untimed";
+    });
+    $("#teachBtn").addEventListener("click", () => {
+      state.teachMode = !state.teachMode;
+      sim.classList.toggle("teach-mode", state.teachMode);
+      $("#teachLabel").textContent = state.teachMode ? "On" : "Off";
+      if (state.teachMode) runTeachStep(0);
+    });
+    $("#teachPrev").addEventListener("click", () => runTeachStep(-1));
+    $("#teachNext").addEventListener("click", () => runTeachStep(1));
+    $("#loopBtn").addEventListener("click", () => notify("Loop: repeating last clinical state."));
+    $("#nightBtn").addEventListener("click", () => document.body.classList.toggle("night"));
+    $("#lockBtn").addEventListener("click", () => notify("HUD locked."));
+
+    sim.addEventListener("dragover", ev => ev.preventDefault());
+    sim.addEventListener("drop", ev => {
+      ev.preventDefault();
+      const cat = CASE_DATA.categories.find(c => c.id === ev.dataTransfer.getData("text/plain"));
+      if (cat) {
+        input.placeholder = `[${cat.label.toUpperCase()}] - type specific order...`;
+        input.focus();
+      }
+    });
+  </script>
+</body>
+</html>
