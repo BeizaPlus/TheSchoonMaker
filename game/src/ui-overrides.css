@@ -547,7 +547,7 @@
 
 .scene-dock-left {
   position: absolute;
-  top: 52px;
+  top: 14px;
   left: 14px;
   z-index: 54;
   width: min(320px, 40vw);
@@ -910,7 +910,46 @@
   min-height: 0;
   height: 100%;
   border-bottom: none;
-  max-height: none;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #2a2d35 transparent;
+}
+
+.game-sidebar.floating .dock-panel-clinical .case-context-panel--play {
+  overflow-y: auto;
+  max-height: calc(100vh - 40px);
+  scrollbar-width: thin;
+  scrollbar-color: #2a2d35 transparent;
+}
+
+.game-sidebar.floating {
+  max-height: calc(100vh - 40px);
+}
+
+.case-context-panel--play .case-treatment-stacks,
+.case-context-panel--play .sidebar-stacks {
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #2a2d35 transparent;
+}
+
+.case-panel-care-switch {
+  flex: 1 1 auto;
+  min-width: 0;
+  justify-content: flex-end;
+}
+
+.case-panel-care-switch .care-chip {
+  padding: 2px 6px;
+  font-size: 0.55rem;
+  background: rgba(255, 255, 255, 0.035);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.settings-popover-row-2 {
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .game-sidebar.floating.final-mode-minimized .case-context-panel--play,

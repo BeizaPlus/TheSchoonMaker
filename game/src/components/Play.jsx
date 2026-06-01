@@ -1641,44 +1641,6 @@ export default function Play({
         ref={sceneRef}
       >
         <div className="game-scene-capture" ref={studioCapture ? captureRef : null}>
-        <div className="play-hud">
-          <span className="play-hud-case">
-            ◈ Case {caseData.ccsNumber} — {caseData.title}
-          </span>
-          <div className="play-hud-right">
-            <div className="care-switch" role="tablist" aria-label="Care unit">
-              {(caseFlow.dispositionUnits || ['ER', 'OBS', 'ICU', 'WARD']).map((u) => {
-                const locked = u !== 'ER' && !canLeaveER;
-                return (
-                  <button
-                    key={u}
-                    type="button"
-                    className={`care-chip ${careUnit === u ? 'active' : ''} ${locked ? 'locked' : ''}`}
-                    onClick={() => switchCareUnit(u)}
-                    aria-selected={careUnit === u}
-                    disabled={locked}
-                    title={
-                      locked
-                        ? `Unlock at ${completionThreshold}% after reviewing all stacks`
-                        : undefined
-                    }
-                  >
-                    {u}
-                  </button>
-                );
-              })}
-            </div>
-            <span
-              className={`play-hud-timer ${timedModeEnabled ? timerState : 'untimed'}`}
-              title={timedModeEnabled ? 'Case countdown' : 'Untimed mode'}
-            >
-              {timedModeEnabled ? timerLabel : 'Untimed'}
-            </span>
-            <button type="button" className="play-hud-exit" onClick={handleQuit} title="Exit case (saved for resume)">
-              Exit
-            </button>
-          </div>
-        </div>
         <div className="scene-dock-left">
           <div className="play-life-top-left">
             <div className="pack-life-head">
@@ -2138,6 +2100,26 @@ export default function Play({
             hpiText={sidebarHpi}
             examSummary={examSummary}
             textStyle={clinicalStyle}
+            headerControls={
+              <div className="case-panel-care-switch care-switch" role="tablist" aria-label="Care unit">
+                {(caseFlow.dispositionUnits || ['ER', 'OBS', 'ICU', 'WARD']).map((u) => {
+                  const locked = u !== 'ER' && !canLeaveER;
+                  return (
+                    <button
+                      key={u}
+                      type="button"
+                      className={`care-chip ${careUnit === u ? 'active' : ''} ${locked ? 'locked' : ''}`}
+                      onClick={() => switchCareUnit(u)}
+                      aria-selected={careUnit === u}
+                      disabled={locked}
+                      title={locked ? `Unlock at ${completionThreshold}% after reviewing all stacks` : undefined}
+                    >
+                      {u}
+                    </button>
+                  );
+                })}
+              </div>
+            }
             showStats
             readyCount={total - doneCount}
             doneCount={doneCount}
@@ -2284,6 +2266,9 @@ export default function Play({
                         </button>
                         <button type="button" onClick={resetPlacements}>
                           Reset
+                        </button>
+                        <button type="button" onClick={handleQuit}>
+                          Exit
                         </button>
                       </div>
                     </div>

@@ -19,6 +19,7 @@ export default function CaseContextPanel({
   onReadCase = null,
   readState = 'idle',
   readLabel = 'Read case',
+  headerControls = null,
   defaultTab = 'hpi',
   /** briefing = HPI + physical exam only (no treatment until Begin case) */
   mode = 'play',
@@ -70,6 +71,7 @@ export default function CaseContextPanel({
               Case {caseData.ccsNumber || caseData.id}
               <CcsScreenshotLink caseData={caseData} className="ccs-screenshot-link ccs-screenshot-link--inline" />
             </p>
+            {headerControls}
             <span className="pack-tag">{brandName}</span>
           </div>
           <h2 className="sidebar-title" title={caseData.title}>
