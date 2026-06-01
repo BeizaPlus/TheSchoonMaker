@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;0,900;1,400&display=swap');
+
 :root,
 [data-theme='dark'] {
   --bg: #0c0c10;
@@ -17,7 +19,7 @@
   );
   --welcome-panel: rgba(10, 10, 16, 0.72);
   --welcome-panel-solid: rgba(12, 12, 20, 0.82);
-  --font: 'DM Sans', system-ui, sans-serif;
+  --font: 'Archivo', sans-serif;
 }
 
 [data-theme='light'] {
@@ -44,6 +46,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-family: 'Archivo', sans-serif;
 }
 
 html,
@@ -1840,9 +1843,8 @@ button {
 
 .stack-command-ui {
   flex: 0 0 auto;
-  position: relative;
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: 1fr auto;
   gap: 7px;
   margin: 8px 12px 6px;
   padding: 8px;
@@ -1890,30 +1892,6 @@ button {
 .stack-command-btn {
   align-self: stretch;
   padding-inline: 12px;
-}
-
-.settings-trigger {
-  align-self: stretch;
-  min-width: 40px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 9px;
-  background: rgba(0, 0, 0, 0.24);
-  color: rgba(240, 238, 232, 0.68);
-  cursor: pointer;
-}
-
-.settings-trigger:hover,
-.settings-trigger[aria-expanded='true'] {
-  border-color: rgba(232, 184, 75, 0.45);
-  color: var(--gold);
-}
-
-.settings-trigger svg {
-  width: 17px;
-  height: 17px;
 }
 
 .settings-popover {
@@ -3855,7 +3833,7 @@ button {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: clamp(28px, 5vh, 56px) clamp(24px, 5vw, 72px);
+  padding: 48px 56px;
   max-width: min(1080px, 92vw);
   pointer-events: none;
 }
@@ -3865,7 +3843,7 @@ button {
 }
 
 .welcome-resume-banner {
-  margin: 0 0 18px;
+  margin: 24px 0 0;
   padding: 14px 16px;
   border-radius: 14px;
   border: 1px solid rgba(120, 180, 255, 0.35);
@@ -4440,11 +4418,11 @@ button {
 }
 
 .welcome-title {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: clamp(3.2rem, 8vw, 5.5rem);
-  font-weight: 600;
-  line-height: 0.95;
-  letter-spacing: 0.02em;
+  font-family: 'Archivo', sans-serif;
+  font-weight: 900;
+  font-size: clamp(72px, 10vw, 120px);
+  letter-spacing: -0.02em;
+  line-height: 1;
   color: #fff;
   text-shadow: 0 2px 24px rgba(0, 0, 0, 0.45);
 }
@@ -4484,8 +4462,8 @@ button {
 .welcome-nav {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-top: clamp(32px, 6vh, 64px);
+  gap: 20px;
+  margin-top: 32px;
 }
 
 .welcome-nav-item {
@@ -4499,9 +4477,9 @@ button {
   background: transparent;
   cursor: pointer;
   color: rgba(255, 248, 235, 0.72);
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 0.28em;
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   text-align: left;
   transition: color 0.2s, text-shadow 0.2s, transform 0.15s;
@@ -4534,25 +4512,27 @@ button {
 }
 
 .welcome-quote {
-  margin-top: auto;
-  padding-top: 32px;
-  max-width: 360px;
+  position: absolute;
+  bottom: 32px;
+  left: 56px;
+  max-width: 280px;
   border: none;
 }
 
 .welcome-quote p {
-  font-size: 0.88rem;
-  line-height: 1.55;
   font-style: italic;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 1.6;
   color: rgba(255, 248, 235, 0.88);
 }
 
 .welcome-quote cite {
   display: block;
   margin-top: 8px;
-  font-size: 0.78rem;
   font-style: normal;
   font-weight: 600;
+  font-size: 12px;
   letter-spacing: 0.08em;
   color: rgba(255, 220, 160, 0.85);
 }
@@ -6407,11 +6387,11 @@ button {
   }
 
   .welcome-nav {
-    gap: 10px;
+    gap: 20px;
   }
 
   .welcome-nav button {
-    font-size: 0.82rem;
+    font-size: 14px;
   }
 
   .game-sidebar.floating {

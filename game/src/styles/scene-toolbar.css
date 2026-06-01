@@ -69,6 +69,17 @@
   color: #e8b84b;
 }
 
+.toolbar-settings-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.toolbar-settings-popover {
+  bottom: calc(100% + 10px);
+  right: 0;
+  z-index: 200;
+}
+
 .game.final-mode .toolbar {
   opacity: 0.35;
   pointer-events: none;

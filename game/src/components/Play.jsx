@@ -17,7 +17,6 @@ import {
   FiMaximize2,
   FiMinimize2,
   FiEye,
-  FiSettings,
   FiSun,
   FiUnlock,
 } from 'react-icons/fi';
@@ -2233,61 +2232,11 @@ export default function Play({
                 )}
                 <form
                   className="stack-command-ui"
-                  ref={stackCommandRef}
                   onSubmit={(e) => {
                     e.preventDefault();
                     submitOrderCommand();
                   }}
                 >
-                  {stackSettingsOpen && (
-                    <div className="settings-popover stack-command-settings" role="dialog" aria-label="Input settings">
-                      <div className="settings-popover-row">
-                        <span className="settings-popover-label">Text</span>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            updateClinicalTextPrefs({
-                              fontScale: Math.max(0.9, Number((textPrefs.fontScale - 0.08).toFixed(2))),
-                            })
-                          }
-                          aria-label="Decrease text size"
-                        >
-                          A−
-                        </button>
-                        <span className="font-size-display">{Math.round(textPrefs.fontScale * 100)}%</span>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            updateClinicalTextPrefs({
-                              fontScale: Math.min(1.5, Number((textPrefs.fontScale + 0.08).toFixed(2))),
-                            })
-                          }
-                          aria-label="Increase text size"
-                        >
-                          A+
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => updateClinicalTextPrefs({ weight: textPrefs.weight === 700 ? 600 : 700 })}
-                          className={textPrefs.weight === 700 ? 'active' : ''}
-                          aria-label="Toggle bold text"
-                        >
-                          B
-                        </button>
-                      </div>
-                      <div className="settings-popover-row settings-popover-row-2">
-                        <button type="button" onClick={toggleTimedMode}>
-                          {timedModeEnabled ? 'Timed: ON' : 'Untimed'}
-                        </button>
-                        <button type="button" onClick={resetPlacements}>
-                          Reset
-                        </button>
-                        <button type="button" onClick={handleQuit}>
-                          Exit
-                        </button>
-                      </div>
-                    </div>
-                  )}
                   <div className="stack-command-input-wrap">
                     <IconFileMedical />
                     <input
@@ -2297,15 +2246,6 @@ export default function Play({
                       aria-label="Type order to match a treatment stack"
                     />
                   </div>
-                  <button
-                    type="button"
-                    className="settings-trigger"
-                    onClick={() => setStackSettingsOpen((v) => !v)}
-                    aria-label="Input settings"
-                    aria-expanded={stackSettingsOpen}
-                  >
-                    <FiSettings aria-hidden="true" />
-                  </button>
                   <button type="submit" className="btn-ghost stack-command-btn">
                     Order
                   </button>
@@ -2448,6 +2388,53 @@ export default function Play({
         showCues={showCues}
         darkMode={theme === 'dark'}
         freeDrop={dropMode === 'free'}
+        settingsOpen={stackSettingsOpen}
+        settingsRef={stackCommandRef}
+        settingsPopover={
+          <div className="settings-popover toolbar-settings-popover" role="dialog" aria-label="Toolbar settings">
+            <div className="settings-popover-row">
+              <button
+                type="button"
+                onClick={() =>
+                  updateClinicalTextPrefs({
+                    fontScale: Math.max(0.9, Number((textPrefs.fontScale - 0.08).toFixed(2))),
+                  })
+                }
+                aria-label="Decrease text size"
+              >
+                A−
+              </button>
+              <span className="font-size-display">{Math.round(textPrefs.fontScale * 100)}%</span>
+              <button
+                type="button"
+                onClick={() =>
+                  updateClinicalTextPrefs({
+                    fontScale: Math.min(1.5, Number((textPrefs.fontScale + 0.08).toFixed(2))),
+                  })
+                }
+                aria-label="Increase text size"
+              >
+                A+
+              </button>
+              <button
+                type="button"
+                onClick={() => updateClinicalTextPrefs({ weight: textPrefs.weight === 700 ? 600 : 700 })}
+                className={textPrefs.weight === 700 ? 'active' : ''}
+                aria-label="Toggle bold text"
+              >
+                B
+              </button>
+            </div>
+            <div className="settings-popover-row settings-popover-row-2">
+              <button type="button" onClick={toggleTimedMode}>
+                {timedModeEnabled ? 'Timed: ON' : 'Untimed'}
+              </button>
+              <button type="button" onClick={resetPlacements}>
+                Reset
+              </button>
+            </div>
+          </div>
+        }
         onToggleExam={() => setActiveDrawer((d) => (d === 'exam' ? null : 'exam'))}
         onToggleHistory={() => setActiveDrawer((d) => (d === 'history' ? null : 'history'))}
         onToggleVitals={() => setVitalsHighlight((v) => !v)}
@@ -2496,6 +2483,7 @@ export default function Play({
         onToggleCues={() => setShowCues((v) => !v)}
         onToggleTheme={toggleTheme}
         onToggleDropMode={() => setDropMode((m) => (m === 'free' ? 'strict' : 'free'))}
+        onToggleSettings={() => setStackSettingsOpen((v) => !v)}
       />
     </div>
   );

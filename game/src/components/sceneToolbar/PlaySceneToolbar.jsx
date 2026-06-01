@@ -8,6 +8,7 @@ import {
   IconMicrophone,
   IconMoon,
   IconRotate,
+  IconSettings,
   IconSkipForward,
   IconStethoscope,
 } from './SceneToolbarIcons.jsx';
@@ -41,6 +42,9 @@ export default function PlaySceneToolbar({
   showCues,
   darkMode,
   freeDrop,
+  settingsOpen,
+  settingsRef,
+  settingsPopover,
   onToggleExam,
   onToggleHistory,
   onToggleVitals,
@@ -52,6 +56,7 @@ export default function PlaySceneToolbar({
   onToggleCues,
   onToggleTheme,
   onToggleDropMode,
+  onToggleSettings,
 }) {
   return (
     <nav className="toolbar" aria-label="Scene controls">
@@ -125,6 +130,18 @@ export default function PlaySceneToolbar({
       >
         <IconLockOpen />
       </ToolbarBtn>
+      <span className="toolbar-settings-wrap" ref={settingsRef}>
+        <ToolbarBtn
+          active={settingsOpen}
+          onClick={onToggleSettings}
+          title="Settings"
+          aria-label="Settings"
+          aria-expanded={settingsOpen}
+        >
+          <IconSettings />
+        </ToolbarBtn>
+        {settingsOpen && settingsPopover}
+      </span>
     </nav>
   );
 }
